@@ -30,6 +30,9 @@ export const metadata = {
       url: "https://github.com/Huyen13-8",
     },
   ],
+  icons: {
+    icon: "/wallet-icon.png",
+  },
 };
 
 export default function RootLayout({ children }) {

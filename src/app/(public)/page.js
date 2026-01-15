@@ -4,17 +4,15 @@ import { BiSolidBadgeDollar } from "react-icons/bi";
 import MessageCard from "../../components/MessageCard";
 import { IoShieldCheckmark } from "react-icons/io5";
 import Link from "next/link";
+import Logo from "@/components/Logo";
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center px-4 sm:px-8 lg:px-40 max-w-screen mx-auto">
+    <main className="flex min-h-screen flex-col items-center px-4 sm:px-8 lg:px-40 max-w-screen mx-auto">
       {/* Header Section */}
       <div className="flex w-full pt-2 items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center">
-          <GiWallet size={48} color="#4f915f" />
-          <h1 className="ml-4 mt-2 text-2xl font-semibold">MoneySmart</h1>
-        </div>
+        <Logo />
       </div>
 
       <div className="flex w-full flex-col lg:flex-row items-center justify-center gap-5">

@@ -1,11 +1,10 @@
 "use client";
+
 import { useState } from "react";
 import Link from "next/link";
-import { v4 as uuidv4 } from "uuid";
 
 export default function SignUpPage() {
   const [form, setForm] = useState({
-    id: uuidv4(),
     name: "",
     username: "",
     email: "",
@@ -31,9 +30,7 @@ export default function SignUpPage() {
         onSubmit={handleSubmit}
         className="bg-white w-full max-w-lg p-8 rounded-xl shadow-md space-y-6"
       >
-        <h2 className="text-2xl font-bold text-center">
-          Create an Account
-        </h2>
+        <h2 className="text-2xl font-bold text-center">Create an Account</h2>
 
         {/* Full Name */}
         <input

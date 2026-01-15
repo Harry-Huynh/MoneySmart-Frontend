@@ -23,9 +23,7 @@ export default function LoginPage() {
         onSubmit={handleSubmit}
         className="bg-white w-full max-w-sm p-8 rounded-xl shadow-md space-y-5"
       >
-        <h2 className="text-2xl font-bold text-center">
-          Log In
-        </h2>
+        <h2 className="text-2xl font-bold text-center">Log In</h2>
 
         {/* Username */}
         <input
@@ -56,7 +54,7 @@ export default function LoginPage() {
         </button>
 
         <p className="text-center text-sm">
-          No account?
+          Don&apos;t have an account?
           <Link href="/signup" className="text-green-700 ml-1 font-medium">
             Sign Up
           </Link>

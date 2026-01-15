@@ -108,7 +108,7 @@ export default function AppSidebar() {
       {/* End Sidebar Content */}
 
       {/* Footer */}
-      <SidebarFooter className="py-18 border-t border-gray border-solid">
+      <SidebarFooter className="pb-10 border-t border-gray border-solid">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton className="pl-6 py-5 gap-3 text-red-600 hover:bg-gray-200 text-base">

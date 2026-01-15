@@ -25,6 +25,10 @@ export const metadata = {
       name: "Hoang Phuc Huynh",
       url: "https://hoangphuchuynh.me/",
     },
+    {
+      name: "Khanh Huyen Nguyen",
+      url: "https://github.com/Huyen13-8",
+    },
   ],
 };
 

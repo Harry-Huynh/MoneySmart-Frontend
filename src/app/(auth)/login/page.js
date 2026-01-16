@@ -7,6 +7,8 @@ import { redirect } from "next/navigation";
 import Loading from "@/components/Loading";
 import { useForm } from "react-hook-form";
 import Logo from "@/components/Logo";
+import FormInput from "@/components/ui/formInput";
+import ErrorMessage from "@/components/ui/errorMessage";
 
 export default function LoginPage() {
   const [warningMessage, setWarningMessage] = useState("");
@@ -52,41 +54,25 @@ export default function LoginPage() {
           <h2 className="text-2xl font-bold text-center">Log In</h2>
 
           {/* Username */}
-          <input
-            type="text"
+          <FormInput
             name="username"
             placeholder="Username"
-            {...register("username", { required: true })}
-            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#4f915f]"
+            register={register}
+            validation={{ required: "Username is required." }}
+            error={errors.username?.message}
           />
-          {errors.username?.type === "required" &&
-            {
-              /* Create a new Error Message component and include the message:
-            "Username is required."
-            */
-            }}
 
-          {/* Password */}
-          <input
+          <FormInput
             type="password"
             name="password"
             placeholder="Password"
-            {...register("password", { required: true })}
-            className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-[#4f915f]"
+            register={register}
+            validation={{ required: "Password is required." }}
+            error={errors.password?.message}
           />
 
-          {errors.password?.type === "required" &&
-            {
-              /* Create a new Error Message component and include the message:
-            "Password is required."
-            */
-            }}
+          <ErrorMessage message={warningMessage} />
 
-          {warningMessage &&
-            {
-              /* Create a new Error Message component and pass the warningMessage as a prop
-               */
-            }}
 
           {/* Submit */}
           <button

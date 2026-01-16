@@ -59,7 +59,7 @@ const items = [
 export default function AppSidebar() {
   const pathname = usePathname();
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       {/* Sidebar Header */}
       <SidebarHeader className="px-6 py-4">
         <Link href="/dashboard" className="flex items-center gap-3">

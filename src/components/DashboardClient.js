@@ -1,15 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import BalanceCard from "@/components/balanceCard";
-import BudgetCard from "@/components/budgetCard";
-import SavingGoalsCard from "@/components/savingGoalsCard";
-import TransactionItem from "@/components/transactionItem";
+import BalanceCard from "@/components/BalanceCard";
+import BudgetCard from "@/components/BudgetCard";
+import SavingGoalsCard from "@/components/SavingGoalsCard";
+import TransactionItem from "@/components/TransactionItem";
 import AddFundsModal from "@/components/AddFundsModal";
 
-export default function DashboardClient({ dashboardMockData, userName }) {
+export default function DashboardClient({ dashboardMockData, name }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -31,15 +31,18 @@ export default function DashboardClient({ dashboardMockData, userName }) {
       // now: just close modal (UI demo)
       closeAddFundsModal();
     },
-    [closeAddFundsModal]
+    [closeAddFundsModal],
   );
 
   return (
     <div className="w-full px-6 py-6">
       {/* Welcome header */}
-      <div className="flex items-center justify-end mb-6">
-        <p className="text-2xl font-semibold text-slate-700">
-          Welcome back, <span className="text-slate-800">{userName}</span> 👋
+      <div className="flex flex-col items-start justify-start mb-4 gap-1">
+        <p className="text-3xl font-semibold text-slate-700">
+          Welcome back, <span className="text-[#4f915f]">{name}</span> 👋
+        </p>
+        <p className="text-14 lg:text-16 font-normal text-slate-600">
+          Access and manage your finances with ease
         </p>
       </div>
 
@@ -70,7 +73,7 @@ export default function DashboardClient({ dashboardMockData, userName }) {
               key={singleTransaction.name}
               transactionItem={singleTransaction}
             />
-          )
+          ),
         )}
       </div>
 

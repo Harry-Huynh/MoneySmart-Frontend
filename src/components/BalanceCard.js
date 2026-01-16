@@ -2,6 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { FaPlus } from "react-icons/fa";
+import CountUp from "react-countup";
 
 function formatCurrencyCAD(amountNumber) {
   return new Intl.NumberFormat("en-CA", {
@@ -25,7 +26,14 @@ export default function BalanceCard({ balanceSummary, onAddFundsClick }) {
             <p className="text-slate-600 font-medium">{balanceSummary.label}</p>
 
             <p className="text-4xl font-semibold text-slate-800 mt-2">
-              {currentBalanceAmountText}
+              <div className="w-full">
+                <CountUp
+                  decimals={2}
+                  decimal="."
+                  prefix="$"
+                  end={Number(balanceSummary.amount)}
+                />
+              </div>
             </p>
 
             {/* $$ */}
@@ -37,7 +45,7 @@ export default function BalanceCard({ balanceSummary, onAddFundsClick }) {
           <button
             type="button"
             onClick={onAddFundsClick}
-            className="shrink-0 self-center rounded-xl px-6 py-3 text-base font-semibold text-white bg-[#4f915f] hover:bg-[#214a2b] transition"
+            className="shrink-0 self-center rounded-xl px-6 py-3 text-base font-semibold text-white bg-[#4f915f] hover:bg-[#214a2b] transition cursor-pointer"
           >
             <FaPlus className="inline-block mr-2" />
             Add funds

@@ -3,6 +3,7 @@
 import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import FormInput from "@/components/FormInput";
+import { IoCloseSharp } from "react-icons/io5";
 
 function sanitizeAmountInput(rawValue) {
   if (rawValue == null) return "";
@@ -61,7 +62,10 @@ export default function AddFundsModal({
   useEffect(() => {
     const sanitized = sanitizeAmountInput(amountValue);
     if (sanitized !== amountValue) {
-      setValue("amount", sanitized, { shouldValidate: true, shouldDirty: true });
+      setValue("amount", sanitized, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
     }
   }, [amountValue, setValue]);
 
@@ -96,6 +100,10 @@ export default function AddFundsModal({
         className="relative z-10 w-[92%] max-w-lg rounded-2xl bg-white shadow-xl p-8"
         onMouseDown={(event) => event.stopPropagation()} // prevent closing when clicking inside
       >
+        <div className="flex justify-end items-center cursor-pointer hover:text-[#4f915f] transition-colors duration-300">
+          <IoCloseSharp size="30" onClick={onRequestClose} />
+        </div>
+
         <h2 className="text-2xl font-bold text-center mb-6">Add Funds</h2>
 
         <form

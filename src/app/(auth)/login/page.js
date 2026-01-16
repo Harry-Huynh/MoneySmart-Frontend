@@ -41,11 +41,26 @@ export default function LoginPage() {
 
   return (
     <section className="flex flex-col items-center px-4 sm:px-8 lg:px-40 max-w-screen mx-auto">
-      <div className="flex w-full pt-2 items-center justify-between">
+
+      {/* Background */}
+      <div
+        className="
+          absolute inset-0
+          bg-[url('/background.jpg')]
+          bg-cover bg-center
+          blur-md
+          scale-110
+        "
+      />
+      <div className="absolute inset-0 bg-black/30" />
+
+      {/* Header */}
+      <div className="relative z-10 flex w-full pt-4 px-6">
         <Logo />
       </div>
 
-      <div className="flex min-h-screen items-center justify-center px-4">
+      {/* Form */}
+      <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
         {loading && <Loading />}
         <form
           onSubmit={handleSubmit(submitForm)}

@@ -7,7 +7,6 @@ export default function RootLayout({ children }) {
     <SidebarProvider>
       <AppSidebar />
       <main className="flex-1 w-full min-h-svh">
-        {/* <SidebarTrigger className="lg:hidden" /> */}
         <CustomerTrigger />
         {children}
       </main>

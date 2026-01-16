@@ -3,7 +3,7 @@ import DashboardClient from "@/components/DashboardClient";
 
 export default function Dashboard() {
   // Dummy data for display purposes
-  const userName = "User";
+  const name = "John Smith";
 
   const dashboardMockData = {
     balance: {
@@ -29,7 +29,5 @@ export default function Dashboard() {
     ],
   };
 
-  return <DashboardClient dashboardMockData={dashboardMockData} userName={userName} />;
+  return <DashboardClient dashboardMockData={dashboardMockData} name={name} />;
 }
-
-

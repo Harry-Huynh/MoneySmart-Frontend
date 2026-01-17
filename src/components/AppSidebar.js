@@ -59,7 +59,7 @@ const items = [
 export default function AppSidebar() {
   const pathname = usePathname();
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       {/* Sidebar Header */}
       <SidebarHeader className="px-6 py-4">
         <Link href="/dashboard" className="flex items-center gap-3">
@@ -111,7 +111,7 @@ export default function AppSidebar() {
       <SidebarFooter className="pb-10 border-t border-gray border-solid">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="pl-6 py-5 gap-3 text-red-600 hover:bg-gray-200 text-base">
+            <SidebarMenuButton className="pl-6 py-5 gap-3 text-red-600 hover:bg-gray-200 hover:text-red-600 text-base cursor-pointer">
               <IoLogOutOutline />
               <span>Log Out</span>
             </SidebarMenuButton>

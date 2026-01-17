@@ -1,15 +1,13 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/AppSidebar";
+import CustomerTrigger from "@/components/CustomerTrigger";
 
 export default function RootLayout({ children }) {
   return (
-    // <html lang="en">
-    //   <body>{children}</body>
-    // </html>
     <SidebarProvider>
       <AppSidebar />
-      <main>
-        <SidebarTrigger />
+      <main className="flex-1 w-full min-h-svh">
+        <CustomerTrigger />
         {children}
       </main>
     </SidebarProvider>

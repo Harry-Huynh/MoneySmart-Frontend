@@ -97,15 +97,7 @@ export default function SignUpPage() {
           />
 
 
-          {/* Username + Phone */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <FormInput
-                name="username"
-                placeholder="Username"
-                register={register}
-                validation={{ required: "Username is required." }}
-                error={errors.username?.message}
-              />
+          
 
               <FormInput
                 name="phoneNumber"
@@ -120,7 +112,7 @@ export default function SignUpPage() {
                 }}
                 error={errors.phoneNumber?.message}
               />
-          </div>
+          
 
           {/* Email */}
             <FormInput
@@ -138,39 +130,7 @@ export default function SignUpPage() {
                   error={errors.email?.message}
               />
 
-
-          {/* Password */}
-          <FormInput
-                type="password"
-                name="password"
-                placeholder="Password"
-                register={register}
-                validation={{
-                  required: "Password is required.",
-                  minLength: {
-                    value: 8,
-                    message: "Password must be at least 8 characters long.",
-                  },
-                }}
-                error={errors.password?.message}
-          />
-          {/* Confirm Password */}
-          <FormInput
-                type="password"
-                name="confirmedPassword"
-                placeholder="Confirm Password"
-                register={register}
-                validation={{
-                  required: "Please confirm your password.",
-                  validate: (value) =>
-                    value === watch("password") || "Passwords do not match.",
-                }}
-                error={errors.confirmedPassword?.message}
-          />
-                
-
-
-          {/* Region */}
+                {/* Region */}
          <FormInput
                 name="region"
                 placeholder="Region"
@@ -212,6 +172,51 @@ export default function SignUpPage() {
                 ]}
           />
           </div>
+
+              {/* Username */}
+          <div>
+              <FormInput
+                name="username"
+                placeholder="Username"
+                register={register}
+                validation={{ required: "Username is required." }}
+                error={errors.username?.message}
+              />
+          </div>
+
+
+          {/* Password */}
+          <FormInput
+                type="password"
+                name="password"
+                placeholder="Password"
+                register={register}
+                validation={{
+                  required: "Password is required.",
+                  minLength: {
+                    value: 8,
+                    message: "Password must be at least 8 characters long.",
+                  },
+                }}
+                error={errors.password?.message}
+          />
+          {/* Confirm Password */}
+          <FormInput
+                type="password"
+                name="confirmedPassword"
+                placeholder="Confirm Password"
+                register={register}
+                validation={{
+                  required: "Please confirm your password.",
+                  validate: (value) =>
+                    value === watch("password") || "Passwords do not match.",
+                }}
+                error={errors.confirmedPassword?.message}
+          />
+                
+
+
+        
 
           {/* Submit */}
           <button

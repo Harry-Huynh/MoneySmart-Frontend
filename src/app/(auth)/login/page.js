@@ -3,16 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import { authenticateUser } from "@/lib/authenticate";
-import { redirect } from "next/navigation";
 import Loading from "@/components/Loading";
 import { useForm } from "react-hook-form";
 import Logo from "@/components/Logo";
-import FormInput from "@/components/ui/formInput";
-import ErrorMessage from "@/components/ui/errorMessage";
+import FormInput from "@/components/FormInput";
+import ErrorMessage from "@/components/ErrorMessage";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const [warningMessage, setWarningMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -30,7 +31,7 @@ export default function LoginPage() {
     try {
       await authenticateUser(data.username, data.password);
       reset();
-      redirect("/dashboard");
+      router.replace("/dashboard");
     } catch (error) {
       setWarningMessage(error.message);
       return;
@@ -40,31 +41,23 @@ export default function LoginPage() {
   };
 
   return (
-    <section className="flex flex-col items-center px-4 sm:px-8 lg:px-40 max-w-screen mx-auto">
-
+    <section className="relative min-h-screen overflow-hidden px-4 sm:px-8 lg:px-40 mx-auto">
       {/* Background */}
-      <div
-        className="
-          absolute inset-0
-          bg-[url('/background.jpg')]
-          bg-cover bg-center
-          blur-md
-          scale-110
-        "
-      />
+      <div className="absolute inset-0 bg-[url('/background.jpg')] bg-cover bg-center blur-md scale-110" />
       <div className="absolute inset-0 bg-black/30" />
 
       {/* Header */}
-      <div className="relative z-10 flex w-full pt-4 px-6">
-        <Logo />
+      <div className="absolute top-50% left-50% z-20 w-full px-6 pt-2">
+        <Logo isAuth={true} />
       </div>
 
       {/* Form */}
       <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
         {loading && <Loading />}
+
         <form
           onSubmit={handleSubmit(submitForm)}
-          className="bg-white w-full max-w-sm p-8 rounded-xl shadow-md space-y-5"
+          className="bg-white w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl p-8 rounded-xl shadow-md space-y-5"
         >
           <h2 className="text-2xl font-bold text-center">Log In</h2>
 
@@ -86,14 +79,16 @@ export default function LoginPage() {
             error={errors.password?.message}
           />
 
-          <ErrorMessage message={warningMessage} />
-
+          {warningMessage && <ErrorMessage message={warningMessage} />}
 
           {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-[#4f915f] text-white p-3 rounded-md font-semibold hover:bg-[#214a2b] transition cursor-pointer"
-            disabled={Object.keys(errors).length > 0 || warningMessage !== null}
+            className={`w-full bg-[#4f915f] text-white p-3 rounded-md font-semibold transition ${
+              Object.keys(errors).length > 0
+                ? "opacity-50 cursor-not-allowed"
+                : "hover:bg-[#214a2b] hover:opacity-100 hover:scale-102 cursor-pointer"
+            }`}
           >
             Log In
           </button>

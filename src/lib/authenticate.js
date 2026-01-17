@@ -46,7 +46,7 @@ export async function registerUser(
   email,
   phoneNumber,
   region,
-  currencyCode,
+  currency,
   dateFormat
 ) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/register`, {
@@ -59,7 +59,7 @@ export async function registerUser(
       email,
       phoneNumber,
       region,
-      currencyCode,
+      currency,
       dateFormat,
     }),
     headers: {
@@ -69,7 +69,7 @@ export async function registerUser(
 
   const data = await res.json();
 
-  if (res.status === 201) {
+  if (res.status === 200) {
     return true;
   } else {
     throw new Error(data.message);

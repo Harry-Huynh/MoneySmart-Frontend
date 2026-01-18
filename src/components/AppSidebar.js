@@ -22,6 +22,8 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { IoLogOutOutline } from "react-icons/io5";
 import { GiWallet } from "react-icons/gi";
+import { useRouter } from "next/navigation";
+import { removeToken } from "@/lib/authenticate";
 
 const items = [
   {
@@ -58,6 +60,13 @@ const items = [
 
 export default function AppSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await removeToken();
+    router.replace("/");
+  };
+
   return (
     <Sidebar collapsible="icon">
       {/* Sidebar Header */}
@@ -111,7 +120,10 @@ export default function AppSidebar() {
       <SidebarFooter className="pb-10 border-t border-gray border-solid">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="pl-6 py-5 gap-3 text-red-600 hover:bg-gray-200 hover:text-red-600 text-base cursor-pointer">
+            <SidebarMenuButton
+              onClick={handleLogout}
+              className="pl-6 py-5 gap-3 text-red-600 hover:bg-gray-200 hover:text-red-600 text-base cursor-pointer"
+            >
               <IoLogOutOutline />
               <span>Log Out</span>
             </SidebarMenuButton>

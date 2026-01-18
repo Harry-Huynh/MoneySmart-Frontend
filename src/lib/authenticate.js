@@ -50,7 +50,7 @@ export async function isAuthenticated() {
     return false;
   }
 
-  return true;
+  return token ? true : false;
 }
 
 export async function authenticateUser(username, password) {

@@ -1,21 +1,34 @@
-function setToken(token) {
-  localStorage.setItem("access_token", token);
+"use server";
+
+import { cookies } from "next/headers";
+
+async function setToken(token) {
+  (await cookies()).set("access_token", token, {
+    path: "/",
+    httpOnly: true,
+    sameSite: "strict",
+    secure: true,
+  });
 }
 
-export function getToken() {
+export async function getToken() {
   try {
-    return localStorage.getItem("access_token");
+    const token = (await cookies()).get("access_token");
+
+    if (token) {
+      return token.value;
+    }
   } catch (error) {
     return null;
   }
 }
 
-export function removeToken() {
-  localStorage.removeItem("access_token");
+export async function removeToken() {
+  (await cookies()).delete("access_token");
 }
 
-export function isAuthenticated() {
-  const token = getToken();
+export async function isAuthenticated() {
+  const token = await getToken();
   return token ? true : false;
 }
 
@@ -31,7 +44,7 @@ export async function authenticateUser(username, password) {
   const data = await res.json();
 
   if (res.status === 200) {
-    setToken(data.token);
+    await setToken(data.token);
     return true;
   } else {
     throw new Error(data.message);
@@ -47,7 +60,7 @@ export async function registerUser(
   phoneNumber,
   region,
   currencyCode,
-  dateFormat
+  dateFormat,
 ) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/register`, {
     method: "POST",

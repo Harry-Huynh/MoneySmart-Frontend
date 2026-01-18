@@ -47,7 +47,7 @@ export default function SignUpPage() {
         data.phoneNumber,
         data.region,
         data.currencyCode,
-        data.dateFormat
+        data.dateFormat,
       );
 
       reset();
@@ -97,53 +97,50 @@ export default function SignUpPage() {
             error={errors.name?.message}
           />
 
-
-          
-
-             <FormInput
-                name="phoneNumber"
-                placeholder="Phone Number"
-                register={register}
-                validation={{
-                  required: "Phone Number is required.",
-                  pattern: {
-                    value: /^[0-9]+$/,
-                    message: "Phone Number must follow the format: 1234567890",
-                  },
-                }}
-                error={errors.phoneNumber?.message}
-              />
-          
+          <FormInput
+            name="phoneNumber"
+            placeholder="Phone Number"
+            register={register}
+            validation={{
+              required: "Phone Number is required.",
+              pattern: {
+                value: /^[0-9]+$/,
+                message: "Phone Number must follow the format: 1234567890",
+              },
+            }}
+            error={errors.phoneNumber?.message}
+          />
 
           {/* Email */}
-            <FormInput
-                  type="email"
-                  name="email"
-                  placeholder="Email Address"
-                  register={register}
-                  validation={{
-                    required: "Email Address is required.",
-                    pattern: {
-                      value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/i,
-                      message: "Email Address must follow the format: 4B4d5@example.com",
-                    },
-                  }}
-                  error={errors.email?.message}
-              />
+          <FormInput
+            type="email"
+            name="email"
+            placeholder="Email Address"
+            register={register}
+            validation={{
+              required: "Email Address is required.",
+              pattern: {
+                value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/i,
+                message:
+                  "Email Address must follow the format: 4B4d5@example.com",
+              },
+            }}
+            error={errors.email?.message}
+          />
 
-                {/* Region */}
-         <FormInput
-                name="region"
-                placeholder="Region"
-                register={register}
-                validation={{
-                  required: "Region is required.",
-                  pattern: {
-                    value: /^[A-Za-z\s]+$/,
-                    message: "Region must only contain letters and spaces.",
-                  },
-                }}
-                error={errors.region?.message}
+          {/* Region */}
+          <FormInput
+            name="region"
+            placeholder="Region"
+            register={register}
+            validation={{
+              required: "Region is required.",
+              pattern: {
+                value: /^[A-Za-z\s]+$/,
+                message: "Region must only contain letters and spaces.",
+              },
+            }}
+            error={errors.region?.message}
           />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -174,50 +171,47 @@ export default function SignUpPage() {
             />
           </div>
 
-              {/* Username */}
+          {/* Username */}
           <div>
-              <FormInput
-                name="username"
-                placeholder="Username"
-                register={register}
-                validation={{ required: "Username is required." }}
-                error={errors.username?.message}
-              />
+            <FormInput
+              name="username"
+              placeholder="Username"
+              register={register}
+              validation={{ required: "Username is required." }}
+              error={errors.username?.message}
+            />
           </div>
-
 
           {/* Password */}
           <FormInput
-                type="password"
-                name="password"
-                placeholder="Password"
-                register={register}
-                validation={{
-                  required: "Password is required.",
-                  minLength: {
-                    value: 8,
-                    message: "Password must be at least 8 characters long.",
-                  },
-                }}
-                error={errors.password?.message}
+            type="password"
+            name="password"
+            placeholder="Password"
+            register={register}
+            validation={{
+              required: "Password is required.",
+              minLength: {
+                value: 8,
+                message: "Password must be at least 8 characters long.",
+              },
+            }}
+            error={errors.password?.message}
           />
           {/* Confirm Password */}
           <FormInput
-                type="password"
-                name="confirmedPassword"
-                placeholder="Confirm Password"
-                register={register}
-                validation={{
-                  required: "Please confirm your password.",
-                  validate: (value) =>
-                    value === watch("password") || "Passwords do not match.",
-                }}
-                error={errors.confirmedPassword?.message}
+            type="password"
+            name="confirmedPassword"
+            placeholder="Confirm Password"
+            register={register}
+            validation={{
+              required: "Please confirm your password.",
+              validate: (value) =>
+                value === watch("password") || "Passwords do not match.",
+            }}
+            error={errors.confirmedPassword?.message}
           />
-                
 
-
-        
+          {warningMessage && <ErrorMessage message={warningMessage} />}
 
           {/* Submit */}
           <button

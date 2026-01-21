@@ -43,7 +43,7 @@ const items = [
   },
   {
     title: "Saving Goals",
-    url: "/saving",
+    url: "/saving-goals",
     icon: MdOutlineSavings,
   },
   {

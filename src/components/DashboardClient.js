@@ -59,7 +59,7 @@ export default function DashboardClient({ dashboardMockData, name }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 items-stretch">
         <BudgetCard budgetItems={dashboardMockData.budgets} />
-        <SavingGoalsCard savingGoalItems={dashboardMockData.goals} />
+        <SavingGoalsCard  href="/saving-goals" savingGoalItems={dashboardMockData.goals} />
       </div>
 
       <h2 className="text-xl font-semibold text-slate-700 mb-4">

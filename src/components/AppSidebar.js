@@ -38,7 +38,7 @@ const items = [
   },
   {
     title: "Budgets",
-    url: "/budget",
+    url: "/budgets",
     icon: GiReceiveMoney,
   },
   {

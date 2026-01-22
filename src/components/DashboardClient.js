@@ -2,6 +2,9 @@
 
 import { useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useAtomValue } from "jotai";
+import { budgetsAtom } from "@/lib/store/budgetsAtom";
+
 
 import BalanceCard from "@/components/BalanceCard";
 import BudgetCard from "@/components/BudgetCard";
@@ -12,6 +15,15 @@ import AddFundsModal from "@/components/AddFundsModal";
 export default function DashboardClient({ dashboardMockData, name }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const budgets = useAtomValue(budgetsAtom);
+
+  // get first 3 items for dashboard display
+  const dashboardBudgets = budgets.slice(0, 3).map((b) => ({
+    name: b.purpose,
+    amount: Number(b.amount || 0),
+  }));
+
 
   const isAddFundsModalOpen = useMemo(() => {
     return searchParams.get("addFunds") === "1";
@@ -58,7 +70,7 @@ export default function DashboardClient({ dashboardMockData, name }) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 items-stretch">
-        <BudgetCard budgetItems={dashboardMockData.budgets} />
+        <BudgetCard budgetItems={dashboardBudgets} />
         <SavingGoalsCard  href="/saving-goals" savingGoalItems={dashboardMockData.goals} />
       </div>
 

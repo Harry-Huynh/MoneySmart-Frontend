@@ -27,12 +27,9 @@ export async function removeToken() {
   (await cookies()).delete("access_token");
 }
 
-function isTokenExpired(token) {
+export async function isTokenExpired(token) {
   try {
-    const { exp } = JSON.parse(
-      Buffer.from(token.split(".")[1], "base64").toString(),
-    );
-
+    const { exp } = JSON.parse(atob(token.split(".")[1]));
     if (!exp) return true;
     const now = Math.floor(Date.now() / 1000);
 
@@ -40,17 +37,6 @@ function isTokenExpired(token) {
   } catch (error) {
     return true;
   }
-}
-
-export async function isAuthenticated() {
-  const token = await getToken();
-
-  if (token && isTokenExpired(token)) {
-    await removeToken();
-    return false;
-  }
-
-  return token ? true : false;
 }
 
 export async function authenticateUser(username, password) {

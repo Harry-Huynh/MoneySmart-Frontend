@@ -33,13 +33,9 @@ export default function AddSavingGoalPage() {
       console.log("Saving goal:", data);
 
       // frontend-only temporary storage
-      const existing =
-        JSON.parse(localStorage.getItem("savingGoals")) || [];
+      const existing = JSON.parse(localStorage.getItem("savingGoals")) || [];
 
-      localStorage.setItem(
-        "savingGoals",
-        JSON.stringify([...existing, data])
-      );
+      localStorage.setItem("savingGoals", JSON.stringify([...existing, data]));
 
       reset();
       router.replace("/saving-goals");
@@ -64,7 +60,7 @@ export default function AddSavingGoalPage() {
       {/* Card */}
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-md overflow-hidden">
         {/* Header */}
-        <div className="bg-gradient-to-r from-purple-200 to-purple-300 px-8 py-6">
+        <div className="bg-linear-to-r from-purple-200 to-purple-300 px-8 py-6">
           <h2 className="text-2xl font-semibold text-gray-800">
             New Saving Goal
           </h2>
@@ -98,9 +94,7 @@ export default function AddSavingGoalPage() {
               />
             </div>
             {errors.amount && (
-              <p className="text-sm text-red-500 ml-36">
-                Amount is required
-              </p>
+              <p className="text-sm text-red-500 ml-36">Amount is required</p>
             )}
 
             {/* Purpose */}

@@ -8,7 +8,7 @@ import SavingGoalModal from "@/components/SavingGoalsModal";
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 
 export default function SavingGoalsPage() {
-   const [goals, setGoals] = useState([
+  const [goals, setGoals] = useState([
     { id: 1, title: "Vacation - New York", progress: 35 },
     { id: 2, title: "Replace old laptop", progress: 70 },
     { id: 3, title: "Buy headphones", progress: 50 },
@@ -36,9 +36,7 @@ export default function SavingGoalsPage() {
       body: JSON.stringify(goal),
     });
 
-    setGoals((prev) =>
-      prev.map((g) => (g.id === goal.id ? goal : g))
-    );
+    setGoals((prev) => prev.map((g) => (g.id === goal.id ? goal : g)));
     setShowForm(false);
   };
 
@@ -48,9 +46,7 @@ export default function SavingGoalsPage() {
       method: "DELETE",
     });
 
-    setGoals((prev) =>
-      prev.filter((g) => g.id !== activeGoal.id)
-    );
+    setGoals((prev) => prev.filter((g) => g.id !== activeGoal.id));
     setShowDelete(false);
   };
 
@@ -82,7 +78,7 @@ export default function SavingGoalsPage() {
           {/* ➕ Add Goal */}
           <Link
             href="/saving-goals/add"
-            className="aspect-square max-w-[180px] w-full rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-3xl hover:border-green-500 hover:text-green-500 transition"
+            className="aspect-square max-w-45 w-full rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-3xl hover:border-green-500 hover:text-green-500 transition"
           >
             +
           </Link>

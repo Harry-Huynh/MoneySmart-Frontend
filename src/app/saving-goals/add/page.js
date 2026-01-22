@@ -2,31 +2,54 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function AddSavingGoalPage() {
   const router = useRouter();
+  const [warningMessage, setWarningMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [form, setForm] = useState({
-    amount: "",
-    purpose: "",
-    date: "",
-    note: "",
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      amount: "",
+      purpose: "",
+      date: "",
+      note: "",
+    },
   });
 
-  function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  }
+  const submitForm = async (data) => {
+    setLoading(true);
 
-  function handleSubmit(e) {
-    e.preventDefault();
+    try {
+      // 🔹 later: replace with POST /api/saving-goals
+      console.log("Saving goal:", data);
 
-    // later: POST to API
-    console.log("Saving goal:", form);
+      // frontend-only temporary storage
+      const existing =
+        JSON.parse(localStorage.getItem("savingGoals")) || [];
 
-    router.push("/saving-goals");
-  }
+      localStorage.setItem(
+        "savingGoals",
+        JSON.stringify([...existing, data])
+      );
+
+      reset();
+      router.replace("/saving-goals");
+    } catch (error) {
+      setWarningMessage("Failed to save goal");
+      return;
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <section className="min-h-screen bg-gray-50 px-6 py-10">
@@ -48,14 +71,17 @@ export default function AddSavingGoalPage() {
         </div>
 
         {/* Content */}
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-3 gap-8 p-8">
+        <form
+          onSubmit={handleSubmit(submitForm)}
+          className="grid grid-cols-1 md:grid-cols-3 gap-8 p-8"
+        >
           {/* Left Icon */}
           <div className="flex justify-center items-start">
             <Image
               src="/pig-icon.png"
               alt="Saving Icon"
-              width={220}
-              height={220}
+              width={180}
+              height={180}
               priority
             />
           </div>
@@ -64,80 +90,70 @@ export default function AddSavingGoalPage() {
           <div className="md:col-span-2 space-y-5">
             {/* Target Amount */}
             <div className="flex items-center gap-4">
-              <label className="w-32 text-gray-700 font-medium">
-                Target Amount:
-              </label>
+              <label className="w-32 font-medium">Target Amount:</label>
               <input
                 type="number"
-                name="amount"
-                value={form.amount}
-                onChange={handleChange}
-                placeholder="$"
-                required
-                className="flex-1 bg-yellow-50 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
+                {...register("amount", { required: true })}
+                className="flex-1 bg-yellow-50 border rounded-md px-4 py-2"
               />
             </div>
+            {errors.amount && (
+              <p className="text-sm text-red-500 ml-36">
+                Amount is required
+              </p>
+            )}
 
             {/* Purpose */}
             <div className="flex items-center gap-4">
-              <label className="w-32 text-gray-700 font-medium">
-                Purpose:
-              </label>
+              <label className="w-32 font-medium">Purpose:</label>
               <input
                 type="text"
-                name="purpose"
-                value={form.purpose}
-                onChange={handleChange}
-                required
-                className="flex-1 bg-yellow-50 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
+                {...register("purpose", { required: true })}
+                className="flex-1 bg-yellow-50 border rounded-md px-4 py-2"
               />
             </div>
 
             {/* Target Date */}
             <div className="flex items-center gap-4">
-              <label className="w-32 text-gray-700 font-medium">
-                Target Date:
-              </label>
+              <label className="w-32 font-medium">Target Date:</label>
               <input
                 type="date"
-                name="date"
-                value={form.date}
-                onChange={handleChange}
-                required
-                className="flex-1 bg-yellow-50 border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
+                {...register("date", { required: true })}
+                className="flex-1 bg-yellow-50 border rounded-md px-4 py-2"
               />
             </div>
 
             {/* Note */}
             <div className="flex items-start gap-4">
-              <label className="w-32 text-gray-700 font-medium pt-2">
-                Note:
-              </label>
+              <label className="w-32 font-medium pt-2">Note:</label>
               <textarea
-                name="note"
-                value={form.note}
-                onChange={handleChange}
                 rows="4"
-                placeholder="Upgrade to a new MacBook for better performance."
-                className="flex-1 bg-yellow-50 border border-gray-300 rounded-md px-4 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-purple-300"
+                {...register("note")}
+                className="flex-1 bg-yellow-50 border rounded-md px-4 py-2 resize-none"
               />
             </div>
+
+            {/* Warning */}
+            {warningMessage && (
+              <p className="text-red-500 text-sm">{warningMessage}</p>
+            )}
 
             {/* Buttons */}
             <div className="flex justify-end gap-4 pt-4">
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="px-6 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
+                className="px-6 py-2 rounded-md bg-gray-200"
               >
                 Cancel
               </button>
 
               <button
                 type="submit"
-                className="px-6 py-2 rounded-md bg-yellow-500 text-white font-semibold hover:bg-yellow-600 transition"
+                disabled={loading}
+                className="px-6 py-2 rounded-md bg-yellow-500 text-white font-semibold disabled:opacity-50"
               >
-                Save
+                {loading ? "Saving..." : "Save"}
               </button>
             </div>
           </div>

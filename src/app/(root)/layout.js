@@ -7,9 +7,9 @@ import { isAuthenticated } from "@/lib/authenticate";
 export default async function RootLayout({ children }) {
   const authenticated = await isAuthenticated();
 
-  if (!authenticated) {
-    redirect("/");
-  }
+  // if (!authenticated) {
+  //   redirect("/");
+  // }
 
   return (
     <SidebarProvider>

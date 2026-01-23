@@ -1,9 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { mockBudgets } from "@/lib/mock/budgets";
 
 import {
   Dialog,
@@ -14,47 +13,74 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { getOneBudget, updateBudget } from "@/lib/budget.actions";
 
 export default function EditBudgetPage() {
   const router = useRouter();
-  const params = useParams();
-  const budgetId = params?.id;
+  const { id } = useParams();
 
-  // Mock existing budget (later load from API by id)
-  const initial = useMemo(() => {
-    return mockBudgets.find((b) => b.id === budgetId) || null;
-  }, [budgetId]);
-
-  const [form, setForm] = useState(
-    initial || {
-      id: budgetId,
-      amount: 0,
-      purpose: "",
-      startDate: "",
-      thresholdAlert: 80,
-      note: "",
-      spent: 0,
-    }
-  );
-
+  const [form, setForm] = useState(null);
   const [openConfirm, setOpenConfirm] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   function updateField(key, value) {
     setForm((p) => ({ ...p, [key]: value }));
   }
 
+  useEffect(() => {
+    let ignore = false;
+
+    async function loadBudget() {
+      try {
+        setLoading(true);
+
+        const res = await getOneBudget(id);
+        const budget = res.budget;
+        console.log(budget);
+        if (ignore) return;
+
+        setForm({
+          id,
+          amount: budget.amount ?? "",
+          purpose: budget.purpose ?? "",
+          startDate: (budget.startDate ?? "").slice(0, 10),
+          thresholdAmount: budget.thresholdAmount ?? 80,
+          note: budget.note ?? "",
+        });
+      } catch (e) {
+        router.replace("/budgets");
+      } finally {
+        if (!ignore) setLoading(false);
+      }
+    }
+
+    if (id) loadBudget();
+    return () => (ignore = true);
+  }, [id, router]);
+
   async function doUpdate() {
-    // later: PUT /api/budget/:id
-    console.log("Update budget:", form);
+    await updateBudget(
+      id,
+      form.amount,
+      form.purpose,
+      form.startDate,
+      form.thresholdAmount,
+      form.note,
+    );
     setOpenConfirm(false);
     router.replace("/budgets");
   }
 
+  if (loading || !form) return <div className="p-10">Loading...</div>;
+
   return (
     <section className="min-h-screen bg-gray-50 px-6 py-10">
-      <Link href="/budgets" className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium text-xl
- cursor-pointer">
-        ← {form.purpose || "Edit Budget"}
+      <Link
+        href="/budgets"
+        className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium text-xl
+ cursor-pointer"
+      >
+        ← {form?.purpose || "Edit Budget"}
       </Link>
 
       <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-md overflow-hidden">
@@ -103,14 +129,14 @@ export default function EditBudgetPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <label className="w-40 font-medium">Threshold Alert (%):</label>
+            <label className="w-40 font-medium">Threshold Amount:</label>
             <input
               type="number"
               min="0"
               max="100"
               className="flex-1 bg-yellow-50 border rounded-md px-4 py-2"
-              value={form.thresholdAlert}
-              onChange={(e) => updateField("thresholdAlert", e.target.value)}
+              value={form.thresholdAmount}
+              onChange={(e) => updateField("thresholdAmount", e.target.value)}
               required
             />
           </div>

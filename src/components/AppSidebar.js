@@ -23,7 +23,7 @@ import { IoMdNotificationsOutline } from "react-icons/io";
 import { IoLogOutOutline } from "react-icons/io5";
 import { GiWallet } from "react-icons/gi";
 import { useRouter } from "next/navigation";
-import { removeToken } from "@/lib/authenticate";
+import { removeToken } from "@/lib/user.actions";
 
 const items = [
   {

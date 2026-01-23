@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isTokenExpired } from "@/lib/authenticate";
+import { isTokenExpired } from "@/lib/user.actions";
 
 export async function proxy(request) {
   const token = request.cookies.get("access_token")?.value;

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { authenticateUser } from "@/lib/authenticate";
+import { authenticateUser } from "@/lib/user.actions";
 import Loading from "@/components/Loading";
 import { useForm } from "react-hook-form";
 import Logo from "@/components/Logo";

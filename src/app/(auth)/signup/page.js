@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { useState } from "react";
 import Loading from "@/components/Loading";
-import { registerUser } from "@/lib/authenticate";
+import { registerUser } from "@/lib/user.actions";
 import Logo from "@/components/Logo";
 import FormInput from "@/components/FormInput";
 import FormSelect from "@/components/FormSelect";

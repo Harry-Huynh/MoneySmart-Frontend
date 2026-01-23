@@ -15,44 +15,64 @@ export default function SavingGoalsBox({ goal, onEdit, onDelete }) {
 
   return (
     <div
-      className={`relative aspect-square max-w-[180px] w-full p-4
+      className={`relative min-h-[180px] w-full p-5
                   rounded-2xl shadow text-white
                   flex flex-col justify-between ${cardColor()}`}
     >
       {/* Menu */}
-      <button
-        className="absolute top-2 right-2"
-        onClick={() => setMenuOpen(!menuOpen)}
-      >
-        <MoreVertical size={18} />
-      </button>
+      <div className="flex justify-between items-start">
+        <div className="flex-1">
+          <h3 className="text-lg font-bold mb-1">{goal.title}</h3>
+          <p className="text-sm opacity-90">{goal.progress}% complete</p>
+        </div>
+        
+        <button
+          className="p-1 hover:bg-white/20 rounded-lg transition cursor-pointer"
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          <MoreVertical size={20} />
+        </button>
+      </div>
 
+      
       {/* Dropdown */}
-      {menuOpen && (
-        <div className="absolute top-8 right-2 bg-white text-black rounded-lg shadow text-sm z-10">
+        {menuOpen && (
+        <div className="absolute top-12 right-2 bg-white text-black rounded-lg shadow-lg text-sm z-10 min-w-[120px] border border-gray-200 overflow-hidden">
           <Link
             href={`/saving-goals/${goal.id}/edit`}
-            className="block px-3 py-1.5 hover:bg-gray-100"
+            onClick={() => setMenuOpen(false)}
+            className="block w-full px-4 py-2.5 hover:bg-gray-100 text-left"
           >
             Edit
           </Link>
 
-          <button
-            onClick={onDelete}
-            className="block w-full px-3 py-1.5 text-red-600 hover:bg-gray-100 text-left"
-          >
-            Delete
-          </button>
-        </div>
-      )}
+            <button
+              onClick={() => {
+                onDelete();
+                setMenuOpen(false);
+              }}
+              className="block w-full px-4 py-2.5 text-red-600 hover:bg-gray-100 text-left rounded-b-lg border-t border-gray-200"
+            >
+              Delete
+            </button>
+          </div>
+        )}
 
-      {/* Content */}
-      <div className="flex flex-col items-center justify-center flex-1">
-        <p className="text-2xl font-bold">{goal.progress}%</p>
-        <p className="mt-2 text-xs text-center leading-tight">
-          {goal.title}
-        </p>
+      {/* Progress Bar */}
+      <div className="mt-4">
+        <div className="flex justify-between text-sm mb-1">
+          <span>Progress</span>
+          <span className="font-medium">{goal.progress}%</span>
+        </div>
+        <div className="w-full bg-white/30 rounded-full h-2.5">
+          <div 
+            className="bg-white h-2.5 rounded-full" 
+            style={{ width: `${goal.progress}%` }}
+          ></div>
+        </div>
       </div>
+
+     
     </div>
   );
 }

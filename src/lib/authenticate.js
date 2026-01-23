@@ -40,7 +40,7 @@ export async function isTokenExpired(token) {
 }
 
 export async function authenticateUser(username, password) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/login`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/login`, {
     method: "POST",
     body: JSON.stringify({ username, password }),
     headers: {
@@ -69,7 +69,7 @@ export async function registerUser(
   currencyCode,
   dateFormat,
 ) {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/register`, {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/register`, {
     method: "POST",
     body: JSON.stringify({
       name,
@@ -87,8 +87,8 @@ export async function registerUser(
     },
   });
 
-  const data = await res.json();
-
+  const data = await res.json();  
+    
   if (res.status === 201) {
     return true;
   } else {

@@ -54,12 +54,12 @@ export default function SavingGoalsPage() {
     <section className="min-h-screen bg-gray-100 flex justify-center py-10">
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-xl px-8 py-6">
         <div className="flex items-center gap-4 mb-6">
-          <Logo />
+         
         </div>
 
         <h1 className="text-2xl font-bold mb-6">Saving Goals</h1>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 justify-items-center">
+       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {goals.map((goal) => (
             <SavingGoalsBox
               key={goal.id}
@@ -76,9 +76,9 @@ export default function SavingGoalsPage() {
           ))}
 
           {/* ➕ Add Goal */}
-          <Link
+            <Link
             href="/saving-goals/add"
-            className="aspect-square max-w-45 w-full rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-3xl hover:border-green-500 hover:text-green-500 transition"
+            className="min-h-[180px] rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-4xl hover:border-green-500 hover:text-green-500 transition cursor-pointer p-6"
           >
             +
           </Link>

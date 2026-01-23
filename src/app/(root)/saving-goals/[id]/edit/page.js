@@ -36,9 +36,9 @@ export default function EditSavingGoalPage() {
       {/* Back */}
       <Link
         href="/saving-goals"
-        className="flex items-center text-gray-600 mb-6 hover:text-black"
+         className="inline-flex items-center text-gray-700 mb-8 hover:text-black text-lg font-medium group"
       >
-        ← {goal.purpose}
+        <span className="mr-2 group-hover:-translate-x-1 transition-transform">←</span> {goal.purpose}
       </Link>
 
       {/* Progress Section */}
@@ -126,14 +126,14 @@ export default function EditSavingGoalPage() {
             <button
               type="button"
               onClick={() => router.back()}
-              className="px-6 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300"
+              className="px-6 py-2 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 cursor-pointer"
             >
               Cancel
             </button>
 
             <button
               type="submit"
-              className="px-8 py-2 rounded-md bg-yellow-500 text-white font-semibold hover:bg-yellow-600"
+              className="px-8 py-2 rounded-md bg-yellow-500 text-white font-semibold hover:bg-yellow-600 cursor-pointer"
             >
               Save
             </button>

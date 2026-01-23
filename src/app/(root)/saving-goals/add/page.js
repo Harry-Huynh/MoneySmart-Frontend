@@ -50,29 +50,28 @@ export default function AddSavingGoalPage() {
   return (
     <section className="min-h-screen bg-gray-50 px-6 py-10">
       {/* Back */}
-      <Link
+       <Link
         href="/saving-goals"
-        className="flex items-center text-gray-600 mb-6 hover:text-black"
+        className="inline-flex items-center text-gray-700 mb-8 hover:text-black text-lg font-medium group"
       >
-        ← Add Saving Goal
+        <span className="mr-2 group-hover:-translate-x-1 transition-transform">←</span>
+        Back to Saving Goals
       </Link>
 
       {/* Card */}
       <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-md overflow-hidden">
-        {/* Header */}
-        <div className="bg-linear-to-r from-purple-200 to-purple-300 px-8 py-6">
-          <h2 className="text-2xl font-semibold text-gray-800">
-            New Saving Goal
+        {/* Header with centered title and pig icon */}
+        <div className="bg-linear-to-r from-purple-200 to-purple-300 px-8 py-6 flex items-center justify-between">
+          {/* Spacer for alignment */}
+          <div className="w-20"></div>
+          
+          {/* Centered Title */}
+          <h2 className="text-2xl font-semibold text-gray-800 text-center">
+            Add New Saving Goal
           </h2>
-        </div>
-
-        {/* Content */}
-        <form
-          onSubmit={handleSubmit(submitForm)}
-          className="grid grid-cols-1 md:grid-cols-3 gap-8 p-8"
-        >
-          {/* Left Icon */}
-          <div className="flex justify-center items-start">
+          
+          {/* Pig Icon in header */}
+         <div className="flex justify-center items-start">
             <Image
               src="/pig-icon.png"
               alt="Saving Icon"
@@ -81,63 +80,78 @@ export default function AddSavingGoalPage() {
               priority
             />
           </div>
+        </div>
 
-          {/* Form Fields */}
-          <div className="md:col-span-2 space-y-5">
+        {/* Content */}
+        <form
+          onSubmit={handleSubmit(submitForm)}
+          className="p-8"
+        >
+          {/* Form Fields - Full width layout */}
+          <div className="space-y-6">
             {/* Target Amount */}
-            <div className="flex items-center gap-4">
-              <label className="w-32 font-medium">Target Amount:</label>
+            <div className="flex flex-col gap-2">
+              <label className="font-medium text-gray-700">Target Amount:</label>
               <input
                 type="number"
                 {...register("amount", { required: true })}
-                className="flex-1 bg-yellow-50 border rounded-md px-4 py-2"
+                className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                placeholder="Enter target amount"
               />
+              {errors.amount && (
+                <p className="text-sm text-red-500">Amount is required</p>
+              )}
             </div>
-            {errors.amount && (
-              <p className="text-sm text-red-500 ml-36">Amount is required</p>
-            )}
 
             {/* Purpose */}
-            <div className="flex items-center gap-4">
-              <label className="w-32 font-medium">Purpose:</label>
+            <div className="flex flex-col gap-2">
+              <label className="font-medium text-gray-700">Purpose:</label>
               <input
                 type="text"
                 {...register("purpose", { required: true })}
-                className="flex-1 bg-yellow-50 border rounded-md px-4 py-2"
+                className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                placeholder="What are you saving for?"
               />
+              {errors.purpose && (
+                <p className="text-sm text-red-500">Purpose is required</p>
+              )}
             </div>
 
             {/* Target Date */}
-            <div className="flex items-center gap-4">
-              <label className="w-32 font-medium">Target Date:</label>
+            <div className="flex flex-col gap-2">
+              <label className="font-medium text-gray-700">Target Date:</label>
               <input
                 type="date"
                 {...register("date", { required: true })}
-                className="flex-1 bg-yellow-50 border rounded-md px-4 py-2"
+                className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
               />
+              {errors.date && (
+                <p className="text-sm text-red-500">Target date is required</p>
+              )}
             </div>
 
             {/* Note */}
-            <div className="flex items-start gap-4">
-              <label className="w-32 font-medium pt-2">Note:</label>
+            <div className="flex flex-col gap-2">
+              <label className="font-medium text-gray-700">Note (Optional):</label>
               <textarea
                 rows="4"
                 {...register("note")}
-                className="flex-1 bg-yellow-50 border rounded-md px-4 py-2 resize-none"
+                className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
+                placeholder="Any additional notes about this goal..."
               />
             </div>
 
             {/* Warning */}
             {warningMessage && (
-              <p className="text-red-500 text-sm">{warningMessage}</p>
+              <p className="text-red-500 text-sm p-3 bg-red-50 rounded-lg">{warningMessage}</p>
             )}
 
             {/* Buttons */}
-            <div className="flex justify-end gap-4 pt-4">
+            <div className="flex justify-end gap-4 pt-6">
               <button
                 type="button"
                 onClick={() => router.back()}
-                className="px-6 py-2 rounded-md bg-gray-200"
+                className="px-8 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 transition font-medium cursor-pointer"
               >
                 Cancel
               </button>
@@ -145,9 +159,9 @@ export default function AddSavingGoalPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="px-6 py-2 rounded-md bg-yellow-500 text-white font-semibold disabled:opacity-50"
+                className="px-8 py-3 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white font-semibold disabled:opacity-50 transition cursor-pointer"
               >
-                {loading ? "Saving..." : "Save"}
+                {loading ? "Saving..." : "Save Goal"}
               </button>
             </div>
           </div>

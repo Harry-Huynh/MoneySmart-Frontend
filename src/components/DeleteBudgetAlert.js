@@ -25,12 +25,13 @@ export default function DeleteBudgetAlert({
       <AlertDialogPrimitive.Portal>
         <AlertDialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/40" />
         <AlertDialogPrimitive.Content className="fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-lg">
-          <AlertDialogPrimitive.Title className="text-lg font-semibold text-slate-900">
+          <AlertDialogPrimitive.Title className="text-lg font-semibold text-red-500">
             Delete budget?
           </AlertDialogPrimitive.Title>
 
           <AlertDialogPrimitive.Description className="mt-2 text-sm text-slate-600">
-            Are you sure you want to delete <strong>{budgetName}</strong>? This action can&apos;t be undone.
+            Are you sure you want to delete{" "}
+          <strong className="text-red-500">{budgetName}</strong>? This action can&apos;t be undone.
           </AlertDialogPrimitive.Description>
 
           <div className="mt-6 flex justify-end gap-3">

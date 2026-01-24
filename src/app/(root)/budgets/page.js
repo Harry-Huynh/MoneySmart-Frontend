@@ -47,15 +47,20 @@ export default function BudgetsClient() {
           </div>
         </Card>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 justify-items-center">
-          {budgets.map((b) => (
-            <BudgetItemCard key={b.id} budget={b} onDelete={handleDelete} />
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          {budgets.map((b, idx) => (
+          <BudgetItemCard
+            key={b.id}
+            budget={b}
+            index={idx}
+            onDelete={handleDelete}
+          />
+        ))}
 
           {/* Add tile giống SavingGoals */}
           <Link
             href="/budgets/add"
-            className="aspect-square max-w-45 w-full rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-3xl hover:border-green-500 hover:text-green-500 transition"
+            className="min-h-45 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-4xl hover:border-green-500 hover:text-green-500 transition cursor-pointer p-6 w-full"
             aria-label="Add Budget"
           >
             +

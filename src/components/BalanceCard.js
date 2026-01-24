@@ -25,7 +25,7 @@ export default function BalanceCard({ balanceSummary, onAddFundsClick }) {
           <div>
             <p className="text-slate-600 font-medium">{balanceSummary.label}</p>
 
-            <p className="text-4xl font-semibold text-slate-800 mt-2">
+            <div className="text-4xl font-semibold text-slate-800 mt-2">
               <div className="w-full">
                 <CountUp
                   decimals={2}
@@ -34,7 +34,7 @@ export default function BalanceCard({ balanceSummary, onAddFundsClick }) {
                   end={Number(balanceSummary.amount)}
                 />
               </div>
-            </p>
+            </div>
 
             {/* $$ */}
             <p className="mt-3 text-slate-600">

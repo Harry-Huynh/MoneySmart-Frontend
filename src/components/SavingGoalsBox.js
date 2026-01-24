@@ -4,7 +4,7 @@ import { useState } from "react";
 import { MoreVertical } from "lucide-react";
 import Link from "next/link";
 
-export default function SavingGoalsBox({ goal, onEdit, onDelete }) {
+export default function SavingGoalsBox({ goal, onDelete }) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   function cardColor() {
@@ -15,17 +15,17 @@ export default function SavingGoalsBox({ goal, onEdit, onDelete }) {
 
   return (
     <div
-      className={`relative min-h-[180px] w-full p-5
+      className={`relative min-h-45 w-full p-5
                   rounded-2xl shadow text-white
                   flex flex-col justify-between ${cardColor()}`}
     >
       {/* Menu */}
       <div className="flex justify-between items-start">
         <div className="flex-1">
-          <h3 className="text-lg font-bold mb-1">{goal.title}</h3>
+          <h3 className="text-lg font-bold mb-1">{goal.purpose}</h3>
           <p className="text-sm opacity-90">{goal.progress}% complete</p>
         </div>
-        
+
         <button
           className="p-1 hover:bg-white/20 rounded-lg transition cursor-pointer"
           onClick={() => setMenuOpen(!menuOpen)}
@@ -34,10 +34,9 @@ export default function SavingGoalsBox({ goal, onEdit, onDelete }) {
         </button>
       </div>
 
-      
       {/* Dropdown */}
-        {menuOpen && (
-        <div className="absolute top-12 right-2 bg-white text-black rounded-lg shadow-lg text-sm z-10 min-w-[120px] border border-gray-200 overflow-hidden">
+      {menuOpen && (
+        <div className="absolute top-12 right-2 bg-white text-black rounded-lg shadow-lg text-sm z-10 min-w-30 border border-gray-200 overflow-hidden">
           <Link
             href={`/saving-goals/${goal.id}/edit`}
             onClick={() => setMenuOpen(false)}
@@ -46,17 +45,17 @@ export default function SavingGoalsBox({ goal, onEdit, onDelete }) {
             Edit
           </Link>
 
-            <button
-              onClick={() => {
-                onDelete();
-                setMenuOpen(false);
-              }}
-              className="block w-full px-4 py-2.5 text-red-600 hover:bg-gray-100 text-left rounded-b-lg border-t border-gray-200"
-            >
-              Delete
-            </button>
-          </div>
-        )}
+          <button
+            onClick={() => {
+              onDelete();
+              setMenuOpen(false);
+            }}
+            className="block w-full px-4 py-2.5 text-red-600 hover:bg-gray-100 text-left rounded-b-lg border-t border-gray-200"
+          >
+            Delete
+          </button>
+        </div>
+      )}
 
       {/* Progress Bar */}
       <div className="mt-4">
@@ -65,14 +64,12 @@ export default function SavingGoalsBox({ goal, onEdit, onDelete }) {
           <span className="font-medium">{goal.progress}%</span>
         </div>
         <div className="w-full bg-white/30 rounded-full h-2.5">
-          <div 
-            className="bg-white h-2.5 rounded-full" 
+          <div
+            className="bg-white h-2.5 rounded-full"
             style={{ width: `${goal.progress}%` }}
           ></div>
         </div>
       </div>
-
-     
     </div>
   );
 }

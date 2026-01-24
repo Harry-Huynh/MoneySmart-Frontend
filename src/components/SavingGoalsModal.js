@@ -9,9 +9,7 @@ export default function SavingGoalModal({ goal, onClose, onSave }) {
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg">
-        <h2 className="text-xl font-bold mb-4">
-          {goal ? "Edit Saving Goal" : "Add Saving Goal"}
-        </h2>
+        <h2 className="text-xl font-bold mb-4">Edit Saving Goal</h2>
 
         <input
           className="w-full border p-3 rounded mb-3"
@@ -35,9 +33,7 @@ export default function SavingGoalModal({ goal, onClose, onSave }) {
             Cancel
           </button>
           <button
-            onClick={() =>
-              onSave({ id: goal?.id, title, progress: Number(progress) })
-            }
+            onClick={() => onSave(goal)}
             className="px-4 py-2 bg-green-600 text-white rounded"
           >
             Save

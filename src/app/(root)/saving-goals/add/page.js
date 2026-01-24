@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
 import Link from "next/link";
+import { addSavingGoal } from "@/lib/savingGoal.actions";
 
 export default function AddSavingGoalPage() {
   const router = useRouter();
@@ -29,13 +30,7 @@ export default function AddSavingGoalPage() {
     setLoading(true);
 
     try {
-      // 🔹 later: replace with POST /api/saving-goals
-      console.log("Saving goal:", data);
-
-      // frontend-only temporary storage
-      const existing = JSON.parse(localStorage.getItem("savingGoals")) || [];
-
-      localStorage.setItem("savingGoals", JSON.stringify([...existing, data]));
+      await addSavingGoal(data.amount, data.purpose, data.date, data.note);
 
       reset();
       router.replace("/saving-goals");
@@ -50,11 +45,13 @@ export default function AddSavingGoalPage() {
   return (
     <section className="min-h-screen bg-gray-50 px-6 py-10">
       {/* Back */}
-       <Link
+      <Link
         href="/saving-goals"
         className="inline-flex items-center text-gray-700 mb-8 hover:text-black text-lg font-medium group"
       >
-        <span className="mr-2 group-hover:-translate-x-1 transition-transform">←</span>
+        <span className="mr-2 group-hover:-translate-x-1 transition-transform">
+          ←
+        </span>
         Back to Saving Goals
       </Link>
 
@@ -64,14 +61,14 @@ export default function AddSavingGoalPage() {
         <div className="bg-linear-to-r from-purple-200 to-purple-300 px-8 py-6 flex items-center justify-between">
           {/* Spacer for alignment */}
           <div className="w-20"></div>
-          
+
           {/* Centered Title */}
           <h2 className="text-2xl font-semibold text-gray-800 text-center">
             Add New Saving Goal
           </h2>
-          
+
           {/* Pig Icon in header */}
-         <div className="flex justify-center items-start">
+          <div className="flex justify-center items-start">
             <Image
               src="/pig-icon.png"
               alt="Saving Icon"
@@ -83,15 +80,14 @@ export default function AddSavingGoalPage() {
         </div>
 
         {/* Content */}
-        <form
-          onSubmit={handleSubmit(submitForm)}
-          className="p-8"
-        >
+        <form onSubmit={handleSubmit(submitForm)} className="p-8">
           {/* Form Fields - Full width layout */}
           <div className="space-y-6">
             {/* Target Amount */}
             <div className="flex flex-col gap-2">
-              <label className="font-medium text-gray-700">Target Amount:</label>
+              <label className="font-medium text-gray-700">
+                Target Amount:
+              </label>
               <input
                 type="number"
                 {...register("amount", { required: true })}
@@ -132,7 +128,9 @@ export default function AddSavingGoalPage() {
 
             {/* Note */}
             <div className="flex flex-col gap-2">
-              <label className="font-medium text-gray-700">Note (Optional):</label>
+              <label className="font-medium text-gray-700">
+                Note (Optional):
+              </label>
               <textarea
                 rows="4"
                 {...register("note")}
@@ -143,7 +141,9 @@ export default function AddSavingGoalPage() {
 
             {/* Warning */}
             {warningMessage && (
-              <p className="text-red-500 text-sm p-3 bg-red-50 rounded-lg">{warningMessage}</p>
+              <p className="text-red-500 text-sm p-3 bg-red-50 rounded-lg">
+                {warningMessage}
+              </p>
             )}
 
             {/* Buttons */}

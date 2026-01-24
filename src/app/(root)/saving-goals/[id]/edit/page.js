@@ -1,33 +1,43 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
+import { getOneSavingGoal, updateSavingGoal } from "@/lib/savingGoal.actions";
 
 export default function EditSavingGoalPage() {
   const router = useRouter();
+  const { id } = useParams();
+  const [goal, setGoal] = useState(null);
 
-  // Mock existing goal (later load from API by id)
-  const [goal, setGoal] = useState({
-    targetAmount: 1000,
-    savedAmount: 700,
-    purpose: "Replace old laptop",
-    targetDate: "2024-05-15",
-    note: "Upgrade to a new MacBook for better performance.",
-  });
+  const progress = Math.round((goal?.currentAmount / goal?.targetAmount) * 100);
 
-  const progress = Math.round(
-    (goal.savedAmount / goal.targetAmount) * 100
-  );
+  useEffect(() => {
+    async function fetchGoal() {
+      const { savingGoal } = await getOneSavingGoal(id);
+      savingGoal.targetDate = new Date(savingGoal.targetDate)
+        .toISOString()
+        .split("T")[0];
+      setGoal(savingGoal);
+    }
+    fetchGoal();
+  }, [id]);
 
   function handleChange(e) {
     setGoal({ ...goal, [e.target.name]: e.target.value });
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
-    console.log("Updated goal:", goal);
+    await updateSavingGoal(
+      id,
+      goal?.targetAmount,
+      goal?.purpose,
+      goal?.targetDate,
+      goal?.note,
+      goal?.status,
+    );
     router.push("/saving-goals");
   }
 
@@ -36,9 +46,12 @@ export default function EditSavingGoalPage() {
       {/* Back */}
       <Link
         href="/saving-goals"
-         className="inline-flex items-center text-gray-700 mb-8 hover:text-black text-lg font-medium group"
+        className="inline-flex items-center text-gray-700 mb-8 hover:text-black text-lg font-medium group"
       >
-        <span className="mr-2 group-hover:-translate-x-1 transition-transform">←</span> {goal.purpose}
+        <span className="mr-2 group-hover:-translate-x-1 transition-transform">
+          ←
+        </span>{" "}
+        {goal?.purpose}
       </Link>
 
       {/* Progress Section */}
@@ -54,7 +67,7 @@ export default function EditSavingGoalPage() {
           <div className="bg-white rounded-full px-6 py-3 shadow-md border">
             <p className="text-xl font-bold text-center">{progress}%</p>
             <p className="text-sm text-gray-600 text-center">
-              ${goal.savedAmount} / ${goal.targetAmount}
+              ${goal?.currentAmount} / ${goal?.targetAmount}
             </p>
           </div>
         </div>
@@ -73,7 +86,7 @@ export default function EditSavingGoalPage() {
             <input
               type="number"
               name="targetAmount"
-              value={goal.targetAmount}
+              value={goal?.targetAmount}
               onChange={handleChange}
               className="flex-1 bg-yellow-50 border rounded-md px-4 py-2 focus:ring-2 focus:ring-yellow-300"
             />
@@ -81,13 +94,11 @@ export default function EditSavingGoalPage() {
 
           {/* Purpose */}
           <div className="flex items-center gap-4">
-            <label className="w-40 font-medium text-gray-700">
-              Purpose
-            </label>
+            <label className="w-40 font-medium text-gray-700">Purpose</label>
             <input
               type="text"
               name="purpose"
-              value={goal.purpose}
+              value={goal?.purpose}
               onChange={handleChange}
               className="flex-1 bg-yellow-50 border rounded-md px-4 py-2 focus:ring-2 focus:ring-yellow-300"
             />
@@ -101,7 +112,7 @@ export default function EditSavingGoalPage() {
             <input
               type="date"
               name="targetDate"
-              value={goal.targetDate}
+              value={goal?.targetDate}
               onChange={handleChange}
               className="flex-1 bg-yellow-50 border rounded-md px-4 py-2 focus:ring-2 focus:ring-yellow-300"
             />
@@ -109,12 +120,10 @@ export default function EditSavingGoalPage() {
 
           {/* Note */}
           <div className="flex items-start gap-4">
-            <label className="w-40 font-medium text-gray-700 pt-2">
-              Note
-            </label>
+            <label className="w-40 font-medium text-gray-700 pt-2">Note</label>
             <textarea
               name="note"
-              value={goal.note}
+              value={goal?.note}
               onChange={handleChange}
               rows="4"
               className="flex-1 bg-yellow-50 border rounded-md px-4 py-2 resize-none focus:ring-2 focus:ring-yellow-300"

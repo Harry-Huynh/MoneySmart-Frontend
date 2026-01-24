@@ -48,6 +48,7 @@ export default function EditBudgetPage() {
           note: budget.note ?? "",
         });
       } catch (e) {
+        alert("Failed to get budget information");
         router.replace("/budgets");
       } finally {
         if (!ignore) setLoading(false);
@@ -59,16 +60,22 @@ export default function EditBudgetPage() {
   }, [id, router]);
 
   async function doUpdate() {
-    await updateBudget(
-      id,
-      form.amount,
-      form.purpose,
-      form.startDate,
-      form.thresholdAmount,
-      form.note,
-    );
-    setOpenConfirm(false);
-    router.replace("/budgets");
+    try {
+      await updateBudget(
+        id,
+        form.amount,
+        form.purpose,
+        form.startDate,
+        form.thresholdAmount,
+        form.note,
+      );
+
+      setOpenConfirm(false);
+      router.replace("/budgets");
+    } catch (error) {
+      console.log(error);
+      alert("Failed to update budget");
+    }
   }
 
   if (loading || !form) return <div className="p-10">Loading...</div>;

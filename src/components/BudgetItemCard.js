@@ -43,11 +43,13 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
         <div className="flex items-start justify-between gap-2">
           {/* Header */}
           <div>
-            <h3 className="text-xl font-bold leading-tight">{budget.purpose}</h3>
+            <h3 className="text-xl font-bold leading-tight">
+              {budget.purpose}
+            </h3>
             <p className="text-sm opacity-90">{p}% used</p>
           </div>
         </div>
-        
+
         {/* 3 dots - move up a bit */}
         <button
           type="button"
@@ -61,7 +63,7 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
         {/* Dropdown (Delete only) - show to the RIGHT of the dots */}
         {menuOpen && (
           <div
-            className="absolute top-10 right-3 bg-white text-black rounded-lg shadow-lg text-sm z-10 min-w-36 border border-gray-200 overflow-hidden"
+            className="absolute top-12 right-2 bg-white text-black rounded-lg shadow-lg text-sm z-10 min-w-30 border border-gray-200 overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <Link
@@ -83,13 +85,12 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
               }}
             >
               <button
-                  type="button"
-                  className="
-                    block w-full px-4 py-2.5 text-red-600 hover:bg-red-50 text-left border-t border-gray-200 cursor-pointer"
-                >
-                  Delete
-                </button>
-              </DeleteBudgetAlert>
+                type="button"
+                className="block w-full px-4 py-2.5 text-red-600 hover:bg-gray-100 text-left rounded-b-lg border-t border-gray-200 cursor-pointer"
+              >
+                Delete
+              </button>
+            </DeleteBudgetAlert>
           </div>
         )}
 
@@ -113,7 +114,6 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
             />
           </div>
         </div>
-
       </Card>
       {/* Details dialog (read-only) */}
       <Dialog open={openDetails} onOpenChange={setOpenDetails}>
@@ -132,7 +132,9 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
             <p>
               <strong>Spent:</strong> {formatMoneyCAD(budget.spent)}
             </p>
-            {"thresholdAmount" in budget && budget.thresholdAmount !== "" && budget.thresholdAmount != null ? (
+            {"thresholdAmount" in budget &&
+            budget.thresholdAmount !== "" &&
+            budget.thresholdAmount != null ? (
               <p>
                 <strong>Threshold Amount:</strong>{" "}
                 {formatMoneyCAD(budget.thresholdAmount)}
@@ -140,7 +142,8 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
             ) : null}
             {"startDate" in budget && budget.startDate ? (
               <p>
-                <strong>Start Date:</strong> {String(budget.startDate).slice(0, 10)}
+                <strong>Start Date:</strong>{" "}
+                {String(budget.startDate).slice(0, 10)}
               </p>
             ) : null}
             {"note" in budget && budget.note ? (

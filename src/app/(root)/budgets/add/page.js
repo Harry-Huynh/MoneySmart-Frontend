@@ -15,7 +15,7 @@ export default function AddBudgetPage() {
     thresholdAmount: "",
     note: "",
   });
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date().toISOString().split("T")[0];
   const [errors, setErrors] = useState({});
 
   function validateForm(nextForm) {
@@ -48,7 +48,6 @@ export default function AddBudgetPage() {
     return nextErrors;
   }
 
-
   function updateField(key, value) {
     setForm((p) => ({ ...p, [key]: value }));
   }
@@ -77,9 +76,12 @@ export default function AddBudgetPage() {
     <section className="min-h-screen bg-gray-50 px-6 py-8">
       <Link
         href="/budgets"
-        className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium text-xl cursor-pointer"
+        className="inline-flex items-center text-gray-700 mb-8 hover:text-black text-xl font-medium group"
       >
-        ← Add Budget
+        <span className="mr-2 group-hover:-translate-x-1 transition-transform">
+          ←
+        </span>
+        Add Budget
       </Link>
 
       <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-md overflow-hidden mt-6 relative">
@@ -139,7 +141,7 @@ export default function AddBudgetPage() {
               <input
                 type="date"
                 min={today}
-                className="w-full bg-yellow-50 border rounded-md px-4 py-2"
+                className="w-full bg-yellow-50 border rounded-md px-4 py-2 cursor-pointer"
                 value={form.startDate}
                 onChange={(e) => updateField("startDate", e.target.value)}
                 required
@@ -163,7 +165,9 @@ export default function AddBudgetPage() {
               />
 
               {errors.thresholdAmount ? (
-                <p className="text-red-500 text-sm mt-1">{errors.thresholdAmount}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.thresholdAmount}
+                </p>
               ) : null}
             </div>
           </div>

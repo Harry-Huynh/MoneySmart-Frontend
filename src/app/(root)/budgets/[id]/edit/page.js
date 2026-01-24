@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import { getOneBudget, updateBudget } from "@/lib/budget.actions";
 import BudgetCancelEditAlert from "@/components/BudgetCancelEditAlert";
 
@@ -15,8 +15,6 @@ export default function EditBudgetPage() {
   const [loading, setLoading] = useState(true);
   const [errors, setErrors] = useState({});
   const today = new Date().toISOString().slice(0, 10);
-
-
 
   function updateField(key, value) {
     setForm((p) => ({ ...p, [key]: value }));
@@ -53,7 +51,6 @@ export default function EditBudgetPage() {
 
     return nextErrors;
   }
-
 
   useEffect(() => {
     let ignore = false;
@@ -108,16 +105,28 @@ export default function EditBudgetPage() {
     <section className="min-h-screen bg-gray-50 px-6 py-10">
       <Link
         href="/budgets"
-        className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium text-xl
- cursor-pointer"
+        className="inline-flex items-center text-gray-700 mb-8 hover:text-black text-xl font-medium group"
       >
-        ← {form?.purpose || "Edit Budget"}
+        <span className="mr-2 group-hover:-translate-x-1 transition-transform">
+          ←
+        </span>
+        {form?.purpose || "Edit Budget"}
       </Link>
 
-      <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-md overflow-hidden">
-        <div className="bg-linear-to-r from-purple-200 to-purple-300 px-8 py-6">
+      <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-md overflow-hidden relative">
+        {/* purple header */}
+        <div className="bg-linear-to-r from-purple-200 to-purple-300 px-8 py-6 text-center">
           <h2 className="text-2xl font-semibold text-gray-800">Edit Budget</h2>
         </div>
+
+        {/* pig overlay */}
+        <Image
+          src="/pig-icon.png"
+          alt="Piggy"
+          width={256}
+          height={256}
+          className="absolute left-0 top-0 w-64 h-auto"
+        />
 
         <form
           onSubmit={(e) => {
@@ -127,7 +136,7 @@ export default function EditBudgetPage() {
             if (Object.keys(nextErrors).length > 0) return;
             doUpdate();
           }}
-          className="p-10 space-y-6"
+          className="p-10 pt-16 space-y-6"
         >
           <div className="flex items-center gap-4">
             <label className="w-40 font-medium">Amount:</label>
@@ -169,7 +178,7 @@ export default function EditBudgetPage() {
               <input
                 type="date"
                 min={today}
-                className="w-full bg-yellow-50 border rounded-md px-4 py-2"
+                className="w-full bg-yellow-50 border rounded-md px-4 py-2 cursor-pointer"
                 value={form.startDate}
                 onChange={(e) => updateField("startDate", e.target.value)}
                 required
@@ -194,7 +203,9 @@ export default function EditBudgetPage() {
               />
 
               {errors.thresholdAmount ? (
-                <p className="text-red-500 text-sm mt-1">{errors.thresholdAmount}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.thresholdAmount}
+                </p>
               ) : null}
             </div>
           </div>

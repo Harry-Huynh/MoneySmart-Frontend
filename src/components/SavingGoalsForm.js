@@ -122,20 +122,22 @@ export default function SavingGoalsForm({
             <h3 className="text-xl font-semibold text-gray-800 mb-4">
               Cancel Editing?
             </h3>
-            <p className="text-gray-600 mb-6">
+
+            <p className="text-gray-600 mb-6 leading-relaxed">
               You have unsaved changes. Are you sure you want to cancel? Your
               changes will be lost.
             </p>
+
             <div className="flex justify-end gap-4">
               <button
                 onClick={continueEditing}
-                className="px-6 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition font-medium"
+                className="px-6 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 transition font-medium cursor-pointer"
               >
                 Continue Editing
               </button>
               <button
                 onClick={confirmCancel}
-                className="px-6 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition"
+                className="px-6 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-medium transition cursor-pointer"
               >
                 Yes, Cancel
               </button>
@@ -145,31 +147,24 @@ export default function SavingGoalsForm({
       )}
 
       {/* Card */}
-      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-md overflow-hidden">
-        {/* Header with centered title and pig icon */}
-        <div className="bg-linear-to-r from-purple-200 to-purple-300 px-8 py-6 flex items-center justify-between">
-          {/* Spacer for alignment */}
-          <div className="w-20"></div>
-
-          {/* Centered Title */}
-          <h2 className="text-2xl font-semibold text-gray-800 text-center">
+      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-md overflow-hidden relative">
+        {/* purple header */}
+        <div className="bg-linear-to-r from-purple-200 to-purple-300 px-8 py-6 text-center">
+          <h2 className="text-2xl font-semibold text-gray-800">
             {isEdit ? "Edit Saving Goal" : "Add New Saving Goal"}
           </h2>
-
-          {/* Pig Icon in header */}
-          <div className="flex justify-center items-start">
-            <Image
-              src="/pig-icon.png"
-              alt="Saving Icon"
-              width={180}
-              height={180}
-              priority
-            />
-          </div>
         </div>
+        {/* pig overlay */}
+        <Image
+          src="/pig-icon.png"
+          alt="Piggy"
+          width={256}
+          height={256}
+          className="absolute left-0 top-0 w-64 h-auto"
+        />
 
         {/* Content */}
-        <form onSubmit={handleSubmit(handleSave)} className="p-8">
+        <form onSubmit={handleSubmit(handleSave)} className="p-8 pt-16">
           {/* Progress Bar - Only show when editing or when amount is set */}
           {isEdit && (
             <div className="mb-6">

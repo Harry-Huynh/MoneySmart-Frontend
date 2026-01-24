@@ -33,10 +33,7 @@ export default function EditBudgetPage() {
     async function loadBudget() {
       try {
         setLoading(true);
-
-        const res = await getOneBudget(id);
-        const budget = res.budget;
-        console.log(budget);
+        const { budget } = await getOneBudget(id);
         if (ignore) return;
 
         setForm({

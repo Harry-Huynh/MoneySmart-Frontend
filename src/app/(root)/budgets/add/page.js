@@ -56,7 +56,9 @@ export default function AddBudgetPage() {
         <Image
           src="/pig-icon.png"
           alt="Piggy"
-          className="absolute top-0 w-64 h-auto"
+          width={256}
+          height={256}
+          className="absolute left-0 top-0 w-64 h-auto"
         />
 
         {/* form */}

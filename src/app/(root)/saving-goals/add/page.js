@@ -4,8 +4,6 @@ import { addSavingGoal } from "@/lib/savingGoal.actions";
 import SavingGoalsForm from "@/components/SavingGoalsForm";
 
 export default function AddSavingGoalPage() {
-  const [errorMessage, setErrorMessage] = useState(null);
-
   const submitForm = async (data) => {
     try {
       await addSavingGoal(data.amount, data.purpose, data.date, data.note);
@@ -14,11 +12,5 @@ export default function AddSavingGoalPage() {
     }
   };
 
-  return (
-    <SavingGoalsForm
-      isEdit={false}
-      onSave={submitForm}
-      errorMessage={errorMessage}
-    />
-  );
+  return <SavingGoalsForm isEdit={false} onSave={submitForm} />;
 }

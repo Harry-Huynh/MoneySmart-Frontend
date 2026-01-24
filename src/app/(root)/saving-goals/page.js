@@ -18,6 +18,7 @@ export default function SavingGoalsPage() {
     }
     fetchGoals();
   }, []);
+  
 
   // Delete goal
   const deleteGoal = async () => {

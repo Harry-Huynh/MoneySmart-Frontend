@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { addBudget } from "@/lib/budget.actions";
+import Image from "next/image";
 
 export default function AddBudgetPage() {
   const router = useRouter();
@@ -42,12 +43,12 @@ export default function AddBudgetPage() {
 
       <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-md overflow-hidden mt-6 relative">
         {/* purple header */}
-        <div className="bg-gradient-to-r from-purple-200 to-purple-300 px-8 py-6 text-center">
+        <div className="bg-linear-to-r from-purple-200 to-purple-300 px-8 py-6 text-center">
           <h2 className="text-2xl font-semibold text-gray-800">New Budget</h2>
         </div>
 
         {/* pig overlay */}
-        <img
+        <Image
           src="/pig-icon.png"
           alt="Piggy"
           className="absolute top-0 w-64 h-auto"

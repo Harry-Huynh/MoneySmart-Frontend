@@ -84,7 +84,7 @@ export default function EditBudgetPage() {
       </Link>
 
       <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-md overflow-hidden">
-        <div className="bg-gradient-to-r from-purple-200 to-purple-300 px-8 py-6">
+        <div className="bg-linear-to-r from-purple-200 to-purple-300 px-8 py-6">
           <h2 className="text-2xl font-semibold text-gray-800">Edit Budget</h2>
         </div>
 

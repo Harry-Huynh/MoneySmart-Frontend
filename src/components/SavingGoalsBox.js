@@ -50,7 +50,7 @@ export default function SavingGoalsBox({ goal, onDelete }) {
               onDelete();
               setMenuOpen(false);
             }}
-            className="block w-full px-4 py-2.5 text-red-600 hover:bg-gray-100 text-left rounded-b-lg border-t border-gray-200"
+            className="block w-full px-4 py-2.5 text-red-600 hover:bg-gray-100 text-left rounded-b-lg border-t border-gray-200 cursor-pointer"
           >
             Delete
           </button>

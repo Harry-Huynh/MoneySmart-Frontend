@@ -1,18 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
-import Link from "next/link";
+import { useParams } from "next/navigation";
 import { getOneSavingGoal, updateSavingGoal } from "@/lib/savingGoal.actions";
 import SavingGoalsForm from "@/components/SavingGoalsForm";
 
 export default function EditSavingGoalPage() {
-  const router = useRouter();
   const { id } = useParams();
   const [goal, setGoal] = useState(null);
-  
-
-  const progress = Math.round((goal?.currentAmount / goal?.targetAmount) * 100);
 
   useEffect(() => {
     async function fetchGoal() {
@@ -25,43 +20,27 @@ export default function EditSavingGoalPage() {
     fetchGoal();
   }, [id]);
 
-  function handleChange(e) {
-    setGoal({ ...goal, [e.target.name]: e.target.value });
+  async function submitForm(data) {
+    try {
+      await updateSavingGoal(
+        id,
+        data.amount,
+        data.purpose,
+        data.date,
+        data.note,
+        data.status,
+      );
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
-
-  async function handleSubmit(e) {
-    e.preventDefault();
-
-    await updateSavingGoal(
-      id,
-      goal?.targetAmount,
-      goal?.purpose,
-      goal?.targetDate,
-      goal?.note,
-      goal?.status,
-    );
-    router.push("/saving-goals");
-  }
-
-  const handleCancel = () => {
-    console.log("Cancelled editing goal");
-  };
-
-  
 
   return (
     <SavingGoalsForm
-      goal={{
-        targetAmount: goal?.amount,
-        purpose: goal?.purpose,
-        date: goal?.date,
-        note: goal?.note,
-        status: goal?.status
-      }}
-      savedAmount={goal?.savedAmount}
+      goal={goal}
+      savedAmount={goal?.currentAmount}
       isEdit={true}
-      onSave={handleSubmit}
-      onCancel={handleCancel}
+      onSave={submitForm}
     />
   );
 }

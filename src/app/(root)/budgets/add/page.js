@@ -21,14 +21,19 @@ export default function AddBudgetPage() {
 
   async function onSubmit(e) {
     e.preventDefault();
-    await addBudget(
-      form.amount,
-      form.purpose,
-      form.startDate,
-      form.thresholdAmount,
-      form.note,
-    );
-    router.replace("/budgets");
+    try {
+      await addBudget(
+        form.amount,
+        form.purpose,
+        form.startDate,
+        form.thresholdAmount,
+        form.note,
+      );
+      router.replace("/budgets");
+    } catch (error) {
+      console.log(error);
+      alert(error.message || "Failed to create budget");
+    }
   }
 
   return (

@@ -9,7 +9,7 @@ import BudgetItemCard from "@/components/BudgetItemCard";
 import { formatMoneyCAD } from "@/lib/mock/budgets";
 import { deleteBudget } from "@/lib/budget.actions";
 
-export default function BudgetsClient({ initialBudgets = [], initialCount = 0 }) {
+export default function BudgetsClient({ initialBudgets = [] }) {
   const [budgets, setBudgets] = useState(initialBudgets);
 
   const monthTotal = useMemo(() => {
@@ -45,7 +45,7 @@ export default function BudgetsClient({ initialBudgets = [], initialCount = 0 })
           {/* Add tile giống SavingGoals */}
           <Link
             href="/budgets/add"
-            className="aspect-square max-w-[180px] w-full rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-3xl hover:border-green-500 hover:text-green-500 transition"
+            className="aspect-square max-w-45 w-full rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-3xl hover:border-green-500 hover:text-green-500 transition"
             aria-label="Add Budget"
           >
             +

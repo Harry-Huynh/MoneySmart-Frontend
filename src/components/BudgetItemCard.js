@@ -30,7 +30,7 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
     <Link href={`/budgets/${budget.id}/edit`} className="block">
       <Card
         className={[
-          "relative w-[190px] h-[190px] rounded-2xl shadow-md overflow-visible",
+          "relative w-47.5 h-47.5 rounded-2xl shadow-md overflow-visible",
           "text-white select-none",
           "cursor-pointer",
           bg,
@@ -76,7 +76,6 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
                     active:bg-red-100
                     transition-colors duration-200
 "
-
                 >
                   Delete
                 </button>

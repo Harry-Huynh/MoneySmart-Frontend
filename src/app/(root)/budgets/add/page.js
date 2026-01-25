@@ -15,38 +15,63 @@ export default function AddBudgetPage() {
     thresholdAmount: "",
     note: "",
   });
-  const today = new Date().toISOString().split("T")[0];
+  const today = new Date().toISOString().split("T")[0];;
   const [errors, setErrors] = useState({});
+
+  function isValidMoneyInput(value) {
+    const s = String(value ?? "").trim();
+    if (s === "") return false;
+
+    // non-negative number, max 2 decimal places
+    return /^(?:0|[1-9]\d*)(?:\.\d{0,2})?$/.test(s);
+  }
+
 
   function validateForm(nextForm) {
     const nextErrors = {};
 
-    const amount = Number(nextForm.amount);
-    const threshold =
-      nextForm.thresholdAmount === "" ? null : Number(nextForm.thresholdAmount);
+    const amountRaw = String(nextForm.amount ?? "").trim();
+    const thresholdRaw = String(nextForm.thresholdAmount ?? "").trim();
 
-    if (Number.isNaN(amount) || amount < 0) {
-      nextErrors.amount = "Amount must be a number ≥ 0";
-    }
-
-    if (!nextForm.purpose?.trim()) {
-      nextErrors.purpose = "Purpose is required";
+    if (!isValidMoneyInput(amountRaw)) {
+      nextErrors.amount =
+        "Amount must be a non-negative number with up to 2 decimals (e.g., 12.59)";
+    } else {
+      const amount = Number(amountRaw);
+      if (Number.isNaN(amount) || amount < 0) {
+        nextErrors.amount = "Amount must be ≥ 0";
+      }
     }
 
     if (!nextForm.startDate) {
       nextErrors.startDate = "Start date is required";
     }
 
-    if (threshold !== null) {
-      if (Number.isNaN(threshold) || threshold < 0) {
-        nextErrors.thresholdAmount = "Threshold must be a number ≥ 0";
-      } else if (!Number.isNaN(amount) && threshold > amount) {
-        nextErrors.thresholdAmount = "Threshold must be ≤ Amount";
-      }
+    if (nextForm.startDate && nextForm.startDate < today) {
+      nextErrors.startDate = "Start date cannot be in the past";
     }
+
+
+    const thresholdIsEmpty = thresholdRaw === "";
+      if (!thresholdIsEmpty) {
+        if (!isValidMoneyInput(thresholdRaw)) {
+          nextErrors.thresholdAmount =
+            "Threshold must be a non-negative number with up to 2 decimals";
+        } else {
+          const threshold = Number(thresholdRaw);
+          const amount = Number(amountRaw);
+
+          if (Number.isNaN(threshold) || threshold < 0) {
+            nextErrors.thresholdAmount = "Threshold must be greater than or equal to 0";
+          } else if (!Number.isNaN(amount) && threshold > amount) {
+            nextErrors.thresholdAmount = "Threshold must be less than or equal to Amount";
+          }
+        }
+      }
 
     return nextErrors;
   }
+
 
   function updateField(key, value) {
     setForm((p) => ({ ...p, [key]: value }));
@@ -76,12 +101,9 @@ export default function AddBudgetPage() {
     <section className="min-h-screen bg-gray-50 px-6 py-8">
       <Link
         href="/budgets"
-        className="inline-flex items-center text-gray-700 mb-8 hover:text-black text-xl font-medium group"
+        className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium text-xl cursor-pointer"
       >
-        <span className="mr-2 group-hover:-translate-x-1 transition-transform">
-          ←
-        </span>
-        Add Budget
+        ← Add Budget
       </Link>
 
       <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-md overflow-hidden mt-6 relative">
@@ -106,6 +128,9 @@ export default function AddBudgetPage() {
             <div className="flex-1">
               <input
                 type="number"
+                min={0}
+                step="0.01"
+                inputMode="decimal"
                 className="w-full bg-yellow-50 border rounded-md px-4 py-2"
                 value={form.amount}
                 onChange={(e) => updateField("amount", e.target.value)}
@@ -126,7 +151,6 @@ export default function AddBudgetPage() {
                 className="w-full bg-yellow-50 border rounded-md px-4 py-2"
                 value={form.purpose}
                 onChange={(e) => updateField("purpose", e.target.value)}
-                required
               />
 
               {errors.purpose ? (
@@ -141,7 +165,7 @@ export default function AddBudgetPage() {
               <input
                 type="date"
                 min={today}
-                className="w-full bg-yellow-50 border rounded-md px-4 py-2 cursor-pointer"
+                className="w-full bg-yellow-50 border rounded-md px-4 py-2"
                 value={form.startDate}
                 onChange={(e) => updateField("startDate", e.target.value)}
                 required
@@ -158,16 +182,16 @@ export default function AddBudgetPage() {
             <div className="flex-1">
               <input
                 type="number"
+                min={0}
                 step="0.01"
+                inputMode="decimal"
                 className="w-full bg-yellow-50 border rounded-md px-4 py-2"
                 value={form.thresholdAmount}
                 onChange={(e) => updateField("thresholdAmount", e.target.value)}
               />
 
               {errors.thresholdAmount ? (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.thresholdAmount}
-                </p>
+                <p className="text-red-500 text-sm mt-1">{errors.thresholdAmount}</p>
               ) : null}
             </div>
           </div>

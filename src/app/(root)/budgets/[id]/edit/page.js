@@ -20,33 +20,50 @@ export default function EditBudgetPage() {
     setForm((p) => ({ ...p, [key]: value }));
   }
 
+  function isValidMoneyInput(value) {
+    const s = String(value ?? "").trim();
+
+    if (s === "") return false;
+
+    // non-negative number, max 2 decimal places
+    // accept "12." to allow user in the middle of typing, submit will parse as 12
+    return /^(?:0|[1-9]\d*)(?:\.\d{0,2})?$/.test(s);
+  }
+
+
   function validateForm(nextForm) {
     const nextErrors = {};
+    const amountRaw = String(nextForm.amount ?? "").trim();
+    const thresholdRaw = String(nextForm.thresholdAmount ?? "").trim();
+    const thresholdIsEmpty = thresholdRaw === "";
 
-    const amount = Number(nextForm.amount);
-    const threshold =
-      nextForm.thresholdAmount === "" || nextForm.thresholdAmount === null
-        ? null
-        : Number(nextForm.thresholdAmount);
+    if (!thresholdIsEmpty) {
+      if (!isValidMoneyInput(thresholdRaw)) {
+        nextErrors.thresholdAmount =
+          "Threshold must be a non-negative number with up to 2 decimals";
+      } else {
+        const threshold = Number(thresholdRaw);
+        const amount = Number(amountRaw);
 
-    if (Number.isNaN(amount) || amount < 0) {
-      nextErrors.amount = "Amount must be a number ≥ 0";
+        if (Number.isNaN(threshold) || threshold < 0) {
+          nextErrors.thresholdAmount = "Threshold must be greater than or equal to 0";
+        } else if (!Number.isNaN(amount) && threshold > amount) {
+          nextErrors.thresholdAmount = "Threshold must be less than or equal to Amount";
+        }
+      }
     }
 
-    if (!nextForm.purpose?.trim()) {
-      nextErrors.purpose = "Purpose is required";
-    }
+    if (!isValidMoneyInput(amountRaw)) {
+      nextErrors.amount = "Amount must be a non-negative number with up to 2 decimals";
+    } else {
+      const amount = Number(amountRaw);
+      if (Number.isNaN(amount) || amount < 0) {
+        nextErrors.amount = "Amount must be a greater number or equal to 0";
+      }
+    } 
 
     if (!nextForm.startDate) {
       nextErrors.startDate = "Start date is required";
-    }
-
-    if (threshold !== null) {
-      if (Number.isNaN(threshold) || threshold < 0) {
-        nextErrors.thresholdAmount = "Threshold must be a number ≥ 0";
-      } else if (!Number.isNaN(amount) && threshold > amount) {
-        nextErrors.thresholdAmount = "Threshold must be ≤ Amount";
-      }
     }
 
     return nextErrors;
@@ -143,6 +160,9 @@ export default function EditBudgetPage() {
             <div className="flex-1">
               <input
                 type="number"
+                min={0}
+                step="0.01"
+                inputMode="decimal"
                 className="w-full bg-yellow-50 border rounded-md px-4 py-2"
                 value={form.amount}
                 onChange={(e) => updateField("amount", e.target.value)}
@@ -160,10 +180,12 @@ export default function EditBudgetPage() {
             <div className="flex-1">
               <input
                 type="text"
+                min={0}
+                step="0.01"
+                inputMode="decimal"
                 className="w-full bg-yellow-50 border rounded-md px-4 py-2"
                 value={form.purpose}
                 onChange={(e) => updateField("purpose", e.target.value)}
-                required
               />
 
               {errors.purpose ? (

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, X, Calendar, DollarSign, FileText, TrendingUp } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import {
   Dialog,
@@ -17,6 +17,17 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openDetails, setOpenDetails] = useState(false);
   const p = percent(budget.spent, budget.amount);
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "Not set";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  };
+
 
   const colorByIndex = [
     "bg-orange-400",
@@ -117,43 +128,126 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
       </Card>
       {/* Details dialog (read-only) */}
       <Dialog open={openDetails} onOpenChange={setOpenDetails}>
-        <DialogContent onClick={(e) => e.stopPropagation()}>
-          <DialogHeader>
-            <DialogTitle>Budget Details</DialogTitle>
-          </DialogHeader>
+        <DialogContent
+          showCloseButton={false}
+          className="p-0 rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="sticky top-0 bg-white border-b border-gray-200 p-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-start gap-3 flex-1 min-w-0">
+                {/* % Circle */}
+                <div className="flex-shrink-0 w-20 h-16 rounded-full flex items-center justify-center bg-orange-100 text-orange-800">
+                  <span className="text-lg font-bold whitespace-nowrap">{p}%</span>
+                </div>
 
-          <div className="space-y-2 text-sm text-slate-700">
-            <p>
-              <strong>Purpose:</strong> {budget.purpose}
-            </p>
-            <p>
-              <strong>Amount:</strong> {formatMoneyCAD(budget.amount)}
-            </p>
-            <p>
-              <strong>Spent:</strong> {formatMoneyCAD(budget.spent)}
-            </p>
-            {"thresholdAmount" in budget &&
-            budget.thresholdAmount !== "" &&
-            budget.thresholdAmount != null ? (
-              <p>
-                <strong>Threshold Amount:</strong>{" "}
-                {formatMoneyCAD(budget.thresholdAmount)}
-              </p>
-            ) : null}
-            {"startDate" in budget && budget.startDate ? (
-              <p>
-                <strong>Start Date:</strong>{" "}
-                {String(budget.startDate).slice(0, 10)}
-              </p>
-            ) : null}
-            {"note" in budget && budget.note ? (
-              <p>
-                <strong>Note:</strong> {budget.note}
-              </p>
-            ) : null}
-            <p>
-              <strong>Usage:</strong> {p}%
-            </p>
+                <div className="flex-1 min-w-0">
+                  <h2 className="text-xl sm:text-2xl font-bold text-gray-800 truncate">
+                    {budget.purpose}
+                  </h2>
+                  <p className="text-gray-500 text-sm mt-1">Budget Details</p>
+                </div>
+              </div>
+
+              {/* Close */}
+              <button
+                type="button"
+                onClick={() => setOpenDetails(false)}
+                className="flex-shrink-0 p-2 hover:bg-gray-100 rounded-lg transition self-start sm:self-center"
+              >
+                <X size={24} />
+              </button>
+            </div>
+          </div>
+
+          {/* Body (scroll) */}
+          <div className="p-6 space-y-6 overflow-y-auto">
+            {/* Progress */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-gray-700 flex items-center gap-2">
+                <TrendingUp size={18} />
+                Progress Overview
+              </h3>
+
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div
+                  className="h-3 rounded-full bg-orange-500"
+                  style={{ width: `${p}%` }}
+                />
+              </div>
+
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>{formatMoneyCAD(budget.spent)} spent</span>
+                <span>{formatMoneyCAD(budget.amount)} total</span>
+              </div>
+            </div>
+
+            {/* Main grid like your generated budget image */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl">
+                <div className="flex items-center gap-2 text-gray-700 mb-2">
+                  <DollarSign size={18} />
+                  <span className="font-medium">Budget Amount</span>
+                </div>
+                <div className="text-2xl font-bold text-gray-800 tabular-nums">
+                  {formatMoneyCAD(budget.amount)}
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-4 rounded-xl">
+                <div className="flex items-center gap-2 text-gray-700 mb-2">
+                  <DollarSign size={18} />
+                  <span className="font-medium">Threshold</span>
+                </div>
+                <div className="text-2xl font-bold text-amber-700 tabular-nums">
+                  {"thresholdAmount" in budget &&
+                  budget.thresholdAmount !== "" &&
+                  budget.thresholdAmount != null
+                    ? formatMoneyCAD(budget.thresholdAmount)
+                    : "—"}
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-xl">
+                <div className="flex items-center gap-2 text-gray-700 mb-2">
+                  <Calendar size={18} />
+                  <span className="font-medium">Start Date</span>
+                </div>
+                <div className="text-2xl font-bold text-gray-800">
+                  {"startDate" in budget && budget.startDate
+                    ? formatDate(budget.startDate)
+                    : "Not set"}
+                </div>
+              </div>
+            </div>
+
+            {/* Note */}
+            <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-5 rounded-xl">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-gray-200 rounded-lg">
+                  <FileText size={20} className="text-gray-700" />
+                </div>
+                <div className="font-medium text-gray-700">Additional Notes</div>
+              </div>
+
+              <div className="text-gray-700 whitespace-pre-wrap bg-white/70 p-4 rounded-lg border border-gray-200">
+                {"note" in budget && budget.note ? budget.note : "—"}
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="sticky bottom-0 bg-white border-t border-gray-200 p-6">
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setOpenDetails(false)}
+                className="px-6 py-3 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium transition"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

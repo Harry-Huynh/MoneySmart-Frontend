@@ -143,27 +143,36 @@ export default function SavingGoalsBox({ goal, onDelete }) {
             className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside dialog
           >
-                  {/* Dialog Header */}
+                {/* Dialog Header - Fixed with better layout */}
             <div className="sticky top-0 bg-white border-b border-gray-200 p-6 rounded-t-2xl">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  {/* Percentage Circle - Now with dynamic sizing */}
+                  <div className={`flex-shrink-0 w-20 h-16 rounded-full flex items-center justify-center ${
                     goal.progress < 40
                       ? "bg-orange-100 text-orange-800"
                       : goal.progress < 80
                       ? "bg-yellow-100 text-yellow-800"
                       : "bg-green-100 text-green-800"
                   }`}>
-                    <span className="text-xl font-bold">{goal.progress}%</span>
+                    <span className="text-lg font-bold whitespace-nowrap">
+                      {goal.progress < 1000 ? `${goal.progress}%` : '100%'}
+                    </span>
                   </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-800">{goal.purpose}</h2>
-                    <p className="text-gray-500">Goal Details</p>
+                  
+                  {/* Title Section - Now with truncation */}
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-xl sm:text-2xl font-bold text-gray-800 truncate">
+                      {goal.purpose}
+                    </h2>
+                    <p className="text-gray-500 text-sm mt-1">Goal Details</p>
                   </div>
                 </div>
+                
+                {/* Close Button */}
                 <button
                   onClick={() => setShowInfoDialog(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition"
+                  className="flex-shrink-0 p-2 hover:bg-gray-100 rounded-lg transition self-start sm:self-center"
                 >
                   <X size={24} />
                 </button>

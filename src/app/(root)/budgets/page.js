@@ -28,9 +28,6 @@ export default function BudgetsClient() {
     setBudgets((prev) => prev.filter((b) => b.id !== id));
   }
 
-  // if (loading) {
-  //   if (loading) return <p className="p-6">Loading...</p>;
-  // }
   return (
     <section className="min-h-screen bg-gray-100 flex justify-center py-10">
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-xl px-8 py-6">
@@ -49,15 +46,14 @@ export default function BudgetsClient() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {budgets.map((b, idx) => (
-          <BudgetItemCard
-            key={b.id}
-            budget={b}
-            index={idx}
-            onDelete={handleDelete}
-          />
-        ))}
+            <BudgetItemCard
+              key={b.id}
+              budget={b}
+              index={idx}
+              onDelete={handleDelete}
+            />
+          ))}
 
-          {/* Add tile giống SavingGoals */}
           <Link
             href="/budgets/add"
             className="min-h-45 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-4xl hover:border-green-500 hover:text-green-500 transition cursor-pointer p-6 w-full"

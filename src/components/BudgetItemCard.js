@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { MoreVertical, X, Calendar, DollarSign, FileText, TrendingUp } from "lucide-react";
+import {
+  MoreVertical,
+  X,
+  Calendar,
+  DollarSign,
+  FileText,
+  TrendingUp,
+} from "lucide-react";
 import { Card } from "@/components/ui/card";
 import {
   Dialog,
@@ -27,7 +34,6 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
       day: "numeric",
     });
   };
-
 
   const colorByIndex = [
     "bg-orange-400",
@@ -138,8 +144,10 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start gap-3 flex-1 min-w-0">
                 {/* % Circle */}
-                <div className="flex-shrink-0 w-20 h-16 rounded-full flex items-center justify-center bg-orange-100 text-orange-800">
-                  <span className="text-lg font-bold whitespace-nowrap">{p}%</span>
+                <div className="shrink-0 w-20 h-16 rounded-full flex items-center justify-center bg-orange-100 text-orange-800">
+                  <span className="text-lg font-bold whitespace-nowrap">
+                    {p}%
+                  </span>
                 </div>
 
                 <div className="flex-1 min-w-0">
@@ -154,7 +162,7 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
               <button
                 type="button"
                 onClick={() => setOpenDetails(false)}
-                className="flex-shrink-0 p-2 hover:bg-gray-100 rounded-lg transition self-start sm:self-center"
+                className="shrink-0 p-2 hover:bg-gray-100 rounded-lg transition self-start sm:self-center"
               >
                 <X size={24} />
               </button>
@@ -185,7 +193,7 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
 
             {/* Main grid like your generated budget image */}
             <div className="grid grid-cols-3 gap-4">
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-xl">
+              <div className="bg-linear-to-br from-blue-50 to-blue-100 p-4 rounded-xl">
                 <div className="flex items-center gap-2 text-gray-700 mb-2">
                   <DollarSign size={18} />
                   <span className="font-medium">Budget Amount</span>
@@ -195,7 +203,7 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-4 rounded-xl">
+              <div className="bg-linear-to-br from-amber-50 to-amber-100 p-4 rounded-xl">
                 <div className="flex items-center gap-2 text-gray-700 mb-2">
                   <DollarSign size={18} />
                   <span className="font-medium">Threshold</span>
@@ -209,7 +217,7 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-xl">
+              <div className="bg-linear-to-br from-purple-50 to-purple-100 p-4 rounded-xl">
                 <div className="flex items-center gap-2 text-gray-700 mb-2">
                   <Calendar size={18} />
                   <span className="font-medium">Start Date</span>
@@ -223,12 +231,14 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
             </div>
 
             {/* Note */}
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 p-5 rounded-xl">
+            <div className="bg-linear-to-br from-gray-50 to-gray-100 p-5 rounded-xl">
               <div className="flex items-center gap-3 mb-3">
                 <div className="p-2 bg-gray-200 rounded-lg">
                   <FileText size={20} className="text-gray-700" />
                 </div>
-                <div className="font-medium text-gray-700">Additional Notes</div>
+                <div className="font-medium text-gray-700">
+                  Additional Notes
+                </div>
               </div>
 
               <div className="text-gray-700 whitespace-pre-wrap bg-white/70 p-4 rounded-lg border border-gray-200">

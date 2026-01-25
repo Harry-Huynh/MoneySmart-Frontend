@@ -48,5 +48,5 @@ export function percent(spent, amount) {
   const a = Number(amount || 0);
   const s = Number(spent || 0);
   if (a <= 0) return 0;
-  return Math.min(100, Math.round((s / a) * 100));
+  return Math.min(100, Math.round((s / a) * 10000) / 100);
 }

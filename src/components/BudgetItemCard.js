@@ -4,19 +4,13 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   MoreVertical,
-  X,
   Calendar,
   DollarSign,
   FileText,
   TrendingUp,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { formatMoneyCAD, percent } from "@/lib/mock/budgets";
 import DeleteBudgetAlert from "@/components/DeleteBudgetAlert";
 
@@ -63,7 +57,7 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
             <h3 className="text-xl font-bold leading-tight">
               {budget.purpose}
             </h3>
-            <p className="text-sm opacity-90">{p}% used</p>
+            <p className="text-sm opacity-90">{p.toFixed(2)}% used</p>
           </div>
         </div>
 
@@ -121,7 +115,7 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
               {formatMoneyCAD(budget.spent)} / {formatMoneyCAD(budget.amount)}
             </span>
 
-            <span>{p}%</span>
+            <span>{p.toFixed(2)}%</span>
           </div>
 
           <div className="mt-2 w-full bg-white/30 rounded-full h-2.5">
@@ -132,11 +126,12 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
           </div>
         </div>
       </Card>
+
       {/* Details dialog (read-only) */}
       <Dialog open={openDetails} onOpenChange={setOpenDetails}>
         <DialogContent
           showCloseButton={false}
-          className="p-0 rounded-2xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-hidden"
+          className="p-0 rounded-2xl shadow-xl max-w-2xl! w-full max-h-[90vh] overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -146,7 +141,7 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
                 {/* % Circle */}
                 <div className="shrink-0 w-20 h-16 rounded-full flex items-center justify-center bg-orange-100 text-orange-800">
                   <span className="text-lg font-bold whitespace-nowrap">
-                    {p}%
+                    {p.toFixed(2)}%
                   </span>
                 </div>
 
@@ -157,15 +152,6 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
                   <p className="text-gray-500 text-sm mt-1">Budget Details</p>
                 </div>
               </div>
-
-              {/* Close */}
-              <button
-                type="button"
-                onClick={() => setOpenDetails(false)}
-                className="shrink-0 p-2 hover:bg-gray-100 rounded-lg transition self-start sm:self-center"
-              >
-                <X size={24} />
-              </button>
             </div>
           </div>
 
@@ -253,7 +239,7 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
               <button
                 type="button"
                 onClick={() => setOpenDetails(false)}
-                className="px-6 py-3 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium transition"
+                className="px-6 py-3 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium transition cursor-pointer"
               >
                 Close
               </button>

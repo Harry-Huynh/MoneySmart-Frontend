@@ -12,6 +12,8 @@ import {
   Clock,
 } from "lucide-react";
 import Link from "next/link";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { formatMoneyCAD } from "@/lib/mock/budgets";
 
 export default function SavingGoalsBox({ goal, onDelete }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -43,25 +45,6 @@ export default function SavingGoalsBox({ goal, onDelete }) {
     return diffDays > 0 ? diffDays : "Expired";
   };
 
-  // Handle box click (excluding menu button)
-  const handleBoxClick = (e) => {
-    // Don't trigger if clicking on the menu button or dropdown
-    if (
-      e.target.closest('button[class*="p-1"]') ||
-      e.target.closest('[class*="absolute top-12"]')
-    ) {
-      return;
-    }
-    setShowInfoDialog(true);
-  };
-
-  // Handle overlay click (close dialog when clicking outside)
-  const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) {
-      setShowInfoDialog(false);
-    }
-  };
-
   return (
     <div
       className={`relative min-h-45 w-full p-5
@@ -69,7 +52,7 @@ export default function SavingGoalsBox({ goal, onDelete }) {
                   flex flex-col justify-between ${cardColor()}
                 cursor-pointer hover:opacity-95 transition-opacity
                 `}
-      onClick={handleBoxClick}
+      onClick={() => setShowInfoDialog(true)}
     >
       {/* Menu */}
       <div className="flex justify-between items-start">
@@ -130,6 +113,12 @@ export default function SavingGoalsBox({ goal, onDelete }) {
       <div className="mt-4">
         <div className="flex justify-between text-sm mb-1">
           <span>Progress</span>
+
+          <span className="text-xs opacity-90">
+            {formatMoneyCAD(goal.currentAmount)} /{" "}
+            {formatMoneyCAD(goal.targetAmount)}
+          </span>
+
           <span className="font-medium">{goal.progress}%</span>
         </div>
         <div className="w-full bg-white/30 rounded-full h-2.5">
@@ -142,13 +131,11 @@ export default function SavingGoalsBox({ goal, onDelete }) {
 
       {/* Info Dialog - Made Wider */}
       {showInfoDialog && (
-        <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-70 p-4"
-          onClick={handleOverlayClick} // Close when clicking on overlay
-        >
-          <div
-            className="bg-white rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside dialog
+        <Dialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
+          <DialogContent
+            showCloseButton={false}
+            className="p-0 rounded-2xl shadow-xl max-w-2xl! w-full max-h-[92vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Dialog Header - Fixed with better layout */}
             <div className="sticky top-0 bg-white border-b border-gray-200 p-6 rounded-t-2xl">
@@ -177,19 +164,11 @@ export default function SavingGoalsBox({ goal, onDelete }) {
                     <p className="text-gray-500 text-sm mt-1">Goal Details</p>
                   </div>
                 </div>
-
-                {/* Close Button */}
-                <button
-                  onClick={() => setShowInfoDialog(false)}
-                  className="shrink-0 p-2 hover:bg-gray-100 rounded-lg transition self-start sm:self-center"
-                >
-                  <X size={24} />
-                </button>
               </div>
             </div>
 
             {/* Dialog Content */}
-            <div className="p-6 space-y-6">
+            <div className="p-6 pt-0 space-y-6">
               {/* Progress Section */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
@@ -198,6 +177,7 @@ export default function SavingGoalsBox({ goal, onDelete }) {
                     Progress Overview
                   </h3>
                 </div>
+
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div
                     className={`h-3 rounded-full ${
@@ -208,7 +188,12 @@ export default function SavingGoalsBox({ goal, onDelete }) {
                           : "bg-green-500"
                     }`}
                     style={{ width: `${goal.progress}%` }}
-                  ></div>
+                  />
+                </div>
+
+                <div className="flex justify-between text-sm text-gray-600">
+                  <span>{formatMoneyCAD(goal.currentAmount)} saved</span>
+                  <span>{formatMoneyCAD(goal.targetAmount)} target</span>
                 </div>
               </div>
 
@@ -343,14 +328,14 @@ export default function SavingGoalsBox({ goal, onDelete }) {
               <div className="flex justify-end">
                 <button
                   onClick={() => setShowInfoDialog(false)}
-                  className="px-6 py-3 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium transition"
+                  className="px-6 py-3 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium transition cursor-pointer"
                 >
                   Close
                 </button>
               </div>
             </div>
-          </div>
-        </div>
+          </DialogContent>
+        </Dialog>
       )}
     </div>
   );

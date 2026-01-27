@@ -3,7 +3,6 @@
 import { useState } from "react";
 import {
   MoreVertical,
-  X,
   Calendar,
   Target,
   DollarSign,
@@ -18,10 +17,14 @@ import { formatMoneyCAD } from "@/lib/mock/budgets";
 export default function SavingGoalsBox({ goal, onDelete }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showInfoDialog, setShowInfoDialog] = useState(false);
+  const progress =
+    goal.targetAmount > 0
+      ? Math.round((goal.currentAmount / goal.targetAmount) * 100)
+      : 0;
 
   function cardColor() {
-    if (goal.progress < 40) return "bg-orange-400";
-    if (goal.progress < 80) return "bg-yellow-400";
+    if (progress < 40) return "bg-orange-400";
+    if (progress < 80) return "bg-yellow-400";
     return "bg-green-400";
   }
   // Format date for display
@@ -58,7 +61,7 @@ export default function SavingGoalsBox({ goal, onDelete }) {
       <div className="flex justify-between items-start">
         <div className="flex-1">
           <h3 className="text-lg font-bold mb-1">{goal.purpose}</h3>
-          <p className="text-sm opacity-90">{goal.progress}% complete</p>
+          <p className="text-sm opacity-90">{progress.toFixed(2)}% complete</p>
         </div>
 
         <button
@@ -87,7 +90,7 @@ export default function SavingGoalsBox({ goal, onDelete }) {
           </Link>
 
           {/* Add Amount Button */}
-          <button
+          {/* <button
             onClick={() => {
               setMenuOpen(false);
               // Add amount logic will go here
@@ -95,7 +98,7 @@ export default function SavingGoalsBox({ goal, onDelete }) {
             className="block w-full px-4 py-2.5 hover:bg-gray-100 text-left cursor-pointer border-t border-gray-200"
           >
             Add Amount
-          </button>
+          </button> */}
 
           <button
             onClick={() => {
@@ -119,12 +122,12 @@ export default function SavingGoalsBox({ goal, onDelete }) {
             {formatMoneyCAD(goal.targetAmount)}
           </span>
 
-          <span className="font-medium">{goal.progress}%</span>
+          <span className="font-medium">{progress.toFixed(2)}%</span>
         </div>
         <div className="w-full bg-white/30 rounded-full h-2.5">
           <div
             className="bg-white h-2.5 rounded-full"
-            style={{ width: `${goal.progress}%` }}
+            style={{ width: `${progress}%` }}
           ></div>
         </div>
       </div>
@@ -144,15 +147,15 @@ export default function SavingGoalsBox({ goal, onDelete }) {
                   {/* Percentage Circle - Now with dynamic sizing */}
                   <div
                     className={`shrink-0 w-20 h-16 rounded-full flex items-center justify-center ${
-                      goal.progress < 40
+                      progress < 40
                         ? "bg-orange-100 text-orange-800"
-                        : goal.progress < 80
+                        : progress < 80
                           ? "bg-yellow-100 text-yellow-800"
                           : "bg-green-100 text-green-800"
                     }`}
                   >
                     <span className="text-lg font-bold whitespace-nowrap">
-                      {goal.progress < 1000 ? `${goal.progress}%` : "100%"}
+                      {progress.toFixed(2)}%
                     </span>
                   </div>
 
@@ -181,13 +184,13 @@ export default function SavingGoalsBox({ goal, onDelete }) {
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div
                     className={`h-3 rounded-full ${
-                      goal.progress < 40
+                      progress < 40
                         ? "bg-orange-500"
-                        : goal.progress < 80
+                        : progress < 80
                           ? "bg-yellow-500"
                           : "bg-green-500"
                     }`}
-                    style={{ width: `${goal.progress}%` }}
+                    style={{ width: `${progress}%` }}
                   />
                 </div>
 
@@ -205,7 +208,9 @@ export default function SavingGoalsBox({ goal, onDelete }) {
                     <span className="font-medium">Target Amount</span>
                   </div>
                   <div className="text-2xl font-bold text-gray-800">
-                    ${goal.targetAmount?.toLocaleString() || "0"}
+                    {formatMoneyCAD(
+                      goal.targetAmount?.toLocaleString() || Number("0"),
+                    )}
                   </div>
                 </div>
 
@@ -215,7 +220,9 @@ export default function SavingGoalsBox({ goal, onDelete }) {
                     <span className="font-medium">Saved Amount</span>
                   </div>
                   <div className="text-2xl font-bold text-green-700">
-                    ${goal.currentAmount?.toLocaleString() || "0"}
+                    {formatMoneyCAD(
+                      goal.currentAmount?.toLocaleString() || Number("0"),
+                    )}
                   </div>
                 </div>
 
@@ -225,7 +232,9 @@ export default function SavingGoalsBox({ goal, onDelete }) {
                     <span className="font-medium">Remaining</span>
                   </div>
                   <div className="text-2xl font-bold text-purple-700">
-                    {(goal.targetAmount || 0) - (goal.currentAmount || 0)}
+                    {formatMoneyCAD(
+                      (goal.targetAmount || 0) - (goal.currentAmount || 0),
+                    )}
                   </div>
                 </div>
               </div>

@@ -17,7 +17,7 @@ import DeleteBudgetAlert from "@/components/DeleteBudgetAlert";
 export default function BudgetItemCard({ budget, index = 0, onDelete }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openDetails, setOpenDetails] = useState(false);
-  const p = percent(budget.spent, budget.amount);
+  const p = percent(budget.usedAmount, budget.amount);
 
   const formatDate = (dateString) => {
     if (!dateString) return "Not set";

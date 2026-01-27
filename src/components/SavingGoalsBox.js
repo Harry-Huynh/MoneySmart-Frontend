@@ -215,14 +215,7 @@ export default function SavingGoalsBox({ goal, onDelete }) {
                     <span className="font-medium">Saved Amount</span>
                   </div>
                   <div className="text-2xl font-bold text-green-700">
-                    $
-                    {(
-                      ((goal.targetAmount || 0) * goal.progress) /
-                      100
-                    ).toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
+                    ${goal.currentAmount?.toLocaleString() || "0"}
                   </div>
                 </div>
 
@@ -232,14 +225,7 @@ export default function SavingGoalsBox({ goal, onDelete }) {
                     <span className="font-medium">Remaining</span>
                   </div>
                   <div className="text-2xl font-bold text-purple-700">
-                    $
-                    {(
-                      (goal.targetAmount || 0) *
-                      (1 - goal.progress / 100)
-                    ).toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })}
+                    {(goal.targetAmount || 0) - (goal.currentAmount || 0)}
                   </div>
                 </div>
               </div>

@@ -112,7 +112,8 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
             <span>Progress</span>
 
             <span className="text-xs opacity-90">
-              {formatMoneyCAD(budget.spent)} / {formatMoneyCAD(budget.amount)}
+              {formatMoneyCAD(budget.usedAmount)} /{" "}
+              {formatMoneyCAD(budget.amount)}
             </span>
 
             <span>{p.toFixed(2)}%</span>
@@ -172,7 +173,7 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
               </div>
 
               <div className="flex justify-between text-sm text-gray-600">
-                <span>{formatMoneyCAD(budget.spent)} spent</span>
+                <span>{formatMoneyCAD(budget.usedAmount)} spent</span>
                 <span>{formatMoneyCAD(budget.amount)} total</span>
               </div>
             </div>

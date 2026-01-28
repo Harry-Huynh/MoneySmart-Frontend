@@ -33,7 +33,7 @@ const items = [
   },
   {
     title: "Transactions",
-    url: "/transaction",
+    url: "/transactions",
     icon: FaMoneyBillTransfer,
   },
   {

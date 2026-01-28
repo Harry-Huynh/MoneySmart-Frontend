@@ -1,0 +1,237 @@
+"use client";
+
+import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
+
+import { MdSaveAlt } from "react-icons/md";
+import { FaPlus } from "react-icons/fa6";
+import TransactionSummaryCard from "@/components/TransactionSummaryBox";
+import TransactionSegmentedFilter from "@/components/TransactionSegmentedFilter";
+import TransactionItemRow from "@/components/TransactionItemRow";
+import { groupByDay } from "@/lib/utils";
+
+export default function TransactionsPage() {
+  const mockTransactions = [
+    {
+      id: 1,
+      category: "Paycheck",
+      amount: "1000.00",
+      type: "INCOME",
+      date: "2026-01-28T00:00:00.000Z",
+      note: "Paycheck Jan/2026",
+      paymentMethod: "CARD",
+    },
+    {
+      id: 2,
+      category: "Food",
+      amount: "50.00",
+      type: "EXPENSE",
+      date: "2026-01-28T00:00:00.000Z",
+      note: "Metro groceries",
+      paymentMethod: "CARD",
+    },
+    {
+      id: 3,
+      category: "Investment Interest",
+      amount: "10.00",
+      type: "INCOME",
+      date: "2026-01-28T00:00:00.000Z",
+      note: "Change from expense to income",
+      paymentMethod: "CASH",
+    },
+    {
+      id: 4,
+      category: "OTHER",
+      amount: "800.00",
+      type: "INCOME",
+      date: "2026-01-27T00:00:00.000Z",
+      note: "Paycheck",
+      paymentMethod: "CARD",
+    },
+    {
+      id: 5,
+      category: "BUDGET",
+      amount: "50.00",
+      type: "EXPENSE",
+      date: "2026-01-27T00:00:00.000Z",
+      note: "Metro groceries",
+      paymentMethod: "CARD",
+    },
+    {
+      id: 6,
+      category: "OTHER",
+      amount: "10.00",
+      type: "INCOME",
+      date: "2026-01-27T00:00:00.000Z",
+      note: "Change from expense to income",
+      paymentMethod: "CASH",
+    },
+    {
+      id: 7,
+      category: "OTHER",
+      amount: "700.00",
+      type: "INCOME",
+      date: "2026-01-26T00:00:00.000Z",
+      note: "Paycheck",
+      paymentMethod: "CARD",
+    },
+    {
+      id: 8,
+      category: "BUDGET",
+      amount: "50.00",
+      type: "EXPENSE",
+      date: "2026-01-26T00:00:00.000Z",
+      note: "Metro groceries",
+      paymentMethod: "CARD",
+    },
+    {
+      id: 9,
+      category: "OTHER",
+      amount: "10.00",
+      type: "INCOME",
+      date: "2026-01-26T00:00:00.000Z",
+      note: "Change from expense to income",
+      paymentMethod: "CASH",
+    },
+    {
+      id: 10,
+      category: "OTHER",
+      amount: "1000.00",
+      type: "INCOME",
+      date: "2026-01-25T00:00:00.000Z",
+      note: "Paycheck",
+      paymentMethod: "CARD",
+    },
+    {
+      id: 11,
+      category: "BUDGET",
+      amount: "50.00",
+      type: "EXPENSE",
+      date: "2026-01-24T00:00:00.000Z",
+      note: "Metro groceries",
+      paymentMethod: "CARD",
+    },
+    {
+      id: 12,
+      category: "OTHER",
+      amount: "10.00",
+      type: "INCOME",
+      date: "2026-01-22T00:00:00.000Z",
+      note: "Change from expense to income",
+      paymentMethod: "CASH",
+    },
+  ];
+
+  const [transactions, setTransactions] = useState(() => mockTransactions);
+  const [incomes, setIncomes] = useState([]); // for fetching all incomes from backend http://localhost:8080/api/transactions?type=INCOME
+  const [expenses, setExpenses] = useState([]); // for fetching all expenses from backend http://localhost:8080/api/transactions?type=EXPENSE
+  const [filter, setFilter] = useState("All"); // State for the Segmented Filter
+
+  const currentBalance = useMemo(() => {
+    return transactions.reduce((sum, t) => {
+      const amount = Number(t.amount) || 0;
+
+      if (t.type === "INCOME") return sum + amount;
+      if (t.type === "EXPENSE") return sum - amount;
+
+      return sum;
+    }, 0);
+  }, [transactions]);
+
+  const totalIncome = useMemo(() => {
+    return incomes.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+  }, [incomes]);
+
+  const totalExpense = useMemo(() => {
+    return expenses.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+  }, [expenses]);
+
+  const cards = [
+    {
+      title: "Current Balance",
+      amount: currentBalance,
+      summaryType: "All",
+    },
+    {
+      title: "Total Income",
+      amount: totalIncome,
+      summaryType: "Income",
+    },
+    {
+      title: "Total Expense",
+      amount: -totalExpense,
+      summaryType: "Expense",
+    },
+  ];
+
+  const filtered = useMemo(() => {
+    if (filter === "Income")
+      return transactions.filter((t) => t.type === "INCOME");
+    if (filter === "Expense")
+      return transactions.filter((t) => t.type === "EXPENSE");
+    return transactions;
+  }, [transactions, filter]);
+
+  const groupedByLabel = useMemo(() => {
+    const sorted = [...filtered].sort(
+      (a, b) => new Date(b.date) - new Date(a.date),
+    );
+    return groupByDay(sorted);
+  }, [filtered]);
+
+  return (
+    <section className="min-h-screen bg-gray-100 flex justify-center py-10">
+      <div className="w-full max-w-5xl bg-white rounded-3xl shadow-xl flex flex-col gap-2">
+        <div className="w-full px-8 py-6 flex flex-wrap justify-between items-center">
+          <div className="">
+            <h1 className="text-2xl font-bold mb-1">Transactions</h1>
+            <p className="text-sml text-gray-500">
+              Manage and review your transactions
+            </p>
+          </div>
+          <div className="w-full grid grid-cols-2 gap-4 mt-2 md:mt-0 md:w-auto">
+            <button className="px-3 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-200 font-medium transition cursor-pointer flex items-center justify-center gap-2">
+              <MdSaveAlt size={18} /> Export
+            </button>
+            <Link
+              href="/transactions/add"
+              className="px-3 py-2 border border-green-300 text-green-700 rounded-lg bg-white hover:bg-green-100 hover:text-stone-700 font-medium transition cursor-pointer flex items-center justify-center gap-2"
+            >
+              <FaPlus size={18} /> Add Transaction
+            </Link>
+          </div>
+        </div>
+        <div className="w-full px-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+          {cards.map((c) => (
+            <TransactionSummaryCard
+              key={c.title}
+              title={c.title}
+              amount={c.amount}
+              summaryType={c.summaryType}
+            />
+          ))}
+        </div>
+        <TransactionSegmentedFilter value={filter} onChange={setFilter} />
+
+        <div className="w-full px-3 pb-5">
+          {groupedByLabel.length === 0 ? (
+            <div className="mx-5 mt-4 px-6 py-10 text-center bg-gray-50 rounded-xl border border-dashed">
+              <p className="text-gray-500 text-sm">No transactions found.</p>
+            </div>
+          ) : (
+            groupedByLabel.map(([label, txs]) => (
+              <div key={label} className="px-6 select-none">
+                <p className="text-gray-500 text-sm pt-5 pb-2">{label}</p>
+                {txs.map((tx) => (
+                  <TransactionItemRow key={tx.id} transaction={tx} />
+                ))}
+              </div>
+            ))
+          )}
+
+          {}
+        </div>
+      </div>
+    </section>
+  );
+}

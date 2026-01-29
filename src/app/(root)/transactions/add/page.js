@@ -149,11 +149,15 @@ export default function AddTransactionPage() {
                     if (type === "EXPENSE") {
                       const name = category.map((cat) => cat.purpose);
 
-                      if (!name.includes(value) && value !== "Other") {
-                        return "Invalid category. Type of transaction and the category do not match.";
+                      if (
+                        !name.includes(value) &&
+                        value !== "Other" &&
+                        value !== "Investments"
+                      ) {
+                        return "Invalid category";
                       }
                     } else if (type === "INCOME") {
-                      const incomeCategories = [
+                      const incomeCategory = [
                         "Salary",
                         "Freelance",
                         "Investments",
@@ -164,10 +168,10 @@ export default function AddTransactionPage() {
                       ];
 
                       if (
-                        !incomeCategories.includes(value) &&
+                        !incomeCategory.includes(value) &&
                         value !== "Other"
                       ) {
-                        return "Invalid category. Type of transaction and the category do not match.";
+                        return "Invalid category";
                       }
                     }
 
@@ -177,26 +181,21 @@ export default function AddTransactionPage() {
                 className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
               >
                 <option value="">Select a category</option>
-                <optgroup label="Expenses">
-                  {category.map((cat) => (
-                    <option key={cat.id} value={cat.purpose}>
-                      {cat.purpose}
-                    </option>
-                  ))}
-                </optgroup>
+                {category.map((cat) => (
+                  <option key={cat.id} value={cat.purpose}>
+                    {cat.purpose}
+                  </option>
+                ))}
 
                 {!isSavingGoal && (
                   <>
-                    <optgroup label="Income">
-                      <option value="Salary">Salary</option>
-                      <option value="Freelance">Freelance</option>
-                      <option value="Investments">Investments</option>
-                      <option value="Rental">Rental</option>
-                      <option value="Business">Business</option>
-                      <option value="Gifts">Gifts</option>
-                      <option value="Refunds">Refunds</option>
-                    </optgroup>
-
+                    <option value="Salary">Salary</option>
+                    <option value="Freelance">Freelance</option>
+                    <option value="Investments">Investments</option>
+                    <option value="Rental">Rental</option>
+                    <option value="Business">Business</option>
+                    <option value="Gifts">Gifts</option>
+                    <option value="Refunds">Refunds</option>
                     <option value="Other">Other</option>
                   </>
                 )}
@@ -246,18 +245,8 @@ export default function AddTransactionPage() {
                 type="date"
                 {...register("date", {
                   required: true,
-                  validate: (value) => {
-                    const selectedDate = new Date(value);
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    return (
-                      selectedDate <= today ||
-                      "Target date must be today or in the past"
-                    );
-                  },
                 })}
                 className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent cursor-pointer"
-                max={new Date().toISOString().split("T")[0]} // Set min to today
               />
 
               {errors.date && (

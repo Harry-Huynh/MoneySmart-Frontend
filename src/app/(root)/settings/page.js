@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import {
   MdChevronRight,
@@ -69,47 +67,43 @@ export default function SettingsPage() {
             const Icon = item.icon;
 
             return (
-           <Link
-                    key={item.title}
-                    href={item.href}
-                    className="
+              <Link
+                key={item.title}
+                href={item.href}
+                className="
                         group
                         flex items-center justify-between
                         px-4 py-4 rounded-xl border border-gray-200
                         transition-all duration-200
                         hover:bg-emerald-50 hover:border-emerald-200
                 "
->
+              >
                 <div className="flex items-center gap-4">
-                 <div
-                        className="
+                  <div
+                    className="
                             p-2 rounded-lg
                             bg-gray-100 text-gray-600
                             transition-colors
                             group-hover:bg-emerald-100 group-hover:text-emerald-600
                         "
-                        >
+                  >
                     <Icon size={20} />
-                    </div>
-
+                  </div>
 
                   <div>
                     <p className="font-medium">{item.title}</p>
-                    <p className="text-sm text-gray-500">
-                      {item.description}
-                    </p>
+                    <p className="text-sm text-gray-500">{item.description}</p>
                   </div>
                 </div>
 
-               <MdChevronRight
-                    size={22}
-                    className="
+                <MdChevronRight
+                  size={22}
+                  className="
                         text-gray-400
                         transition-transform duration-200
                         group-hover:translate-x-1
                     "
-                    />
-
+                />
               </Link>
             );
           })}

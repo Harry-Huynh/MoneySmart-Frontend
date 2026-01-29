@@ -62,8 +62,7 @@ export default function AddTransactionPage() {
         amount: Number(data.amount),
       };
 
-      // Trigger the function for transaction using formattedData
-      console.log(formattedData);
+      // Trigger the function for adding a transaction using formattedData
 
       reset({
         type: "EXPENSE",
@@ -73,7 +72,12 @@ export default function AddTransactionPage() {
         paymentMethod: "CARD",
         note: "",
       });
-      router.replace("/transactions");
+
+      if (isSavingGoal) {
+        router.replace("/saving-goals");
+      } else {
+        router.replace("/transactions");
+      }
     } catch (error) {
       setWarningMessage(error.message);
     } finally {
@@ -82,7 +86,11 @@ export default function AddTransactionPage() {
   };
 
   const handleCancel = () => {
-    router.push("/transactions");
+    if (isSavingGoal) {
+      router.replace("/saving-goals");
+    } else {
+      router.replace("/transactions");
+    }
   };
 
   return (
@@ -257,7 +265,7 @@ export default function AddTransactionPage() {
                   },
                 })}
                 className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent cursor-pointer"
-                max={new Date().toISOString().split("T")[0]} // Set min to today
+                max={new Date().toISOString().split("T")[0]} // Set max to today
               />
 
               {errors.date && (

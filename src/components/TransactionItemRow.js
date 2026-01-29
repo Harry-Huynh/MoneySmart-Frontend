@@ -1,13 +1,14 @@
 import { formatMoneyCAD } from "@/lib/mock/budgets";
 import React from "react";
 import { FiArrowUpRight, FiArrowDownLeft } from "react-icons/fi";
+import { FaRegTrashCan } from "react-icons/fa6";
 
 export default function TransactionItemRow({ transaction }) {
   const isIncome = transaction.type === "INCOME";
 
   return (
     <div
-      className={`w-full py-2 flex items-center justify-between border-b border-gray-100 gap-4 select-none`}
+      className={`w-full py-2 px-2 my-2 flex items-center justify-between border border-gray-100 rounded-md gap-4 select-none hover:border-gray-300 group`}
     >
       <div
         className={`w-12 h-12 rounded-full flex items-center justify-center ${isIncome ? "bg-green-100" : "bg-red-100"}`}
@@ -31,6 +32,12 @@ export default function TransactionItemRow({ transaction }) {
       >
         {(isIncome ? "+" : "-") + formatMoneyCAD(transaction.amount)}
       </span>
+      <div
+        className="w-8 h-8 flex justify-center items-center rounded-sm invisible group-hover:visible
+          hover:bg-red-100 cursor-pointer"
+      >
+        <FaRegTrashCan className="text-gray-400 hover:text-red-600" />
+      </div>
     </div>
   );
 }

@@ -31,12 +31,16 @@ export default function DeleteBudgetAlert({
 
           <AlertDialogPrimitive.Description className="mt-2 text-sm text-slate-600">
             Are you sure you want to delete{" "}
-          <strong className="text-red-500">{budgetName}</strong>? This action can&apos;t be undone.
+            <strong className="text-red-500">{budgetName}</strong>? This action
+            can&apos;t be undone.
           </AlertDialogPrimitive.Description>
 
           <div className="mt-6 flex justify-end gap-3">
             <AlertDialogPrimitive.Cancel asChild>
-              <Button variant="outline" className="cursor-pointer hover:bg-slate-100">
+              <Button
+                variant="outline"
+                className="cursor-pointer hover:bg-slate-100"
+              >
                 Cancel
               </Button>
             </AlertDialogPrimitive.Cancel>

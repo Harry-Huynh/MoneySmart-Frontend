@@ -3,8 +3,26 @@ import React from "react";
 import { FiArrowUpRight, FiArrowDownLeft } from "react-icons/fi";
 import { FaRegTrashCan } from "react-icons/fa6";
 
-export default function TransactionItemRow({ transaction }) {
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+import { Button } from "@/components/ui/button";
+
+export default function TransactionItemRow({ transaction, onDelete }) {
   const isIncome = transaction.type === "INCOME";
+
+  function handleDelete() {
+    onDelete(transaction.id);
+  }
 
   return (
     <div
@@ -32,12 +50,37 @@ export default function TransactionItemRow({ transaction }) {
       >
         {(isIncome ? "+" : "-") + formatMoneyCAD(transaction.amount)}
       </span>
-      <div
-        className="w-8 h-8 flex justify-center items-center rounded-sm invisible group-hover:visible
+
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <div
+            className="w-8 h-8 flex justify-center items-center rounded-sm invisible group-hover:visible
           hover:bg-red-100 cursor-pointer"
-      >
-        <FaRegTrashCan className="text-gray-400 hover:text-red-600" />
-      </div>
+          >
+            <FaRegTrashCan className="text-gray-400 hover:text-red-600" />
+          </div>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-lg font-semibold text-red-500">
+              Delete Transaction?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete this
+              transaction from your account.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -127,6 +127,7 @@ export default function TransactionsPage() {
   const [expenses, setExpenses] = useState([]); // for fetching all expenses from backend http://localhost:8080/api/transactions?type=EXPENSE
   const [filter, setFilter] = useState("All"); // State for the Segmented Filter
 
+  // Canculation for total balance
   const currentBalance = useMemo(() => {
     return transactions.reduce((sum, t) => {
       const amount = Number(t.amount) || 0;
@@ -138,14 +139,17 @@ export default function TransactionsPage() {
     }, 0);
   }, [transactions]);
 
+  // Calculation for total income
   const totalIncome = useMemo(() => {
     return incomes.reduce((sum, t) => sum + Number(t.amount || 0), 0);
   }, [incomes]);
 
+  // Calculation for total expense
   const totalExpense = useMemo(() => {
     return expenses.reduce((sum, t) => sum + Number(t.amount || 0), 0);
   }, [expenses]);
 
+  // Cards needed for 3 summary boxes
   const cards = [
     {
       title: "Current Balance",
@@ -164,6 +168,7 @@ export default function TransactionsPage() {
     },
   ];
 
+  // When filter changes, filter transactions base on transaction type
   const filtered = useMemo(() => {
     if (filter === "Income")
       return transactions.filter((t) => t.type === "INCOME");
@@ -172,12 +177,19 @@ export default function TransactionsPage() {
     return transactions;
   }, [transactions, filter]);
 
+  // Group by date label
   const groupedByLabel = useMemo(() => {
     const sorted = [...filtered].sort(
       (a, b) => new Date(b.date) - new Date(a.date),
     );
     return groupByDay(sorted);
   }, [filtered]);
+
+  // Delete transaction
+  function handleDeleteTransaction(id) {
+    // Add await function delete here to delete transaction in backend
+    setTransactions((prev) => prev.filter((t) => t.id !== id));
+  }
 
   return (
     <section className="min-h-screen bg-gray-100 flex justify-center py-10">
@@ -223,12 +235,15 @@ export default function TransactionsPage() {
               <div key={label} className="px-6 select-none">
                 <p className="text-gray-500 text-sm pt-5 pb-2">{label}</p>
                 {txs.map((tx) => (
-                  <TransactionItemRow key={tx.id} transaction={tx} />
+                  <TransactionItemRow
+                    key={tx.id}
+                    transaction={tx}
+                    onDelete={handleDeleteTransaction}
+                  />
                 ))}
               </div>
             ))
           )}
-
           {}
         </div>
       </div>

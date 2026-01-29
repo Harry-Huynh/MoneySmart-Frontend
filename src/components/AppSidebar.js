@@ -48,7 +48,7 @@ const items = [
   },
   {
     title: "Settings",
-    url: "/setting",
+    url: "/settings",
     icon: IoSettingsOutline,
   },
   {

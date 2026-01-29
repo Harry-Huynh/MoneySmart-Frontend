@@ -12,6 +12,7 @@ import SavingGoalsCard from "@/components/SavingGoalsCard";
 import TransactionItem from "@/components/TransactionItem";
 import AddFundsModal from "@/components/AddFundsModal";
 
+
 export default function DashboardClient({ dashboardMockData, name }) {
   const router = useRouter();
   const searchParams = useSearchParams();

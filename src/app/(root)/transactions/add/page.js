@@ -1,15 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
 import { getAllBudgets } from "@/lib/budget.actions";
 import { getAllSavingGoals } from "@/lib/savingGoal.actions";
+import { addTransaction } from "@/lib/transaction.actions";
+
 
 export default function AddTransactionPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [warningMessage, setWarningMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState([]);
@@ -30,68 +31,94 @@ export default function AddTransactionPage() {
     },
   });
 
-  // To add the transaction for saving goals
-  const isSavingGoal = searchParams.get("savingGoals") === "true";
-
   const type = watch("type");
 
   // Get categories
   useEffect(() => {
-    if (isSavingGoal) {
-      async function fetchSavingGoals() {
-        const { savingGoals: categories } = await getAllSavingGoals();
-        setCategory(categories);
-      }
-      fetchSavingGoals();
-    } else {
-      async function fetchBudgets() {
-        const { budgets: categories } = await getAllBudgets();
-        setCategory(categories);
-      }
-      fetchBudgets();
-    }
-  }, [isSavingGoal, reset]);
+  async function fetchExpenseCategories() {
+    const [b, s] = await Promise.all([getAllBudgets(), getAllSavingGoals()]);
+
+    const merged = [
+      ...(b.budgets || []).map((x) => ({
+        id: x.id,
+        name: x.purpose,
+        model: "Budget",
+      })),
+      ...(s.savingGoals || []).map((x) => ({
+        id: x.id,
+        name: x.purpose,
+        model: "SavingGoal",
+      })),
+    ];
+
+    setCategory(merged);
+  }
+
+  if (type === "EXPENSE") {
+    fetchExpenseCategories().catch((e) => setWarningMessage(e.message));
+  }
+}, [type]);
+
 
   const handleSave = async (data) => {
-    setLoading(true);
+  setLoading(true);
+  setWarningMessage("");
 
-    try {
-      // Convert amount to number if it's a string
-      const formattedData = {
-        ...data,
-        amount: Number(data.amount),
-      };
+  try {
+    const payload = {
+      type: data.type,
+      amount: Number(data.amount),
+      date: data.date,
+      paymentMethod: data.paymentMethod,
+      note: data.note,
+    };
 
-      // Trigger the function for adding a transaction using formattedData
+    if (data.type === "INCOME") {
+      payload.category = data.category; 
+    } else {
+      const selected = category.find(
+        (c) => `${c.model}:${c.id}` === data.category
+      );
 
-      reset({
-        type: "EXPENSE",
-        category: "",
-        amount: "",
-        date: "",
-        paymentMethod: "CARD",
-        note: "",
-      });
-
-      if (isSavingGoal) {
-        router.replace("/saving-goals");
-      } else {
-        router.replace("/transactions");
+      if (!selected) {
+        throw new Error("Please select a Budget or SavingGoal.");
       }
-    } catch (error) {
-      setWarningMessage(error.message);
-    } finally {
-      setLoading(false);
+
+      payload.category = selected.name;
+
+      if (selected.model === "Budget") {
+        payload.budgetId = selected.id;
+        payload.savingGoalId = null;
+      } else {
+        payload.budgetId = null;
+        payload.savingGoalId = selected.id;
+      }
     }
-  };
+
+    await addTransaction(payload);
+
+    reset({
+      type: "EXPENSE",
+      category: "",
+      amount: "",
+      date: "",
+      paymentMethod: "CARD",
+      note: "",
+    });
+
+    router.replace("/transactions");
+  } catch (error) {
+    setWarningMessage(error.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleCancel = () => {
-    if (isSavingGoal) {
-      router.replace("/saving-goals");
-    } else {
-      router.replace("/transactions");
-    }
-  };
+  router.replace("/transactions");
+};
+
 
   return (
     <section className="flex justify-center items-center min-h-screen bg-gray-50 px-6 py-10">
@@ -119,28 +146,13 @@ export default function AddTransactionPage() {
             {/* Type of transaction */}
             <div className="flex flex-col gap-2">
               <label className="font-medium text-gray-700">Type:</label>
-              {isSavingGoal ? (
-                <>
-                  {/* Display-only input */}
-                  <input
-                    type="text"
-                    value="Expense"
-                    className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                    readOnly
-                  />
-
-                  {/* Actual submitted value */}
-                  <input type="hidden" {...register("type")} value="EXPENSE" />
-                </>
-              ) : (
-                <select
-                  {...register("type", { required: true })}
-                  className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                >
-                  <option value="EXPENSE">Expense</option>
-                  <option value="INCOME">Income</option>
-                </select>
-              )}
+              <select
+  {...register("type", { required: true })}
+  className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+>
+  <option value="EXPENSE">Expense</option>
+  <option value="INCOME">Income</option>
+</select>
 
               {errors.type && (
                 <p className="text-sm text-red-500">Type is required</p>
@@ -151,64 +163,61 @@ export default function AddTransactionPage() {
             <div className="flex flex-col gap-2">
               <label className="font-medium text-gray-700">Category:</label>
               <select
-                {...register("category", {
-                  required: true,
-                  validate: (value) => {
-                    if (type === "EXPENSE") {
-                      const name = category.map((cat) => cat.purpose);
+  {...register("category", {
+    required: true,
+    validate: (value) => {
+      if (type === "EXPENSE") {
+        const keys = category.map((c) => `${c.model}:${c.id}`);
+        return keys.includes(value) || "Please select a Budget or SavingGoal.";
+      }
 
-                      if (!name.includes(value) && value !== "Other") {
-                        return "Invalid category. Type of transaction and the category do not match.";
-                      }
-                    } else if (type === "INCOME") {
-                      const incomeCategories = [
-                        "Salary",
-                        "Freelance",
-                        "Investments",
-                        "Rental",
-                        "Business",
-                        "Gifts",
-                        "Refunds",
-                      ];
+      if (type === "INCOME") {
+        const incomeCategories = [
+          "Salary",
+          "Freelance",
+          "Investments",
+          "Rental",
+          "Business",
+          "Gifts",
+          "Refunds",
+          "Other",
+        ];
+        return incomeCategories.includes(value) || "Invalid income category.";
+      }
 
-                      if (
-                        !incomeCategories.includes(value) &&
-                        value !== "Other"
-                      ) {
-                        return "Invalid category. Type of transaction and the category do not match.";
-                      }
-                    }
+      return true;
+    },
+  })}
+  className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+>
+  <option value="">Select a category</option>
 
-                    return true;
-                  },
-                })}
-                className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-              >
-                <option value="">Select a category</option>
-                <optgroup label="Expenses">
-                  {category.map((cat) => (
-                    <option key={cat.id} value={cat.purpose}>
-                      {cat.purpose}
-                    </option>
-                  ))}
-                </optgroup>
+  {type === "EXPENSE" && (
+    <optgroup label="Expenses">
+      {category.map((cat) => (
+        <option key={`${cat.model}:${cat.id}`} value={`${cat.model}:${cat.id}`}>
+          {cat.name} ({cat.model})
+        </option>
+      ))}
+    </optgroup>
+  )}
 
-                {!isSavingGoal && (
-                  <>
-                    <optgroup label="Income">
-                      <option value="Salary">Salary</option>
-                      <option value="Freelance">Freelance</option>
-                      <option value="Investments">Investments</option>
-                      <option value="Rental">Rental</option>
-                      <option value="Business">Business</option>
-                      <option value="Gifts">Gifts</option>
-                      <option value="Refunds">Refunds</option>
-                    </optgroup>
+  {type === "INCOME" && (
+    <>
+      <optgroup label="Income">
+        <option value="Salary">Salary</option>
+        <option value="Freelance">Freelance</option>
+        <option value="Investments">Investments</option>
+        <option value="Rental">Rental</option>
+        <option value="Business">Business</option>
+        <option value="Gifts">Gifts</option>
+        <option value="Refunds">Refunds</option>
+      </optgroup>
+      <option value="Other">Other</option>
+    </>
+  )}
+</select>
 
-                    <option value="Other">Other</option>
-                  </>
-                )}
-              </select>
               {errors.category && (
                 <p className="text-sm text-red-500">
                   {" "}

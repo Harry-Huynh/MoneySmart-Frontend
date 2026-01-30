@@ -26,25 +26,31 @@ function formatTransactionAmount(amountValue) {
 }
 
 export default function TransactionItem({ transactionItem }) {
-  const IconComponent = getTransactionIconComponent(transactionItem?.name);
+  const IconComponent = getTransactionIconComponent(transactionItem?.category);
   const amountText = formatTransactionAmount(transactionItem?.amount);
-
+  const { id } = transactionItem; 
   return (
     <Card className="p-5 rounded-2xl border shadow-sm">
       <div className="flex items-center gap-3 mb-3">
         {React.createElement(IconComponent, { className: "text-slate-700 text-xl" })}
-        <p className="font-semibold text-slate-800">{transactionItem?.name}</p>
+        <p className="font-semibold text-slate-800">{transactionItem?.category}</p>
       </div>
 
       <p className="text-slate-500 text-sm">{transactionItem?.date}</p>
       <p className="text-slate-700 mt-3">{amountText}</p>
 
       <div className="mt-4">
-        <Link href={`/transactions/${encodeURIComponent(transactionItem?.name || "unknown")}`}>
-          <Button variant="secondary" className="w-full rounded-xl">
+        {id ? (
+          <Link href={`/transactions/${id}`}>
+            <Button variant="secondary" className="w-full rounded-xl">
+              View details
+            </Button>
+          </Link>
+        ) : (
+          <Button variant="secondary" className="w-full rounded-xl" disabled>
             View details
           </Button>
-        </Link>
+        )}
       </div>
     </Card>
   );

@@ -9,125 +9,25 @@ import TransactionSummaryCard from "@/components/TransactionSummaryBox";
 import TransactionSegmentedFilter from "@/components/TransactionSegmentedFilter";
 import TransactionItemRow from "@/components/TransactionItemRow";
 import { groupByDay } from "@/lib/utils";
+import { getAllTransactions, deleteTransaction } from "@/lib/transaction.actions";
+
 
 export default function TransactionsPage() {
-  const mockTransactions = [
-    {
-      id: 1,
-      category: "Paycheck",
-      amount: "1000.00",
-      type: "INCOME",
-      date: "2026-01-28T00:00:00.000Z",
-      note: "Paycheck Jan/2026",
-      paymentMethod: "CARD",
-    },
-    {
-      id: 2,
-      category: "Food",
-      amount: "50.00",
-      type: "EXPENSE",
-      date: "2026-01-28T00:00:00.000Z",
-      note: "Metro groceries",
-      paymentMethod: "CARD",
-    },
-    {
-      id: 3,
-      category: "Investment Interest",
-      amount: "10.00",
-      type: "INCOME",
-      date: "2026-01-28T00:00:00.000Z",
-      note: "Change from expense to income",
-      paymentMethod: "CASH",
-    },
-    {
-      id: 4,
-      category: "OTHER",
-      amount: "800.00",
-      type: "INCOME",
-      date: "2026-01-27T00:00:00.000Z",
-      note: "Paycheck",
-      paymentMethod: "CARD",
-    },
-    {
-      id: 5,
-      category: "BUDGET",
-      amount: "50.00",
-      type: "EXPENSE",
-      date: "2026-01-27T00:00:00.000Z",
-      note: "Metro groceries",
-      paymentMethod: "CARD",
-    },
-    {
-      id: 6,
-      category: "OTHER",
-      amount: "10.00",
-      type: "INCOME",
-      date: "2026-01-27T00:00:00.000Z",
-      note: "Change from expense to income",
-      paymentMethod: "CASH",
-    },
-    {
-      id: 7,
-      category: "OTHER",
-      amount: "700.00",
-      type: "INCOME",
-      date: "2026-01-26T00:00:00.000Z",
-      note: "Paycheck",
-      paymentMethod: "CARD",
-    },
-    {
-      id: 8,
-      category: "BUDGET",
-      amount: "50.00",
-      type: "EXPENSE",
-      date: "2026-01-26T00:00:00.000Z",
-      note: "Metro groceries",
-      paymentMethod: "CARD",
-    },
-    {
-      id: 9,
-      category: "OTHER",
-      amount: "10.00",
-      type: "INCOME",
-      date: "2026-01-26T00:00:00.000Z",
-      note: "Change from expense to income",
-      paymentMethod: "CASH",
-    },
-    {
-      id: 10,
-      category: "OTHER",
-      amount: "1000.00",
-      type: "INCOME",
-      date: "2026-01-25T00:00:00.000Z",
-      note: "Paycheck",
-      paymentMethod: "CARD",
-    },
-    {
-      id: 11,
-      category: "BUDGET",
-      amount: "50.00",
-      type: "EXPENSE",
-      date: "2026-01-24T00:00:00.000Z",
-      note: "Metro groceries",
-      paymentMethod: "CARD",
-    },
-    {
-      id: 12,
-      category: "OTHER",
-      amount: "10.00",
-      type: "INCOME",
-      date: "2026-01-22T00:00:00.000Z",
-      note: "Change from expense to income",
-      paymentMethod: "CASH",
-    },
-  ];
-
-  const [transactions, setTransactions] = useState(() => mockTransactions);
-  const [incomes, setIncomes] = useState([]); // for fetching all incomes from backend http://localhost:8080/api/transactions?type=INCOME
-  const [expenses, setExpenses] = useState([]); // for fetching all expenses from backend http://localhost:8080/api/transactions?type=EXPENSE
   const [filter, setFilter] = useState("All"); // State for the Segmented Filter
+  const [transactions, setTransactions] = useState([]);
+  useEffect(() => {
+  async function fetchData() {
+    const typeParam =
+      filter === "Income" ? "INCOME" : filter === "Expense" ? "EXPENSE" : null;
 
-  // Canculation for total balance
+    const res = await getAllTransactions(typeParam);
+    setTransactions(res.transactions || []);
+  }
+
+  fetchData().catch(console.error);
+}, [filter]);
+
+  // Calculation for total balance
   const currentBalance = useMemo(() => {
     return transactions.reduce((sum, t) => {
       const amount = Number(t.amount) || 0;
@@ -141,13 +41,18 @@ export default function TransactionsPage() {
 
   // Calculation for total income
   const totalIncome = useMemo(() => {
-    return incomes.reduce((sum, t) => sum + Number(t.amount || 0), 0);
-  }, [incomes]);
+  return transactions
+    .filter((t) => t.type === "INCOME")
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+}, [transactions]);
 
   // Calculation for total expense
-  const totalExpense = useMemo(() => {
-    return expenses.reduce((sum, t) => sum + Number(t.amount || 0), 0);
-  }, [expenses]);
+const totalExpense = useMemo(() => {
+  return transactions
+    .filter((t) => t.type === "EXPENSE")
+    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+}, [transactions]);
+
 
   // Cards needed for 3 summary boxes
   const cards = [
@@ -186,8 +91,8 @@ export default function TransactionsPage() {
   }, [filtered]);
 
   // Delete transaction
-  function handleDeleteTransaction(id) {
-    // Add await function delete here to delete transaction in backend
+  async function handleDeleteTransaction(id) {
+    await deleteTransaction(id);
     setTransactions((prev) => prev.filter((t) => t.id !== id));
   }
 

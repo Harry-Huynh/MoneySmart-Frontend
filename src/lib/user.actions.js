@@ -47,6 +47,7 @@ export async function authenticateUser(username, password) {
       "Content-Type": "application/json",
     },
   });
+  console.log("BACKEND:", process.env.NEXT_PUBLIC_BACKEND_URL);
 
   const data = await res.json();
 

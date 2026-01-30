@@ -9,91 +9,78 @@ import TransactionSummaryCard from "@/components/TransactionSummaryBox";
 import TransactionSegmentedFilter from "@/components/TransactionSegmentedFilter";
 import TransactionItemRow from "@/components/TransactionItemRow";
 import { groupByDay } from "@/lib/utils";
-import { getAllTransactions, deleteTransaction } from "@/lib/transaction.actions";
-
+import {
+  getAllTransactions,
+  deleteTransaction,
+} from "@/lib/transaction.actions";
 
 export default function TransactionsPage() {
   const [filter, setFilter] = useState("All"); // State for the Segmented Filter
-  const [transactions, setTransactions] = useState([]);
+  const [allTransactions, setAllTransactions] = useState([]);
+
   useEffect(() => {
-  async function fetchData() {
-    const typeParam =
-      filter === "Income" ? "INCOME" : filter === "Expense" ? "EXPENSE" : null;
+    async function fetchData() {
+      const res = await getAllTransactions(null);
+      setAllTransactions(res.transactions || []);
+    }
 
-    const res = await getAllTransactions(typeParam);
-    setTransactions(res.transactions || []);
-  }
+    fetchData().catch(console.error);
+  }, []);
 
-  fetchData().catch(console.error);
-}, [filter]);
+  const summary = useMemo(() => {
+    const income = allTransactions
+      .filter((t) => t.type === "INCOME")
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
-  // Calculation for total balance
-  const currentBalance = useMemo(() => {
-    return transactions.reduce((sum, t) => {
-      const amount = Number(t.amount) || 0;
+    const expense = allTransactions
+      .filter((t) => t.type === "EXPENSE")
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
-      if (t.type === "INCOME") return sum + amount;
-      if (t.type === "EXPENSE") return sum - amount;
+    const currentBalance = income - expense;
 
-      return sum;
-    }, 0);
-  }, [transactions]);
-
-  // Calculation for total income
-  const totalIncome = useMemo(() => {
-  return transactions
-    .filter((t) => t.type === "INCOME")
-    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-}, [transactions]);
-
-  // Calculation for total expense
-const totalExpense = useMemo(() => {
-  return transactions
-    .filter((t) => t.type === "EXPENSE")
-    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-}, [transactions]);
-
+    return { income, expense, currentBalance };
+  }, [allTransactions]);
 
   // Cards needed for 3 summary boxes
   const cards = [
     {
       title: "Current Balance",
-      amount: currentBalance,
+      amount: summary.currentBalance,
       summaryType: "All",
     },
     {
       title: "Total Income",
-      amount: totalIncome,
+      amount: summary.income,
       summaryType: "Income",
     },
     {
       title: "Total Expense",
-      amount: -totalExpense,
+      amount: -summary.expense,
       summaryType: "Expense",
     },
   ];
 
-  // When filter changes, filter transactions base on transaction type
-  const filtered = useMemo(() => {
+  const visibleTransactions = useMemo(() => {
+    if (filter === "All") return allTransactions;
     if (filter === "Income")
-      return transactions.filter((t) => t.type === "INCOME");
+      return allTransactions.filter((t) => t.type === "INCOME");
     if (filter === "Expense")
-      return transactions.filter((t) => t.type === "EXPENSE");
-    return transactions;
-  }, [transactions, filter]);
+      return allTransactions.filter((t) => t.type === "EXPENSE");
+    return allTransactions;
+  }, [allTransactions, filter]);
 
   // Group by date label
   const groupedByLabel = useMemo(() => {
-    const sorted = [...filtered].sort(
+    const sorted = [...visibleTransactions].sort(
       (a, b) => new Date(b.date) - new Date(a.date),
     );
     return groupByDay(sorted);
-  }, [filtered]);
+  }, [visibleTransactions]);
 
   // Delete transaction
   async function handleDeleteTransaction(id) {
     await deleteTransaction(id);
-    setTransactions((prev) => prev.filter((t) => t.id !== id));
+    setAllTransactions((prev) => prev.filter((t) => t.id !== id));
   }
 
   return (

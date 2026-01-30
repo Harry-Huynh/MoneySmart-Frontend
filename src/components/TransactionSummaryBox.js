@@ -1,8 +1,7 @@
 import { formatMoneyCAD } from "@/lib/mock/budgets";
 import React from "react";
 import { FaArrowTrendUp } from "react-icons/fa6";
-import { FiArrowUpRight } from "react-icons/fi";
-import { FiArrowDownLeft } from "react-icons/fi";
+import { PiHandWithdrawBold, PiHandDepositBold } from "react-icons/pi";
 
 export default function TransactionSummaryCard({
   title,
@@ -22,14 +21,14 @@ export default function TransactionSummaryCard({
       bgColor: "bg-emerald-50",
       iconBgColor: "bg-green-100",
       iconColor: "text-green-700",
-      icon: FiArrowUpRight,
+      icon: PiHandDepositBold,
     },
     Expense: {
       textColor: "text-red-700",
       bgColor: "bg-red-50",
       iconBgColor: "bg-red-100",
-      iconColor: "text-red-700",
-      icon: FiArrowDownLeft,
+      iconColor: "text-red-700 font-semibold",
+      icon: PiHandWithdrawBold,
     },
   };
 

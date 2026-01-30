@@ -1,6 +1,6 @@
 import { formatMoneyCAD } from "@/lib/mock/budgets";
 import React from "react";
-import { FiArrowUpRight, FiArrowDownLeft } from "react-icons/fi";
+import { PiHandWithdrawBold, PiHandDepositBold } from "react-icons/pi";
 import { FaRegTrashCan } from "react-icons/fa6";
 
 import {
@@ -14,8 +14,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
-import { Button } from "@/components/ui/button";
 
 export default function TransactionItemRow({ transaction, onDelete }) {
   const isIncome = transaction.type === "INCOME";
@@ -32,9 +30,9 @@ export default function TransactionItemRow({ transaction, onDelete }) {
         className={`w-12 h-12 rounded-full flex items-center justify-center ${isIncome ? "bg-green-100" : "bg-red-100"}`}
       >
         {isIncome ? (
-          <FiArrowUpRight className="text-green-700 text-xl" />
+          <PiHandDepositBold className="text-green-700 text-xl" />
         ) : (
-          <FiArrowDownLeft className="text-red-700" />
+          <PiHandWithdrawBold className="text-red-700" />
         )}
       </div>
       <div className="flex-1">

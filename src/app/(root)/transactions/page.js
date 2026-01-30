@@ -13,11 +13,18 @@ import {
   getAllTransactions,
   deleteTransaction,
 } from "@/lib/transaction.actions";
+import MonthNavigation from "@/components/MonthNavigation";
 
 export default function TransactionsPage() {
   const [filter, setFilter] = useState("All"); // State for the Segmented Filter
   const [allTransactions, setAllTransactions] = useState([]);
 
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), 1); // get 1st day of current month
+  });
+
+  // Get all transactions
   useEffect(() => {
     async function fetchData() {
       const res = await getAllTransactions(null);
@@ -27,19 +34,38 @@ export default function TransactionsPage() {
     fetchData().catch(console.error);
   }, []);
 
+  // Get selected month transactions
+  const monthTransactions = useMemo(() => {
+    const startDate = new Date(
+      selectedMonth.getFullYear(),
+      selectedMonth.getMonth(),
+      1,
+    );
+    const endDate = new Date(
+      selectedMonth.getFullYear(),
+      selectedMonth.getMonth() + 1,
+      1,
+    );
+
+    return allTransactions.filter((t) => {
+      const d = new Date(t.date);
+      return d >= startDate && d < endDate;
+    });
+  }, [allTransactions, selectedMonth]);
+
   const summary = useMemo(() => {
-    const income = allTransactions
+    const income = monthTransactions
       .filter((t) => t.type === "INCOME")
       .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
-    const expense = allTransactions
+    const expense = monthTransactions
       .filter((t) => t.type === "EXPENSE")
       .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
     const currentBalance = income - expense;
 
     return { income, expense, currentBalance };
-  }, [allTransactions]);
+  }, [monthTransactions]);
 
   // Cards needed for 3 summary boxes
   const cards = [
@@ -61,13 +87,13 @@ export default function TransactionsPage() {
   ];
 
   const visibleTransactions = useMemo(() => {
-    if (filter === "All") return allTransactions;
+    if (filter === "All") return monthTransactions;
     if (filter === "Income")
-      return allTransactions.filter((t) => t.type === "INCOME");
+      return monthTransactions.filter((t) => t.type === "INCOME");
     if (filter === "Expense")
-      return allTransactions.filter((t) => t.type === "EXPENSE");
-    return allTransactions;
-  }, [allTransactions, filter]);
+      return monthTransactions.filter((t) => t.type === "EXPENSE");
+    return monthTransactions;
+  }, [monthTransactions, filter]);
 
   // Group by date label
   const groupedByLabel = useMemo(() => {
@@ -81,6 +107,20 @@ export default function TransactionsPage() {
   async function handleDeleteTransaction(id) {
     await deleteTransaction(id);
     setAllTransactions((prev) => prev.filter((t) => t.id !== id));
+  }
+
+  function goPrevMonth() {
+    setSelectedMonth(
+      (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1),
+    );
+    setFilter("All"); // Comeback to All tab whenever change month
+  }
+
+  function goNextMonth() {
+    setSelectedMonth(
+      (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1),
+    );
+    setFilter("All");
   }
 
   return (
@@ -105,6 +145,11 @@ export default function TransactionsPage() {
             </Link>
           </div>
         </div>
+        <MonthNavigation
+          selectedMonth={selectedMonth}
+          onPrevMonth={goPrevMonth}
+          onNextMonth={goNextMonth}
+        />
         <div className="w-full px-8 grid grid-cols-1 gap-4 md:grid-cols-3">
           {cards.map((c) => (
             <TransactionSummaryCard

@@ -9,23 +9,29 @@ import TransactionSummaryCard from "@/components/TransactionSummaryBox";
 import TransactionSegmentedFilter from "@/components/TransactionSegmentedFilter";
 import TransactionItemRow from "@/components/TransactionItemRow";
 import { groupByDay } from "@/lib/utils";
-import { getAllTransactions, deleteTransaction } from "@/lib/transaction.actions";
-
+import {
+  getAllTransactions,
+  deleteTransaction,
+} from "@/lib/transaction.actions";
 
 export default function TransactionsPage() {
   const [filter, setFilter] = useState("All"); // State for the Segmented Filter
   const [transactions, setTransactions] = useState([]);
   useEffect(() => {
-  async function fetchData() {
-    const typeParam =
-      filter === "Income" ? "INCOME" : filter === "Expense" ? "EXPENSE" : null;
+    async function fetchData() {
+      const typeParam =
+        filter === "Income"
+          ? "INCOME"
+          : filter === "Expense"
+            ? "EXPENSE"
+            : null;
 
-    const res = await getAllTransactions(typeParam);
-    setTransactions(res.transactions || []);
-  }
+      const res = await getAllTransactions(typeParam);
+      setTransactions(res.transactions || []);
+    }
 
-  fetchData().catch(console.error);
-}, [filter]);
+    fetchData().catch(console.error);
+  }, [filter]);
 
   // Calculation for total balance
   const currentBalance = useMemo(() => {
@@ -41,18 +47,17 @@ export default function TransactionsPage() {
 
   // Calculation for total income
   const totalIncome = useMemo(() => {
-  return transactions
-    .filter((t) => t.type === "INCOME")
-    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-}, [transactions]);
+    return transactions
+      .filter((t) => t.type === "INCOME")
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+  }, [transactions]);
 
   // Calculation for total expense
-const totalExpense = useMemo(() => {
-  return transactions
-    .filter((t) => t.type === "EXPENSE")
-    .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-}, [transactions]);
-
+  const totalExpense = useMemo(() => {
+    return transactions
+      .filter((t) => t.type === "EXPENSE")
+      .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+  }, [transactions]);
 
   // Cards needed for 3 summary boxes
   const cards = [
@@ -149,7 +154,6 @@ const totalExpense = useMemo(() => {
               </div>
             ))
           )}
-          {}
         </div>
       </div>
     </section>

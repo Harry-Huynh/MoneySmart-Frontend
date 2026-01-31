@@ -2,14 +2,15 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { FaPlus } from "react-icons/fa6";
 
-import { Card } from "@/components/ui/card";
 import BudgetItemCard from "@/components/BudgetItemCard";
-import { formatMoneyCAD } from "@/lib/mock/budgets";
+import MonthNavigation from "@/components/MonthNavigation";
 import { getAllBudgets, deleteBudget } from "@/lib/budget.actions";
 
 export default function BudgetsClient() {
   const [budgets, setBudgets] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState(() => new Date());
 
   useEffect(() => {
     async function fetchBudgets() {
@@ -19,9 +20,40 @@ export default function BudgetsClient() {
     fetchBudgets();
   }, []);
 
-  const monthTotal = useMemo(() => {
-    return budgets.reduce((sum, b) => sum + Number(b.amount || 0), 0);
-  }, [budgets]);
+  // Prev / Next month
+  function onPrevMonth() {
+    setSelectedMonth((prev) => {
+      const d = new Date(prev);
+      d.setMonth(d.getMonth() - 1);
+      return d;
+    });
+  }
+
+  function onNextMonth() {
+    setSelectedMonth((prev) => {
+      const d = new Date(prev);
+      d.setMonth(d.getMonth() + 1);
+      return d;
+    });
+  }
+
+  function getBudgetDate(b) {
+    const raw = b?.startDate || b?.date || b?.createdAt;
+    const d = raw ? new Date(raw) : null;
+    return d && !Number.isNaN(d.getTime()) ? d : null;
+  }
+
+  // Filter budgets by selectedMonth
+  const budgetsInMonth = useMemo(() => {
+    return (budgets || []).filter((b) => {
+      const d = getBudgetDate(b);
+      if (!d) return false;
+      return (
+        d.getMonth() === selectedMonth.getMonth() &&
+        d.getFullYear() === selectedMonth.getFullYear()
+      );
+    });
+  }, [budgets, selectedMonth]);
 
   async function handleDelete(id) {
     await deleteBudget(id);
@@ -31,36 +63,57 @@ export default function BudgetsClient() {
   return (
     <section className="min-h-screen bg-gray-100 flex justify-center py-10">
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-xl px-8 py-6">
-        {/* Title */}
-        <h1 className="text-2xl font-bold mb-6">Budgets</h1>
-
-        {/* This Month Budget summary (full-width like Current Balance card) */}
-        <Card className="p-0 overflow-hidden border border-black/5 shadow-sm mb-6">
-          <div className="p-6 bg-[#4f915f]/20">
-            <p className="text-slate-600 font-medium">This Month Budget</p>
-            <p className="text-4xl font-semibold text-slate-800 mt-2">
-              {formatMoneyCAD(monthTotal)}
+        <div className="flex items-start justify-between gap-6">
+          <div>
+            <h1 className="text-3xl font-bold text-stone-800">
+              Budget    
+            </h1>
+            <p className="text-stone-500 mt-1">
+              Set and track your spending limits
             </p>
           </div>
-        </Card>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {budgets.map((b, idx) => (
-            <BudgetItemCard
-              key={b.id}
-              budget={b}
-              index={idx}
-              onDelete={handleDelete}
-            />
-          ))}
 
           <Link
             href="/budgets/add"
-            className="min-h-45 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 text-4xl hover:border-green-500 hover:text-green-500 transition cursor-pointer p-6 w-full"
-            aria-label="Add Budget"
+            className="px-3 py-2 border border-green-300 text-green-700 rounded-lg bg-white hover:bg-green-100 hover:text-stone-700 font-medium transition cursor-pointer flex items-center justify-center gap-2"
           >
-            +
+            <FaPlus />
+            <span className="font-medium">Add Budget</span>
           </Link>
+        </div>
+
+        {/* Month Navigation: < January 2026 > */}
+        <div className="mt-6">
+          <MonthNavigation
+            selectedMonth={selectedMonth}
+            onPrevMonth={onPrevMonth}
+            onNextMonth={onNextMonth}
+          />
+        </div>
+
+        {/* List budgets*/}
+        <div className="mt-8">
+          {budgetsInMonth.length === 0 ? (
+            <div className="text-center py-14 rounded-2xl border border-dashed border-stone-200">
+              <p className="text-stone-600 font-medium">
+                No budgets for {selectedMonth.toLocaleDateString("en-CA", { month: "long", year: "numeric" })}
+              </p>
+              <p className="text-stone-500 mt-1">
+                Click <span className="font-semibold">Add Budget</span> to create one.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {budgetsInMonth.map((b, index) => (
+                <BudgetItemCard
+                  key={b.id}
+                  budget={b}
+                  index={index}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </section>

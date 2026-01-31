@@ -2,9 +2,6 @@ import Link from "next/link";
 import {
   MdChevronRight,
   MdPerson,
-  MdLock,
-  MdNotifications,
-  MdDarkMode,
   MdStorage,
   MdHelpOutline,
 } from "react-icons/md";
@@ -16,24 +13,6 @@ const settingsItems = [
     href: "/settings/account",
     icon: MdPerson,
     highlight: true,
-  },
-  {
-    title: "Security & Privacy",
-    description: "Password, security and privacy options",
-    href: "/settings/security",
-    icon: MdLock,
-  },
-  {
-    title: "Notifications",
-    description: "Manage notification preferences",
-    href: "/settings/notifications",
-    icon: MdNotifications,
-  },
-  {
-    title: "Display Settings",
-    description: "Theme and appearance",
-    href: "/settings/display",
-    icon: MdDarkMode,
   },
   {
     title: "Data Management",

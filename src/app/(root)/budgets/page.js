@@ -6,6 +6,7 @@ import { FaPlus } from "react-icons/fa6";
 
 import BudgetItemCard from "@/components/BudgetItemCard";
 import MonthNavigation from "@/components/MonthNavigation";
+import BudgetSummaryBox from "@/components/BudgetSummaryBox";
 import { getAllBudgets, deleteBudget } from "@/lib/budget.actions";
 
 export default function BudgetsClient() {
@@ -55,6 +56,23 @@ export default function BudgetsClient() {
     });
   }, [budgets, selectedMonth]);
 
+  const summary = useMemo(() => {
+    const totalBudget = (budgetsInMonth || []).reduce(
+      (sum, b) => sum + Number(b?.amount || 0),
+      0,
+    );
+
+    const totalSpent = (budgetsInMonth || []).reduce((sum, b) => {
+      const spent = b?.spent ?? b?.usedAmount ?? 0;
+      return sum + Number(spent || 0);
+    }, 0);
+
+    const remaining = totalBudget - totalSpent;
+
+    return { totalBudget, totalSpent, remaining };
+  }, [budgetsInMonth]);
+
+  
   async function handleDelete(id) {
     await deleteBudget(id);
     setBudgets((prev) => prev.filter((b) => b.id !== id));
@@ -90,6 +108,15 @@ export default function BudgetsClient() {
             onNextMonth={onNextMonth}
           />
         </div>
+
+        <div className="w-full px-0 pb-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <BudgetSummaryBox title="Total Budget" amount={summary.totalBudget} type="budget" />
+            <BudgetSummaryBox title="Total Spent" amount={summary.totalSpent} type="spent" />
+            <BudgetSummaryBox title="Remaining" amount={summary.remaining} type="remaining" />
+          </div>
+        </div>
+
 
         {/* List budgets*/}
         <div className="mt-8">

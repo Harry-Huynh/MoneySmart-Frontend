@@ -35,3 +35,13 @@ export function groupByDay(transactions) {
 
   return Array.from(map.entries()); // return [label, txs]
 }
+
+export function parseDateToStartOfDay(dateStr) {
+  const [year, month, day] = dateStr.split("-");
+  return new Date(Date.UTC(year, month - 1, day, 0, 0, 0)); // start of day UTC
+}
+
+export function parseDateToEndOfDay(dateStr) {
+  const [year, month, day] = dateStr.split("-");
+  return new Date(Date.UTC(year, month - 1, day, 23, 59, 59)); // end of day UTC
+}

@@ -7,7 +7,7 @@ import { FaPlus } from "react-icons/fa6";
 import BudgetItemCard from "@/components/BudgetItemCard";
 import MonthNavigation from "@/components/MonthNavigation";
 import BudgetSummaryBox from "@/components/BudgetSummaryBox";
-import { getAllBudgets, deleteBudget } from "@/lib/budget.actions";
+import { getBudgetByMonthAndYear, deleteBudget } from "@/lib/budget.actions";
 
 export default function BudgetsClient() {
   const [budgets, setBudgets] = useState([]);
@@ -15,11 +15,14 @@ export default function BudgetsClient() {
 
   useEffect(() => {
     async function fetchBudgets() {
-      const { budgets } = await getAllBudgets();
+      const { budgets } = await getBudgetByMonthAndYear(
+        selectedMonth.getMonth(),
+        selectedMonth.getFullYear(),
+      );
       setBudgets(budgets);
     }
     fetchBudgets();
-  }, []);
+  }, [selectedMonth]);
 
   // Prev / Next month
   function onPrevMonth() {
@@ -38,31 +41,13 @@ export default function BudgetsClient() {
     });
   }
 
-  function getBudgetDate(b) {
-    const raw = b?.startDate || b?.date || b?.createdAt;
-    const d = raw ? new Date(raw) : null;
-    return d && !Number.isNaN(d.getTime()) ? d : null;
-  }
-
-  // Filter budgets by selectedMonth
-  const budgetsInMonth = useMemo(() => {
-    return (budgets || []).filter((b) => {
-      const d = getBudgetDate(b);
-      if (!d) return false;
-      return (
-        d.getMonth() === selectedMonth.getMonth() &&
-        d.getFullYear() === selectedMonth.getFullYear()
-      );
-    });
-  }, [budgets, selectedMonth]);
-
   const summary = useMemo(() => {
-    const totalBudget = (budgetsInMonth || []).reduce(
+    const totalBudget = budgets.reduce(
       (sum, b) => sum + Number(b?.amount || 0),
       0,
     );
 
-    const totalSpent = (budgetsInMonth || []).reduce((sum, b) => {
+    const totalSpent = budgets.reduce((sum, b) => {
       const spent = b?.spent ?? b?.usedAmount ?? 0;
       return sum + Number(spent || 0);
     }, 0);
@@ -70,9 +55,8 @@ export default function BudgetsClient() {
     const remaining = totalBudget - totalSpent;
 
     return { totalBudget, totalSpent, remaining };
-  }, [budgetsInMonth]);
+  }, [budgets]);
 
-  
   async function handleDelete(id) {
     await deleteBudget(id);
     setBudgets((prev) => prev.filter((b) => b.id !== id));
@@ -83,9 +67,7 @@ export default function BudgetsClient() {
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-xl px-8 py-6">
         <div className="flex items-start justify-between gap-6">
           <div>
-            <h1 className="text-3xl font-bold text-stone-800">
-              Budget    
-            </h1>
+            <h1 className="text-3xl font-bold text-stone-800">Budget</h1>
             <p className="text-stone-500 mt-1">
               Set and track your spending limits
             </p>
@@ -111,27 +93,43 @@ export default function BudgetsClient() {
 
         <div className="w-full px-0 pb-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <BudgetSummaryBox title="Total Budget" amount={summary.totalBudget} type="budget" />
-            <BudgetSummaryBox title="Total Spent" amount={summary.totalSpent} type="spent" />
-            <BudgetSummaryBox title="Remaining" amount={summary.remaining} type="remaining" />
+            <BudgetSummaryBox
+              title="Total Budget"
+              amount={summary.totalBudget}
+              type="budget"
+            />
+            <BudgetSummaryBox
+              title="Total Spent"
+              amount={summary.totalSpent}
+              type="spent"
+            />
+            <BudgetSummaryBox
+              title="Remaining"
+              amount={summary.remaining}
+              type="remaining"
+            />
           </div>
         </div>
 
-
         {/* List budgets*/}
         <div className="mt-8">
-          {budgetsInMonth.length === 0 ? (
+          {budgets.length === 0 ? (
             <div className="text-center py-14 rounded-2xl border border-dashed border-stone-200">
               <p className="text-stone-600 font-medium">
-                No budgets for {selectedMonth.toLocaleDateString("en-CA", { month: "long", year: "numeric" })}
+                No budgets for{" "}
+                {selectedMonth.toLocaleDateString("en-CA", {
+                  month: "long",
+                  year: "numeric",
+                })}
               </p>
               <p className="text-stone-500 mt-1">
-                Click <span className="font-semibold">Add Budget</span> to create one.
+                Click <span className="font-semibold">Add Budget</span> to
+                create one.
               </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {budgetsInMonth.map((b, index) => (
+              {budgets.map((b, index) => (
                 <BudgetItemCard
                   key={b.id}
                   budget={b}

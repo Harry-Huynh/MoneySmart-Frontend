@@ -24,6 +24,7 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
     if (!dateString) return "Not set";
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
+      timeZone: "UTC",
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -219,7 +220,6 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
               </div>
             </div>
 
-            {/* Date Section - Now with both start and end dates */}
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-linear-to-br from-purple-50 to-purple-100 p-5 rounded-xl">
                 <div className="flex items-center gap-3 mb-3">
@@ -227,9 +227,7 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
                     <Calendar size={20} className="text-purple-700" />
                   </div>
                   <div>
-                    <div className="font-medium text-gray-700">
-                      Start Date
-                    </div>
+                    <div className="font-medium text-gray-700">Start Date</div>
                     <div className="text-lg font-bold text-gray-800">
                       {"startDate" in budget && budget.startDate
                         ? formatDate(budget.startDate)
@@ -245,9 +243,7 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
                     <Calendar size={20} className="text-indigo-700" />
                   </div>
                   <div>
-                    <div className="font-medium text-gray-700">
-                      End Date
-                    </div>
+                    <div className="font-medium text-gray-700">End Date</div>
                     <div className="text-lg font-bold text-gray-800">
                       {"endDate" in budget && budget.endDate
                         ? formatDate(budget.endDate)
@@ -256,10 +252,12 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
                     {daysLeft !== null && budget.endDate && (
                       <div className="flex items-center gap-2 mt-2">
                         <Clock size={16} className="text-indigo-600" />
-                        <span className={`text-sm font-medium ${daysLeft <= 0 ? "text-red-600" : "text-indigo-700"}`}>
-                          {daysLeft <= 0 
-                            ? "Expired" 
-                            : `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left`}
+                        <span
+                          className={`text-sm font-medium ${daysLeft <= 0 ? "text-red-600" : "text-indigo-700"}`}
+                        >
+                          {daysLeft <= 0
+                            ? "Expired"
+                            : `${daysLeft} day${daysLeft !== 1 ? "s" : ""} left`}
                         </span>
                       </div>
                     )}

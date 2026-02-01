@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { addBudget } from "@/lib/budget.actions";
 import Image from "next/image";
+import { parseDateToStartOfDay, parseDateToEndOfDay } from "@/lib/utils";
 
 export default function AddBudgetPage() {
   const router = useRouter();
@@ -12,12 +13,13 @@ export default function AddBudgetPage() {
     amount: "",
     purpose: "",
     startDate: "",
-    endDate: "", // New field added
+    endDate: "",
     thresholdAmount: "",
     note: "",
   });
   const today = new Date().toISOString().split("T")[0];
   const [errors, setErrors] = useState({});
+  const [errorMessage, setErrorMessage] = useState("");
 
   function isValidMoneyInput(value) {
     const s = String(value ?? "").trim();
@@ -33,8 +35,10 @@ export default function AddBudgetPage() {
     const amountRaw = String(nextForm.amount ?? "").trim();
     const thresholdRaw = String(nextForm.thresholdAmount ?? "").trim();
 
-    // Amount validation
-    if (!isValidMoneyInput(amountRaw)) {
+    if (!amountRaw) {
+      nextErrors.amount = "Amount is required";
+    } else if (!isValidMoneyInput(amountRaw)) {
+      // Amount validation
       nextErrors.amount =
         "Amount must be a non-negative number with up to 2 decimals (e.g., 12.59)";
     } else {
@@ -59,6 +63,8 @@ export default function AddBudgetPage() {
       if (nextForm.endDate < today) {
         nextErrors.endDate = "End date cannot be in the past";
       }
+    } else {
+      nextErrors.endDate = "End date is required";
     }
 
     // Threshold amount validation
@@ -72,11 +78,19 @@ export default function AddBudgetPage() {
         const amount = Number(amountRaw);
 
         if (Number.isNaN(threshold) || threshold < 0) {
-          nextErrors.thresholdAmount = "Threshold must be greater than or equal to 0";
+          nextErrors.thresholdAmount =
+            "Threshold must be greater than or equal to 0";
         } else if (!Number.isNaN(amount) && threshold > amount) {
-          nextErrors.thresholdAmount = "Threshold must be less than or equal to Amount";
+          nextErrors.thresholdAmount =
+            "Threshold must be less than or equal to Amount";
         }
       }
+    } else {
+      nextErrors.thresholdAmount = "Threshold amount is required";
+    }
+
+    if (!nextForm.purpose || nextForm.purpose.trim() === "") {
+      nextErrors.purpose = "Purpose is required";
     }
 
     return nextErrors;
@@ -92,18 +106,22 @@ export default function AddBudgetPage() {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
     try {
+      const startDate = parseDateToStartOfDay(form.startDate);
+      const endDate = parseDateToEndOfDay(form.endDate);
+
       await addBudget(
         form.amount,
         form.purpose,
-        form.startDate,
-        form.endDate, // Include end date in the API call
+        startDate,
+        endDate,
         form.thresholdAmount,
         form.note,
       );
       router.replace("/budgets");
     } catch (error) {
-      console.log(error);
-      alert(error.message || "Failed to create budget");
+      setErrorMessage(
+        error.message || "An unexpected error occurred. Please try again.",
+      );
     }
   }
 
@@ -144,7 +162,6 @@ export default function AddBudgetPage() {
                 className="w-full bg-yellow-50 border rounded-md px-4 py-2"
                 value={form.amount}
                 onChange={(e) => updateField("amount", e.target.value)}
-                required
               />
 
               {errors.amount ? (
@@ -178,7 +195,6 @@ export default function AddBudgetPage() {
                 className="w-full bg-yellow-50 border rounded-md px-4 py-2"
                 value={form.startDate}
                 onChange={(e) => updateField("startDate", e.target.value)}
-                required
               />
 
               {errors.startDate ? (
@@ -219,7 +235,9 @@ export default function AddBudgetPage() {
               />
 
               {errors.thresholdAmount ? (
-                <p className="text-red-500 text-sm mt-1">{errors.thresholdAmount}</p>
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.thresholdAmount}
+                </p>
               ) : null}
             </div>
           </div>
@@ -235,7 +253,11 @@ export default function AddBudgetPage() {
             />
           </div>
 
-          <div className="flex justify-end gap-4 pt-4">
+          {errorMessage && (
+            <p className="text-red-500 text-md text-center">{errorMessage}</p>
+          )}
+
+          <div className="flex justify-end gap-4 pt-2">
             <button
               type="button"
               onClick={() => router.replace("/budgets")}

@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { getOneBudget, updateBudget } from "@/lib/budget.actions";
 import BudgetCancelEditAlert from "@/components/BudgetCancelEditAlert";
+import { parseDateToStartOfDay, parseDateToEndOfDay } from "@/lib/utils";
 
 export default function EditBudgetPage() {
   const router = useRouter();
@@ -45,15 +46,18 @@ export default function EditBudgetPage() {
         const amount = Number(amountRaw);
 
         if (Number.isNaN(threshold) || threshold < 0) {
-          nextErrors.thresholdAmount = "Threshold must be greater than or equal to 0";
+          nextErrors.thresholdAmount =
+            "Threshold must be greater than or equal to 0";
         } else if (!Number.isNaN(amount) && threshold > amount) {
-          nextErrors.thresholdAmount = "Threshold must be less than or equal to Amount";
+          nextErrors.thresholdAmount =
+            "Threshold must be less than or equal to Amount";
         }
       }
     }
 
     if (!isValidMoneyInput(amountRaw)) {
-      nextErrors.amount = "Amount must be a non-negative number with up to 2 decimals";
+      nextErrors.amount =
+        "Amount must be a non-negative number with up to 2 decimals";
     } else {
       const amount = Number(amountRaw);
       if (Number.isNaN(amount) || amount < 0) {
@@ -110,12 +114,15 @@ export default function EditBudgetPage() {
 
   async function doUpdate() {
     try {
+      const startDate = parseDateToStartOfDay(form.startDate);
+      const endDate = parseDateToEndOfDay(form.endDate);
+
       await updateBudget(
         id,
         form.amount,
         form.purpose,
-        form.startDate,
-        form.endDate, // Add endDate
+        startDate,
+        endDate, // Add endDate
         form.thresholdAmount,
         form.note,
       );

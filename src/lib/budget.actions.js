@@ -52,6 +52,33 @@ export async function getOneBudget(id) {
   return await res.json();
 }
 
+export async function getBudgetByMonthAndYear(month, year) {
+  const token = await getToken();
+
+  if (!token) {
+    throw new Error("User is not authenticated");
+  }
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/budgets?month=${month}&year=${year}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
+    },
+  );
+
+  if (!res.ok) {
+    throw new Error(
+      res.message || "Failed to fetch budgets for the specified month and year",
+    );
+  }
+
+  return await res.json();
+}
+
 export async function addBudget(
   amount,
   purpose,

@@ -17,21 +17,12 @@ export default function SavingGoalsForm({
   const [loading, setLoading] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
-  // Status enum values from backend
-  const STATUS_ENUM = {
-    ACTIVE: "ACTIVE",
-    ACHIEVED: "ACHIEVED",
-    CANCELLED: "CANCELLED",
-    PAUSED: "PAUSED",
-  };
-
   // Set default values based on whether we're editing or adding
   const defaultValues = {
     amount: 0,
     purpose: "",
     date: "",
     note: "",
-    status: STATUS_ENUM.ACTIVE, // Default value is 'ACTIVE'
   };
 
   const {
@@ -53,7 +44,6 @@ export default function SavingGoalsForm({
         purpose: goal.purpose,
         date: goal.targetDate,
         note: goal.note,
-        status: goal.status,
       });
     }
   }, [goal, isEdit, reset]);
@@ -269,25 +259,6 @@ export default function SavingGoalsForm({
                 </p>
               )}
             </div>
-
-            {/* Status Field - Only for Edit mode */}
-            {isEdit && (
-              <div className="flex flex-col gap-2">
-                <label className="font-medium text-gray-700">Status:</label>
-                <select
-                  {...register("status", { required: true })}
-                  className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                >
-                  <option value={STATUS_ENUM.ACTIVE}>Active</option>
-                  <option value={STATUS_ENUM.ACHIEVED}>Achieved</option>
-                  <option value={STATUS_ENUM.PAUSED}>Paused</option>
-                  <option value={STATUS_ENUM.CANCELLED}>Cancelled</option>
-                </select>
-                {errors.status && (
-                  <p className="text-sm text-red-500">Status is required</p>
-                )}
-              </div>
-            )}
 
             {/* Note */}
             <div className="flex flex-col gap-2">

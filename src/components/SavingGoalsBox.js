@@ -239,9 +239,9 @@ export default function SavingGoalsBox({ goal, onDelete }) {
                 </div>
               </div>
 
-              {/* Timeline and Status Row */}
-              <div className="grid grid-cols-2 gap-6">
-                {/* Target Date Section */}
+              {/* Timeline Section - Full width since status removed */}
+              <div className="grid grid-cols-1 gap-6">
+                {/* Target Date Section - Now full width */}
                 <div className="bg-linear-to-br from-amber-50 to-amber-100 p-5 rounded-xl">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="p-2 bg-amber-200 rounded-lg">
@@ -262,40 +262,6 @@ export default function SavingGoalsBox({ goal, onDelete }) {
                       {calculateDaysLeft()} days{" "}
                       {calculateDaysLeft() === "Expired" ? "ago" : "left"}
                     </span>
-                  </div>
-                </div>
-
-                {/* Status Section */}
-                <div className="bg-linear-to-br from-indigo-50 to-indigo-100 p-5 rounded-xl">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-indigo-200 rounded-lg">
-                      <FileText size={20} className="text-indigo-700" />
-                    </div>
-                    <div>
-                      <div className="font-medium text-gray-700">Status</div>
-                      <div
-                        className={`inline-block px-3 py-1 rounded-full text-sm font-bold mt-1 ${
-                          goal.status === "ACTIVE"
-                            ? "bg-blue-200 text-blue-800"
-                            : goal.status === "ACHIEVED"
-                              ? "bg-green-200 text-green-800"
-                              : goal.status === "PAUSED"
-                                ? "bg-yellow-200 text-yellow-800"
-                                : "bg-red-200 text-red-800"
-                        }`}
-                      >
-                        {goal.status || "ACTIVE"}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    {goal.status === "ACTIVE"
-                      ? "✓ Currently saving towards goal"
-                      : goal.status === "ACHIEVED"
-                        ? "🎉 Goal achieved! Congratulations!"
-                        : goal.status === "PAUSED"
-                          ? "⏸️ Saving paused temporarily"
-                          : "✗ Goal cancelled"}
                   </div>
                 </div>
               </div>

@@ -30,7 +30,6 @@ export default function EditBudgetPage() {
     return /^(?:0|[1-9]\d*)(?:\.\d{0,2})?$/.test(s);
   }
 
-
   function validateForm(nextForm) {
     const nextErrors = {};
     const amountRaw = String(nextForm.amount ?? "").trim();
@@ -60,10 +59,20 @@ export default function EditBudgetPage() {
       if (Number.isNaN(amount) || amount < 0) {
         nextErrors.amount = "Amount must be a greater number or equal to 0";
       }
-    } 
+    }
 
     if (!nextForm.startDate) {
       nextErrors.startDate = "Start date is required";
+    }
+
+    // Add endDate validation
+    if (nextForm.endDate) {
+      if (nextForm.startDate && nextForm.endDate < nextForm.startDate) {
+        nextErrors.endDate = "End date must be after start date";
+      }
+      if (nextForm.endDate < today) {
+        nextErrors.endDate = "End date cannot be in the past";
+      }
     }
 
     return nextErrors;
@@ -83,6 +92,7 @@ export default function EditBudgetPage() {
           amount: budget.amount ?? "",
           purpose: budget.purpose ?? "",
           startDate: (budget.startDate ?? "").slice(0, 10),
+          endDate: budget.endDate ? (budget.endDate ?? "").slice(0, 10) : "", // Add endDate
           thresholdAmount: budget.thresholdAmount ?? "",
           note: budget.note ?? "",
         });
@@ -105,6 +115,7 @@ export default function EditBudgetPage() {
         form.amount,
         form.purpose,
         form.startDate,
+        form.endDate, // Add endDate
         form.thresholdAmount,
         form.note,
       );
@@ -208,6 +219,24 @@ export default function EditBudgetPage() {
 
               {errors.startDate ? (
                 <p className="text-red-500 text-sm mt-1">{errors.startDate}</p>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <label className="w-40 font-medium">End Date:</label>
+            <div className="flex-1">
+              <input
+                type="date"
+                min={today}
+                className="w-full bg-yellow-50 border rounded-md px-4 py-2 cursor-pointer"
+                value={form.endDate}
+                onChange={(e) => updateField("endDate", e.target.value)}
+                placeholder="(Optional)"
+              />
+
+              {errors.endDate ? (
+                <p className="text-red-500 text-sm mt-1">{errors.endDate}</p>
               ) : null}
             </div>
           </div>

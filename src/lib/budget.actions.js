@@ -56,6 +56,7 @@ export async function addBudget(
   amount,
   purpose,
   startDate,
+  endDate,
   thresholdAmount,
   note,
 ) {
@@ -75,6 +76,7 @@ export async function addBudget(
       amount,
       purpose,
       startDate,
+      endDate,
       thresholdAmount,
       note,
     }),
@@ -94,6 +96,7 @@ export async function updateBudget(
   amount,
   purpose,
   startDate,
+  endDate,
   thresholdAmount,
   note,
 ) {
@@ -118,6 +121,7 @@ export async function updateBudget(
         amount,
         purpose,
         startDate,
+        endDate,
         thresholdAmount,
         note,
       }),

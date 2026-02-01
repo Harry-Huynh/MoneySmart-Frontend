@@ -12,10 +12,11 @@ export default function AddBudgetPage() {
     amount: "",
     purpose: "",
     startDate: "",
+    endDate: "", // New field added
     thresholdAmount: "",
     note: "",
   });
-  const today = new Date().toISOString().split("T")[0];;
+  const today = new Date().toISOString().split("T")[0];
   const [errors, setErrors] = useState({});
 
   function isValidMoneyInput(value) {
@@ -26,13 +27,13 @@ export default function AddBudgetPage() {
     return /^(?:0|[1-9]\d*)(?:\.\d{0,2})?$/.test(s);
   }
 
-
   function validateForm(nextForm) {
     const nextErrors = {};
 
     const amountRaw = String(nextForm.amount ?? "").trim();
     const thresholdRaw = String(nextForm.thresholdAmount ?? "").trim();
 
+    // Amount validation
     if (!isValidMoneyInput(amountRaw)) {
       nextErrors.amount =
         "Amount must be a non-negative number with up to 2 decimals (e.g., 12.59)";
@@ -43,35 +44,43 @@ export default function AddBudgetPage() {
       }
     }
 
+    // Start date validation
     if (!nextForm.startDate) {
       nextErrors.startDate = "Start date is required";
-    }
-
-    if (nextForm.startDate && nextForm.startDate < today) {
+    } else if (nextForm.startDate < today) {
       nextErrors.startDate = "Start date cannot be in the past";
     }
 
+    // End date validation (optional, but if provided must be after start date)
+    if (nextForm.endDate) {
+      if (nextForm.startDate && nextForm.endDate < nextForm.startDate) {
+        nextErrors.endDate = "End date must be after start date";
+      }
+      if (nextForm.endDate < today) {
+        nextErrors.endDate = "End date cannot be in the past";
+      }
+    }
 
+    // Threshold amount validation
     const thresholdIsEmpty = thresholdRaw === "";
-      if (!thresholdIsEmpty) {
-        if (!isValidMoneyInput(thresholdRaw)) {
-          nextErrors.thresholdAmount =
-            "Threshold must be a non-negative number with up to 2 decimals";
-        } else {
-          const threshold = Number(thresholdRaw);
-          const amount = Number(amountRaw);
+    if (!thresholdIsEmpty) {
+      if (!isValidMoneyInput(thresholdRaw)) {
+        nextErrors.thresholdAmount =
+          "Threshold must be a non-negative number with up to 2 decimals";
+      } else {
+        const threshold = Number(thresholdRaw);
+        const amount = Number(amountRaw);
 
-          if (Number.isNaN(threshold) || threshold < 0) {
-            nextErrors.thresholdAmount = "Threshold must be greater than or equal to 0";
-          } else if (!Number.isNaN(amount) && threshold > amount) {
-            nextErrors.thresholdAmount = "Threshold must be less than or equal to Amount";
-          }
+        if (Number.isNaN(threshold) || threshold < 0) {
+          nextErrors.thresholdAmount = "Threshold must be greater than or equal to 0";
+        } else if (!Number.isNaN(amount) && threshold > amount) {
+          nextErrors.thresholdAmount = "Threshold must be less than or equal to Amount";
         }
       }
+    }
 
     return nextErrors;
   }
-
 
   function updateField(key, value) {
     setForm((p) => ({ ...p, [key]: value }));
@@ -87,6 +96,7 @@ export default function AddBudgetPage() {
         form.amount,
         form.purpose,
         form.startDate,
+        form.endDate, // Include end date in the API call
         form.thresholdAmount,
         form.note,
       );
@@ -173,6 +183,24 @@ export default function AddBudgetPage() {
 
               {errors.startDate ? (
                 <p className="text-red-500 text-sm mt-1">{errors.startDate}</p>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <label className="w-40 font-medium">End Date:</label>
+            <div className="flex-1">
+              <input
+                type="date"
+                min={today}
+                className="w-full bg-yellow-50 border rounded-md px-4 py-2"
+                value={form.endDate}
+                onChange={(e) => updateField("endDate", e.target.value)}
+                placeholder="(Optional)"
+              />
+
+              {errors.endDate ? (
+                <p className="text-red-500 text-sm mt-1">{errors.endDate}</p>
               ) : null}
             </div>
           </div>

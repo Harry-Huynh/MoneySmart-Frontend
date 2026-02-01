@@ -8,6 +8,7 @@ import {
   DollarSign,
   FileText,
   TrendingUp,
+  Clock,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -28,6 +29,19 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
       day: "numeric",
     });
   };
+
+  // Calculate days left if endDate exists
+  const calculateDaysLeft = () => {
+    if (!budget.endDate) return null;
+    const endDate = new Date(budget.endDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diffTime = endDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
+  const daysLeft = calculateDaysLeft();
 
   const colorByIndex = [
     "bg-orange-400",
@@ -179,7 +193,7 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
             </div>
 
             {/* Main grid like your generated budget image */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="bg-linear-to-br from-blue-50 to-blue-100 p-4 rounded-xl">
                 <div className="flex items-center gap-2 text-gray-700 mb-2">
                   <DollarSign size={18} />
@@ -203,16 +217,53 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
                     : "—"}
                 </div>
               </div>
+            </div>
 
-              <div className="bg-linear-to-br from-purple-50 to-purple-100 p-4 rounded-xl">
-                <div className="flex items-center gap-2 text-gray-700 mb-2">
-                  <Calendar size={18} />
-                  <span className="font-medium">Start Date</span>
+            {/* Date Section - Now with both start and end dates */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-linear-to-br from-purple-50 to-purple-100 p-5 rounded-xl">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-purple-200 rounded-lg">
+                    <Calendar size={20} className="text-purple-700" />
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-700">
+                      Start Date
+                    </div>
+                    <div className="text-lg font-bold text-gray-800">
+                      {"startDate" in budget && budget.startDate
+                        ? formatDate(budget.startDate)
+                        : "Not set"}
+                    </div>
+                  </div>
                 </div>
-                <div className="text-2xl font-bold text-gray-800">
-                  {"startDate" in budget && budget.startDate
-                    ? formatDate(budget.startDate)
-                    : "Not set"}
+              </div>
+
+              <div className="bg-linear-to-br from-indigo-50 to-indigo-100 p-5 rounded-xl">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-indigo-200 rounded-lg">
+                    <Calendar size={20} className="text-indigo-700" />
+                  </div>
+                  <div>
+                    <div className="font-medium text-gray-700">
+                      End Date
+                    </div>
+                    <div className="text-lg font-bold text-gray-800">
+                      {"endDate" in budget && budget.endDate
+                        ? formatDate(budget.endDate)
+                        : "Not set"}
+                    </div>
+                    {daysLeft !== null && budget.endDate && (
+                      <div className="flex items-center gap-2 mt-2">
+                        <Clock size={16} className="text-indigo-600" />
+                        <span className={`text-sm font-medium ${daysLeft <= 0 ? "text-red-600" : "text-indigo-700"}`}>
+                          {daysLeft <= 0 
+                            ? "Expired" 
+                            : `${daysLeft} day${daysLeft !== 1 ? 's' : ''} left`}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

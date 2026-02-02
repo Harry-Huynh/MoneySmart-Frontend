@@ -17,22 +17,44 @@ export async function getAllTransactions(type) {
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.message || "Failed to fetch transactions");
-  return data; 
+  return data;
+}
+
+export async function getAllTransactionsByMonthAndYear(month, year) {
+  const token = await getToken();
+  if (!token) {
+    throw new Error("User is not authenticated");
+  }
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/transactions?month=${month}&year=${year}`,
+    {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+      cache: "no-store",
+    },
+  );
+
+  if (!res.ok) throw new Error(data.message || "Failed to fetch transactions");
+  return await res.json();
 }
 
 export async function addTransaction(payload) {
   const token = await getToken();
   if (!token) throw new Error("User is not authenticated");
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/transaction`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/transaction`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+      cache: "no-store",
     },
-    body: JSON.stringify(payload),
-    cache: "no-store",
-  });
+  );
 
   const data = await res.json().catch(() => ({}));
   if (res.status === 201) return true;
@@ -50,7 +72,7 @@ export async function deleteTransaction(id) {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
       cache: "no-store",
-    }
+    },
   );
 
   const data = await res.json().catch(() => ({}));

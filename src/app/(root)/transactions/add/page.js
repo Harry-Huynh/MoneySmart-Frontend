@@ -4,38 +4,16 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
-import { getAllBudgets } from "@/lib/budget.actions";
+import { getBudgetByMonthAndYear } from "@/lib/budget.actions";
 import { getAllSavingGoals } from "@/lib/savingGoal.actions";
 import { addTransaction } from "@/lib/transaction.actions";
-import { useSearchParams } from "next/navigation";
-
-function monthRange(year, monthIndex) {
-  const startDate = new Date(year, monthIndex, 1);
-  const endDate = new Date(year, monthIndex + 1, 0);
-  const start = startDate.toISOString().slice(0, 10);
-  const end = endDate.toISOString().slice(0, 10);
-
-  return { start, end };
-}
-
-
-function overlapsMonth(budget, range) {
-  const s = String(budget.startDate).slice(0, 10);
-  const e = String(budget.endDate).slice(0, 10);
-  return !(e < range.start || s > range.end);
-}
-
+import { parseDateToStartOfDay } from "@/lib/utils";
 
 export default function AddTransactionPage() {
   const router = useRouter();
   const [warningMessage, setWarningMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState([]);
-  const searchParams = useSearchParams();
-const year = Number(searchParams.get("year"));
-const monthIndex = Number(searchParams.get("month")); 
-
-const range = year && monthIndex ? monthRange(year, monthIndex) : null;
 
   const {
     register,
@@ -54,34 +32,35 @@ const range = year && monthIndex ? monthRange(year, monthIndex) : null;
     },
   });
 
+  const date = watch("date");
   const type = watch("type");
-  
+
   // Get categories
   useEffect(() => {
     async function fetchExpenseCategories() {
-     if (Number.isNaN(year) || Number.isNaN(monthIndex)) return;
+      const dateObj = parseDateToStartOfDay(date);
+      if (isNaN(dateObj)) return;
 
-    const range = monthRange(year, monthIndex);
-
-    const b = await getAllBudgets();
-    const s = await getAllSavingGoals();
-
-    const validBudgets = (b.budgets || []).filter((x) =>
-      overlapsMonth(x, range)
-    );
+      const [b, s] = await Promise.all([
+        getBudgetByMonthAndYear(
+          dateObj.getUTCMonth(),
+          dateObj.getUTCFullYear(),
+        ),
+        getAllSavingGoals(),
+      ]);
 
       const merged = [
-      ...validBudgets.map((x) => ({
-        id: x.id,
-        name: x.purpose,
-        model: "Budget",
-      })),
-      ...(s.savingGoals || []).map((x) => ({
-        id: x.id,
-        name: x.purpose,
-        model: "SavingGoal",
-      })),
-    ];
+        ...(b.budgets || []).map((x) => ({
+          id: x.id,
+          name: x.purpose,
+          model: "Budget",
+        })),
+        ...(s.savingGoals || []).map((x) => ({
+          id: x.id,
+          name: x.purpose,
+          model: "Saving Goal",
+        })),
+      ];
 
       setCategory(merged);
     }
@@ -89,8 +68,27 @@ const range = year && monthIndex ? monthRange(year, monthIndex) : null;
     if (type === "EXPENSE") {
       fetchExpenseCategories().catch((e) => setWarningMessage(e.message));
     }
+  }, [type, date]);
 
-  }, [type, year, monthIndex]);
+  useEffect(() => {
+    const currentDate = new Date(
+      Date.UTC(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        new Date().getDate(),
+      ),
+    );
+    const formattedDate = currentDate.toISOString().split("T")[0];
+
+    reset({
+      type: "EXPENSE",
+      category: "",
+      amount: "",
+      date: formattedDate,
+      paymentMethod: "CARD",
+      note: "",
+    });
+  }, [reset]);
 
   const handleSave = async (data) => {
     setLoading(true);
@@ -105,7 +103,6 @@ const range = year && monthIndex ? monthRange(year, monthIndex) : null;
         note: data.note,
       };
 
-    
       if (data.type === "INCOME") {
         payload.category = data.category;
       } else {
@@ -296,7 +293,7 @@ const range = year && monthIndex ? monthRange(year, monthIndex) : null;
               <label className="font-medium text-gray-700">Date:</label>
               <input
                 type="date"
-               {...register("date", {
+                {...register("date", {
                   required: true,
                   validate: (value) => {
                     const selectedDate = new Date(value);
@@ -307,7 +304,7 @@ const range = year && monthIndex ? monthRange(year, monthIndex) : null;
                       "Target date must be today or in the past"
                     );
                   },
-})}
+                })}
                 className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent cursor-pointer"
                 max={new Date().toISOString().split("T")[0]} // Set max to today
               />

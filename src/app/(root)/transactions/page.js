@@ -119,7 +119,7 @@ export default function TransactionsPage() {
               <MdSaveAlt size={18} /> Export
             </button>
             <Link
-              href="/transactions/add"
+             href={`/transactions/add?year=${selectedMonth.getFullYear()}&month=${selectedMonth.getMonth()}`}
               className="px-3 py-2 border border-green-300 text-green-700 rounded-lg bg-white hover:bg-green-100 hover:text-stone-700 font-medium transition cursor-pointer flex items-center justify-center gap-2"
             >
               <FaPlus size={18} /> Add Transaction

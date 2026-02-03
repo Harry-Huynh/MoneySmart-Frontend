@@ -7,12 +7,36 @@ import Image from "next/image";
 import { getAllBudgets } from "@/lib/budget.actions";
 import { getAllSavingGoals } from "@/lib/savingGoal.actions";
 import { addTransaction } from "@/lib/transaction.actions";
+import { useSearchParams } from "next/navigation";
+
+function monthRange(year, monthIndex) {
+  const startDate = new Date(year, monthIndex, 1);
+  const endDate = new Date(year, monthIndex + 1, 0);
+  const start = startDate.toISOString().slice(0, 10);
+  const end = endDate.toISOString().slice(0, 10);
+
+  return { start, end };
+}
+
+
+function overlapsMonth(budget, range) {
+  const s = String(budget.startDate).slice(0, 10);
+  const e = String(budget.endDate).slice(0, 10);
+  return !(e < range.start || s > range.end);
+}
+
 
 export default function AddTransactionPage() {
   const router = useRouter();
   const [warningMessage, setWarningMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState([]);
+  const searchParams = useSearchParams();
+const year = Number(searchParams.get("year"));
+const monthIndex = Number(searchParams.get("month")); 
+
+const range = year && monthIndex ? monthRange(year, monthIndex) : null;
+
   const {
     register,
     handleSubmit,
@@ -31,24 +55,33 @@ export default function AddTransactionPage() {
   });
 
   const type = watch("type");
-
+  
   // Get categories
   useEffect(() => {
     async function fetchExpenseCategories() {
-      const [b, s] = await Promise.all([getAllBudgets(), getAllSavingGoals()]);
+     if (Number.isNaN(year) || Number.isNaN(monthIndex)) return;
+
+    const range = monthRange(year, monthIndex);
+
+    const b = await getAllBudgets();
+    const s = await getAllSavingGoals();
+
+    const validBudgets = (b.budgets || []).filter((x) =>
+      overlapsMonth(x, range)
+    );
 
       const merged = [
-        ...(b.budgets || []).map((x) => ({
-          id: x.id,
-          name: x.purpose,
-          model: "Budget",
-        })),
-        ...(s.savingGoals || []).map((x) => ({
-          id: x.id,
-          name: x.purpose,
-          model: "Saving Goal",
-        })),
-      ];
+      ...validBudgets.map((x) => ({
+        id: x.id,
+        name: x.purpose,
+        model: "Budget",
+      })),
+      ...(s.savingGoals || []).map((x) => ({
+        id: x.id,
+        name: x.purpose,
+        model: "SavingGoal",
+      })),
+    ];
 
       setCategory(merged);
     }
@@ -56,7 +89,8 @@ export default function AddTransactionPage() {
     if (type === "EXPENSE") {
       fetchExpenseCategories().catch((e) => setWarningMessage(e.message));
     }
-  }, [type]);
+
+  }, [type, year, monthIndex]);
 
   const handleSave = async (data) => {
     setLoading(true);
@@ -71,6 +105,7 @@ export default function AddTransactionPage() {
         note: data.note,
       };
 
+    
       if (data.type === "INCOME") {
         payload.category = data.category;
       } else {
@@ -261,7 +296,7 @@ export default function AddTransactionPage() {
               <label className="font-medium text-gray-700">Date:</label>
               <input
                 type="date"
-                {...register("date", {
+               {...register("date", {
                   required: true,
                   validate: (value) => {
                     const selectedDate = new Date(value);
@@ -272,7 +307,7 @@ export default function AddTransactionPage() {
                       "Target date must be today or in the past"
                     );
                   },
-                })}
+})}
                 className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent cursor-pointer"
                 max={new Date().toISOString().split("T")[0]} // Set max to today
               />

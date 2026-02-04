@@ -95,3 +95,87 @@ export async function registerUser(
     throw new Error(data.message);
   }
 }
+
+export async function verifyPassword(password) {
+  const token = await getToken();
+
+  if (!token) {
+    throw new Error("User is not authenticated");
+  }
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/verify-password`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ password }),
+      cache: "no-store",
+    },
+  );
+
+  const data = await res.json();
+  if (res.status === 200) {
+    return data.success;
+  }
+
+  throw new Error(data.message || "Failed to verify password");
+}
+
+export async function changePassword(newPassword) {
+  const token = await getToken();
+
+  if (!token) {
+    throw new Error("User is not authenticated");
+  }
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/change-password`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ newPassword }),
+      cache: "no-store",
+    },
+  );
+
+  const data = await res.json();
+  if (res.status === 200) {
+    return data.success;
+  }
+
+  throw new Error(data.message || "Failed to change password");
+}
+
+export async function getLastPasswordChangeDate() {
+  const token = await getToken();
+
+  if (!token) {
+    throw new Error("User is not authenticated");
+  }
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/change-password/date`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
+    },
+  );
+
+  const data = await res.json();
+  if (res.status === 200) {
+    return data.lastChangeDate;
+  }
+
+  throw new Error(
+    data.message || "Failed to retrieve last password change date",
+  );
+}

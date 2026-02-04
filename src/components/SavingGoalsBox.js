@@ -89,17 +89,6 @@ export default function SavingGoalsBox({ goal, onDelete }) {
             Edit
           </Link>
 
-          {/* Add Amount Button */}
-          {/* <button
-            onClick={() => {
-              setMenuOpen(false);
-              // Add amount logic will go here
-            }}
-            className="block w-full px-4 py-2.5 hover:bg-gray-100 text-left cursor-pointer border-t border-gray-200"
-          >
-            Add Amount
-          </button> */}
-
           <button
             onClick={() => {
               onDelete();

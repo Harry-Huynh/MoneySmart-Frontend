@@ -187,6 +187,53 @@ export default function AddTransactionPage() {
               )}
             </div>
 
+            {/* Date */}
+            <div className="flex flex-col gap-2">
+              <label className="font-medium text-gray-700">Date:</label>
+              <input
+                type="date"
+                {...register("date", {
+                  required: true,
+                  validate: (value) => {
+                    const selectedDate = new Date(value);
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    return (
+                      selectedDate <= today ||
+                      "Target date must be today or in the past"
+                    );
+                  },
+                })}
+                className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent cursor-pointer"
+                max={
+                  new Date(
+                    Date.UTC(
+                      new Date().getFullYear(),
+                      new Date().getMonth(),
+                      new Date().getDate(),
+                    ),
+                  )
+                    .toISOString()
+                    .split("T")[0]
+                } // Set max to today
+                min={
+                  new Date(
+                    Date.UTC(
+                      new Date().getFullYear(),
+                      new Date().getMonth(),
+                      1,
+                    ),
+                  )
+                    .toISOString()
+                    .split("T")[0]
+                }
+              />
+
+              {errors.date && (
+                <p className="text-sm text-red-500">Date is required</p>
+              )}
+            </div>
+
             {/* Category */}
             <div className="flex flex-col gap-2">
               <label className="font-medium text-gray-700">Category:</label>
@@ -285,32 +332,6 @@ export default function AddTransactionPage() {
                     ? "Amount is required"
                     : errors.amount.message}
                 </p>
-              )}
-            </div>
-
-            {/* Date */}
-            <div className="flex flex-col gap-2">
-              <label className="font-medium text-gray-700">Date:</label>
-              <input
-                type="date"
-                {...register("date", {
-                  required: true,
-                  validate: (value) => {
-                    const selectedDate = new Date(value);
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-                    return (
-                      selectedDate <= today ||
-                      "Target date must be today or in the past"
-                    );
-                  },
-                })}
-                className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent cursor-pointer"
-                max={new Date().toISOString().split("T")[0]} // Set max to today
-              />
-
-              {errors.date && (
-                <p className="text-sm text-red-500">Date is required</p>
               )}
             </div>
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { FiEdit2 } from "react-icons/fi";
+import { getMyProfile } from "@/lib/user.actions";
 
 function InfoRow({ label, value }) {
   return (
@@ -13,12 +14,12 @@ function InfoRow({ label, value }) {
 }
 
 export default async function AccountSettingsPage({ searchParams }) {
-    const profile = {
-    name: "John Wick",
-    email: "john.wich@myseneca.ca",
-    region: "Canada",
-    dateFormat: "12/31/2025",
-  };
+    let profile = null;
+    try {
+      profile = await getMyProfile();
+    } catch (e) {
+      profile = null;
+    }
 
     return (
         <section className="min-h-screen bg-gray-100 px-6 py-8">
@@ -51,10 +52,10 @@ export default async function AccountSettingsPage({ searchParams }) {
 
             {/* Profile rows */}
             <div className="px-6 py-2">
-                <InfoRow label="Name" value={profile.name} />
-                <InfoRow label="Email" value={profile.email} />
-                <InfoRow label="Region" value={profile.region} />
-                <InfoRow label="Date Format" value={profile.dateFormat} />
+                <InfoRow label="Name" value={profile?.name ?? profile?.username} />
+                <InfoRow label="Email" value={profile?.email} />
+                <InfoRow label="Region" value={profile?.region} />
+                <InfoRow label="Date Format" value={profile?.dateFormat} />
             </div>
             </div>
         </div>

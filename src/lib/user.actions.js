@@ -11,6 +11,28 @@ async function setToken(token) {
   });
 }
 
+export async function getMyProfile() {
+  const token = await getToken();
+
+  if (!token) {
+    throw new Error("User is not authenticated");
+  }
+
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`, {
+    method: "GET",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    cache: "no-store",
+  });
+
+  const data = await res.json();
+
+  if (res.status === 200) return data;
+
+  throw new Error(data.message || "Failed to load user profile");
+}
+
 export async function getToken() {
   try {
     const token = (await cookies()).get("access_token");

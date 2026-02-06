@@ -1,8 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { FiSave } from "react-icons/fi";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { getMyProfile, updateProfile } from "@/lib/user.actions";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -60,18 +62,64 @@ function RadioDropdown({ label, value, onValueChange, options }) {
 }
 
 export default function AccountSettingsEditForm() {
-  // UI-only dummy values
-  const [name, setName] = useState("John Wick");
-  const email = "john.wick@myseneca.ca";
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
 
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
   // Keep Date Format
-  const [dateFormat, setDateFormat] = useState("mm-dd-yyyy");
+  const [dateFormat, setDateFormat] = useState("MM-DD-YYYY");
 
   const dateFormatOptions = [
-    { value: "mm-dd-yyyy", text: "MM-DD-YYYY (12/31/2025)" },
-    { value: "yyyy-mm-dd", text: "YYYY-MM-DD (2025-12-31)" },
-    { value: "dd-mm-yyyy", text: "DD-MM-YYYY (31-12-2025)" },
+    { value: "MM-DD-YYYY", text: "MM-DD-YYYY (12/31/2025)" },
+    { value: "YYYY-MM-DD", text: "YYYY-MM-DD (2025-12-31)" },
+    { value: "DD-MM-YYYY", text: "DD-MM-YYYY (31-12-2025)" },
   ];
+
+  useEffect(() => {
+    async function load() {
+      try {
+        setError("");
+        const profile = await getMyProfile();
+
+        setName(profile?.name ?? "");
+        setEmail(profile?.email ?? "");
+        setDateFormat(profile?.dateFormat ?? "MM-DD-YYYY");
+      } catch (e) {
+        setError(e?.message || "Failed to load profile");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  async function handleSave(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    try {
+      setSaving(true);
+      setError("");
+
+      const trimmedName = name.trim();
+      if (!trimmedName) {
+        setError("Name is required");
+        return;
+      }
+
+      await updateProfile(trimmedName, dateFormat);
+
+      // Go back to view page
+      router.push("/settings/account");
+    } catch (e) {
+        setError(e?.message || "Failed to save changes");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <div className="rounded-2xl bg-white shadow-sm ring-1 ring-gray-200">
@@ -87,16 +135,17 @@ export default function AccountSettingsEditForm() {
       <div className="px-6 py-2">
         <Row label="Name">
           <Input
-            value={name}
+            value={loading ? "" : name}
             onChange={(e) => setName(e.target.value)}
             className="h-11 rounded-xl"
-            placeholder="Enter your name"
+            placeholder={loading ? "Loading..." : "Enter your name"}
+            disabled={loading || saving}
           />
         </Row>
 
         <Row label="Email">
           <div className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 flex items-center text-sm text-gray-700">
-            {email}
+            {loading ? "Loading..." : email}
           </div>
         </Row>
 
@@ -122,12 +171,13 @@ export default function AccountSettingsEditForm() {
           </Link>
 
           <Link
-            href="/settings/account"
+            href="#"
+            onClick={handleSave}
             className="h-12 w-full rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition cursor-pointer inline-flex items-center justify-center"
             >
             <span className="inline-flex items-center gap-2">
                 <FiSave className="h-4 w-4" />
-                Save Changes
+                {saving ? "Saving..." : "Save Changes"}
             </span>
             </Link>
         </div>

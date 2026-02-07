@@ -119,7 +119,7 @@ const RequiredColumnsModal = ({ shown, onClose }) => {
                     <td className="p-4">
                       {column.required ? (
                         <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium">
-                          Required
+                          Compulsory
                         </span>
                       ) : (
                         <span className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium">

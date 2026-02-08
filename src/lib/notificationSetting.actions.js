@@ -6,6 +6,8 @@ export async function getNotificationSettings() {
     throw new Error("User is not authenticated");
   }
 
+
+
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BACKEND_URL}/notification-settings`,
     {
@@ -23,7 +25,10 @@ export async function getNotificationSettings() {
     throw new Error(data.message || "Failed to fetch notification settings");
   }
   
-  return data;
+  const settings = data.settings || data;
+
+  
+  return settings;
 }
 
 export async function updateNotificationSettings(settings) {
@@ -32,6 +37,7 @@ export async function updateNotificationSettings(settings) {
     throw new Error("User is not authenticated");
   }
 
+  
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BACKEND_URL}/notification-settings`,
     {
@@ -46,9 +52,12 @@ export async function updateNotificationSettings(settings) {
   );
 
   const data = await res.json().catch(() => ({}));
+
+  
+
   if (!res.ok) {
     throw new Error(data.message || "Failed to update notification settings");
   }
   
-  return data;
+  return data.settings || data;
 }

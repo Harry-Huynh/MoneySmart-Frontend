@@ -8,9 +8,10 @@ import { FiPieChart } from "react-icons/fi";
 import { LuPiggyBank } from "react-icons/lu";
 import { IoSparklesOutline } from "react-icons/io5";
 import { NotificationSettingsToggle } from "@/components/NotificationSettingsToggle";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { getNotificationSettings, updateNotificationSettings } from "@/lib/notificationSetting.actions"; 
 
 import {
   AlertDialog,
@@ -26,6 +27,8 @@ import {
 
 export default function NotificationSettingsPage() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [settings, setSettings] = useState({
     enableNotifications: true,
@@ -36,6 +39,24 @@ export default function NotificationSettingsPage() {
     savingsGoalReminders: true,
     aiInsights: true,
   });
+
+  // Fetch settings on component mount
+  useEffect(() => {
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      setIsLoading(true);
+      const data = await getNotificationSettings();
+      setSettings(data);
+    } catch (error) {
+      console.error("Error fetching notification settings:", error);
+      // Keep default settings if fetch fails
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Used to handle the changes of enableNotifications toggle
   // If enableNotifications is disabled -> disabled all other toggles
@@ -74,8 +95,26 @@ export default function NotificationSettingsPage() {
   };
 
   async function handleSave() {
-    // send current settings to backend
-    router.push("/settings");
+    try {
+      setIsSaving(true);
+      await updateNotificationSettings(settings);
+      router.push("/settings");
+    } catch (error) {
+      console.error("Error saving notification settings:", error);
+      alert("Failed to save settings: " + error.message);
+      setIsSaving(false);
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading notification settings...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -197,7 +236,7 @@ export default function NotificationSettingsPage() {
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <button className="border rounded-sm bg-green-700 text-white font-bold cursor-pointer hover:bg-green-600">
-                  Save
+                  {isSaving ? "Saving..." : "Save"}
                 </button>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -211,14 +250,15 @@ export default function NotificationSettingsPage() {
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel className="cursor-pointer">
+                  <AlertDialogCancel className="cursor-pointer" disabled={isSaving}>
                     Cancel
                   </AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleSave}
-                    className="bg-green-600 cursor-pointer hover:bg-green-700"
+                    disabled={isSaving}
+                    className="bg-green-600 cursor-pointer hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Save
+                    {isSaving ? "Saving..." : "Save"}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>

@@ -1,5 +1,6 @@
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import * as XLSX from "xlsx";
 
 export function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -44,4 +45,64 @@ export function parseDateToStartOfDay(dateStr) {
 export function parseDateToEndOfDay(dateStr) {
   const [year, month, day] = dateStr.split("-");
   return new Date(Date.UTC(year, month - 1, day, 23, 59, 59)); // end of day UTC
+}
+
+export function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function toCsvValue(v) {
+  if (v === null || v === undefined) return "";
+  const s = String(v);
+  const escaped = s.replaceAll('"', '""');
+  return /[",\n]/.test(escaped) ? `"${escaped}"` : escaped;
+}
+
+export function transactionsToCsv(transactions) {
+  const headers = [
+    "date",
+    "type",
+    "amount",
+    "category",
+    "note",
+    "paymentMethod",
+  ];
+
+  const rows = transactions.map((t) => [
+    toCsvValue(t.date),
+    toCsvValue(t.type),
+    toCsvValue(t.amount),
+    toCsvValue(t.category),
+    toCsvValue(t.note),
+    toCsvValue(t.paymentMethod),
+  ]);
+
+  return [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+}
+
+export function transactionsToXlsxBlob(transactions) {
+  const rows = transactions.map((t) => ({
+    Date: t.date,
+    Category: t.category,
+    "Payment Method": t.paymentMethod,
+    Income: t.type == "INCOME" ? Number(t.amount) : "",
+    Expense: t.type == "EXPENSE" ? Number(t.amount) : "",
+    Note: t.note ?? "",
+  }));
+
+  const sheet = XLSX.utils.json_to_sheet(rows);
+  const book = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(book, sheet, "Transactions");
+
+  const arrayBuffer = XLSX.write(book, { bookType: "xlsx", type: "array" });
+  return new Blob([arrayBuffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
 }

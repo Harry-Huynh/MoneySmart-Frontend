@@ -14,6 +14,7 @@ import {
   getAllTransactionsByMonthAndYear,
 } from "@/lib/transaction.actions";
 import MonthNavigation from "@/components/MonthNavigation";
+import ExportTransactionsDialog from "@/components/ExportTransactionsDialog";
 
 export default function TransactionsPage() {
   const [filter, setFilter] = useState("All"); // State for the Segmented Filter
@@ -114,9 +115,13 @@ export default function TransactionsPage() {
             </p>
           </div>
           <div className="w-full grid grid-cols-2 gap-4 mt-2 md:mt-0 md:w-auto">
-            <button className="px-3 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-200 font-medium transition cursor-pointer flex items-center justify-center gap-2">
-              <MdSaveAlt size={18} /> Export
-            </button>
+            <ExportTransactionsDialog
+              transactions={allTransactions}
+              month={selectedMonth.toLocaleDateString("en-CA", {
+                month: "long",
+              })}
+              year={selectedMonth.getFullYear()}
+            />
             <Link
               href={`/transactions/add`}
               className="px-3 py-2 border border-green-300 text-green-700 rounded-lg bg-white hover:bg-green-100 hover:text-stone-700 font-medium transition cursor-pointer flex items-center justify-center gap-2"

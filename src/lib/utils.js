@@ -58,14 +58,19 @@ export function downloadBlob(blob, filename) {
   URL.revokeObjectURL(url);
 }
 
-function toCsvValue(v) {
-  if (v === null || v === undefined) return "";
-  const s = String(v);
-  const escaped = s.replaceAll('"', '""');
-  return /[",\n]/.test(escaped) ? `"${escaped}"` : escaped;
+function toCsvValue(value, delimiter) {
+  if (value === null || value === undefined) return "";
+  const str = String(value);
+  const escaped = str.replaceAll('"', '""');
+  const needsQuotes =
+    escaped.includes(delimiter) ||
+    escaped.includes('"') ||
+    escaped.includes("\n");
+
+  return needsQuotes ? `"${escaped}"` : escaped;
 }
 
-export function transactionsToCsv(transactions) {
+export function transactionsToCsv(transactions, needHeader, delimiter) {
   const headers = [
     "date",
     "type",
@@ -76,33 +81,23 @@ export function transactionsToCsv(transactions) {
   ];
 
   const rows = transactions.map((t) => [
-    toCsvValue(t.date),
-    toCsvValue(t.type),
-    toCsvValue(t.amount),
-    toCsvValue(t.category),
-    toCsvValue(t.note),
-    toCsvValue(t.paymentMethod),
+    toCsvValue(t.date.split("T")[0], delimiter),
+    toCsvValue(t.type, delimiter),
+    toCsvValue(t.amount, delimiter),
+    toCsvValue(t.category, delimiter),
+    toCsvValue(t.note, delimiter),
+    toCsvValue(t.paymentMethod, delimiter),
   ]);
 
-  return [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
-}
+  const csvLines = [];
 
-export function transactionsToXlsxBlob(transactions) {
-  const rows = transactions.map((t) => ({
-    Date: t.date,
-    Category: t.category,
-    "Payment Method": t.paymentMethod,
-    Income: t.type == "INCOME" ? Number(t.amount) : "",
-    Expense: t.type == "EXPENSE" ? Number(t.amount) : "",
-    Note: t.note ?? "",
-  }));
+  if (needHeader) {
+    csvLines.push(headers.join(delimiter));
+  }
 
-  const sheet = XLSX.utils.json_to_sheet(rows);
-  const book = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(book, sheet, "Transactions");
-
-  const arrayBuffer = XLSX.write(book, { bookType: "xlsx", type: "array" });
-  return new Blob([arrayBuffer], {
-    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  rows.forEach((r) => {
+    csvLines.push(r.join(delimiter));
   });
+
+  return csvLines.join("\n");
 }

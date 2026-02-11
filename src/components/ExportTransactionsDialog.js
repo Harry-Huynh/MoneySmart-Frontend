@@ -10,17 +10,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { MdSaveAlt } from "react-icons/md";
 import { FaFileCsv } from "react-icons/fa6";
 import { LuDownload } from "react-icons/lu";
-import { PiMicrosoftExcelLogoFill } from "react-icons/pi";
-import {
-  downloadBlob,
-  transactionsToCsv,
-  transactionsToXlsxBlob,
-} from "@/lib/utils";
+import { downloadBlob, transactionsToCsv } from "@/lib/utils";
 
 export default function ExportTransactionsDialog({
   transactions,
@@ -28,23 +24,14 @@ export default function ExportTransactionsDialog({
   year,
 }) {
   const [format, setFormat] = useState("csv");
+  const [needHeader, setNeedHeader] = useState(true);
+  const [delimiter, setDelimiter] = useState(",");
 
   const handleDownload = () => {
     const fileName = `MoneySmart-transactions-${year}-${month}`;
-
-    if (!transactions || transactions.length === 0) {
-      alert("No transactions to export for this month.");
-      return;
-    }
-
-    if (format === "csv") {
-      const csv = transactionsToCsv(transactions);
-      const blob = new Blob([csv], { type: "text/csv" });
-      downloadBlob(blob, `${fileName}.csv`);
-    } else {
-      const blob = transactionsToXlsxBlob(transactions);
-      downloadBlob(blob, `${fileName}.xlsx`);
-    }
+    const csv = transactionsToCsv(transactions, needHeader, delimiter);
+    const blob = new Blob([csv], { type: "text/csv" });
+    downloadBlob(blob, `${fileName}.csv`);
   };
 
   return (
@@ -63,10 +50,12 @@ export default function ExportTransactionsDialog({
             Choose your preferred format to export your transaction history.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <div className="text-black text-lg my-5 select-none">Export Format</div>
+        <div className="text-black text-lg my-5 select-none font-bold">
+          Export Format
+        </div>
         <RadioGroup
           value={format}
-          onValueChange={(v) => setFormat(v === "csv" ? "csv" : "excel")}
+          onValueChange={setFormat}
           className="w-full select-none"
         >
           <label
@@ -93,32 +82,42 @@ export default function ExportTransactionsDialog({
               </p>
             </div>
           </label>
-
-          <label
-            htmlFor="excel"
-            className={`w-full border rounded-md flex items-center gap-3 p-5 cursor-pointer
-    ${format === "excel" ? "border-green-600 bg-green-50" : ""}
-  `}
-          >
-            <RadioGroupItem value="excel" id="excel" className="sr-only" />
-            <PiMicrosoftExcelLogoFill size={38} className="text-green-800" />
-
-            <div className="flex-1">
-              <div className="flex items-center justify-between">
-                <Label className="text-black text-lg">Excel (.xlsx)</Label>
-                {format === "excel" && (
-                  <span className="text-[10px] px-2 py-1 rounded-full bg-green-700 text-white">
-                    Selected
-                  </span>
-                )}
-              </div>
-
-              <p className="text-xs text-gray-600">
-                Best for Excel users. Keeps formatting.
-              </p>
-            </div>
-          </label>
         </RadioGroup>
+        <div className="w-full mt-5 select-none">
+          <div className="text-black text-lg font-bold mb-2">CSV Options</div>
+          <div className="grid grid-cols-2">
+            <p className="text-sm">Include header row? </p>
+            <div className="flex gap-2 items-center">
+              <Checkbox
+                id="needHeader"
+                checked={needHeader}
+                onCheckedChange={(val) => setNeedHeader(Boolean(val))}
+                className={`cursor-pointer`}
+              />
+              <label htmlFor="needHeader" className="text-sm">
+                Includes Header
+              </label>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 justify-between items-center mt-3">
+            <label htmlFor="delimiters" className="text-sm">
+              Choose delimiter type:{" "}
+            </label>
+            <select
+              name="delimiters"
+              id="delimiters"
+              value={delimiter}
+              onChange={(e) => setDelimiter(e.target.value)}
+              className="border text-sm rounded-sm py-1 cursor-pointer"
+            >
+              <option value=",">Comma (,)</option>
+              <option value=";">Semicolon (;)</option>
+              <option value="\t">Tab (\t)</option>
+              <option value="|">Pipe (|)</option>
+              <option value=":">Colon (:)</option>
+            </select>
+          </div>
+        </div>
 
         <div className="mt-8 mb-5 border border-red-300 rounded-md p-5 bg-red-50 select-none">
           <p className="text-red-700 font-bold text-lg">Note:</p>
@@ -136,7 +135,7 @@ export default function ExportTransactionsDialog({
             className="cursor-pointer bg-green-700 hover:bg-green-600"
           >
             <LuDownload />
-            Download {format === "csv" ? "CSV" : "Excel"}
+            Download CSV
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

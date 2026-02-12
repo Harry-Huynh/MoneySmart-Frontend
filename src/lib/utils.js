@@ -1,6 +1,5 @@
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import * as XLSX from "xlsx";
 
 export function cn(...inputs) {
   return twMerge(clsx(inputs));

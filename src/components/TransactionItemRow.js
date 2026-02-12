@@ -2,6 +2,7 @@ import { formatMoneyCAD } from "@/lib/mock/budgets";
 import React from "react";
 import { PiHandWithdrawBold, PiHandDepositBold } from "react-icons/pi";
 import { FaRegTrashCan } from "react-icons/fa6";
+import { useRouter } from "next/navigation";
 
 import {
   AlertDialog,
@@ -18,12 +19,20 @@ import {
 export default function TransactionItemRow({ transaction, onDelete }) {
   const isIncome = transaction.type === "INCOME";
 
+    const router = useRouter();
+
+  const handleDoubleClick = () => {
+    router.push(`/transactions/${transaction.id}/edit`);
+  };
+
+
   function handleDelete() {
     onDelete(transaction.id);
   }
 
   return (
     <div
+      onDoubleClick={handleDoubleClick}
       className={`w-full py-2 px-2 my-2 flex items-center justify-between border border-gray-100 rounded-md gap-4 select-none hover:border-gray-300 group`}
     >
       <div

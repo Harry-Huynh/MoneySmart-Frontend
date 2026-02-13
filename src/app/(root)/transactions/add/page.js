@@ -149,7 +149,7 @@ export default function AddTransactionPage() {
 
         if (notificationData) {
           try {
-            const result = await addNotification(notificationData);
+            const result = await addNotification(notificationData, "budget");
 
             if (result) {
               createBudgetPushNotification(notificationData);

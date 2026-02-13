@@ -1,13 +1,13 @@
 import { getToken } from "./user.actions";
 
-export const addNotification = async (notification) => {
+export const addNotification = async (notification, type) => {
   const token = await getToken();
   if (!token) {
     throw new Error("User is not authenticated");
   }
 
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/notification`,
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/notification?type=${type}`,
     {
       method: "POST",
       headers: {

@@ -2,6 +2,8 @@ import { MdDelete, MdDone } from "react-icons/md";
 
 export default function NotificationCard({ notification, onMarkRead, onDelete }) {
   const unread = !notification.isRead;
+  const isDelete = notification.type === "delete";
+
   return (
     <div
       className="relative flex items-center gap-4 px-4 py-4 rounded-xl border border-gray-200 bg-white overflow-hidden"

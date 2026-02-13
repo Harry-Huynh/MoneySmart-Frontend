@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import NotificationCard from "@/components/NotificationCard";
-import { getAllNotifications, markNotificationAsRead, deleteNotification } from "@/lib/notification.actions";
+import { getAllNotifications, markNotificationAsRead, deleteNotification } from "@/lib/notificationList.actions";
 
 /**
  * UI Notification Shape

@@ -1,7 +1,7 @@
 "use client";
-
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import NotificationCard from "@/components/NotificationCard";
+import { getAllNotifications, markNotificationAsRead, deleteNotification } from "@/lib/notification.actions";
 
 /**
  * UI Notification Shape
@@ -20,19 +20,16 @@ import NotificationCard from "@/components/NotificationCard";
 
 // Example mapping function (backend to UI)
 function mapApiNotificationToUi(n) {
-  // Example backend shapes:
-  // n.message, n.status ("READ"/"UNREAD"), n.action ("CREATED"/"DELETED"), n.createdAt
   return {
     id: n.id,
     title: n.title ?? "Notification",
     subtitle: n.message ?? "",
-    amount: n.amount ?? undefined,
-    type:
-      (n.action || "").toUpperCase() === "DELETED" ? "delete" : "add",
+    type: n.type, // ✅ backend category
     isRead: (n.status || "").toUpperCase() === "READ",
     createdAt: n.createdAt,
   };
 }
+
 
 // Helper to get relative date label (Today, Yesterday, 2 days ago,...)
 function getRelativeLabel(createdAt) {
@@ -78,70 +75,65 @@ function groupNotifications(list) {
   return groups;
 }
 
-// dummy initial data , replace later
-const initialNotifications = [
-  {
-    id: 1,
-    title: "Budget Added",
-    subtitle: "Food budget created",
-    amount: 200,
-    type: "add",
-    isRead: false,
-    createdAt: "2026-02-11T14:30:00Z",
-  },
-  {
-    id: 2,
-    title: "Budget Deleted",
-    subtitle: "Car budget removed",
-    amount: 350,
-    type: "delete",
-    isRead: false,
-    createdAt: "2026-02-11T09:10:00Z",
-  },
-  {
-    id: 3,
-    title: "Saving Goal Added",
-    subtitle: "Buying new laptop",
-    amount: 1200,
-    type: "add",
-    isRead: true,
-    createdAt: "2026-02-10T18:45:00Z",
-  },
-  {
-    id: 4,
-    title: "Transaction Added",
-    subtitle: "Grocery shopping",
-    amount: 85,
-    type: "add",
-    isRead: true,
-    createdAt: "2026-02-09T20:15:00Z",
-  },
-  {
-    id: 5,
-    title: "Budget Deleted",
-    subtitle: "Entertainment budget removed",
-    amount: 150,
-    type: "delete",
-    isRead: false,
-    createdAt: "2026-02-08T11:00:00Z",
-  },
-];
 
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState(initialNotifications);
+  const [notifications, setNotifications] = useState([]); 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const grouped = useMemo(() => groupNotifications(notifications),[notifications]);
+  useEffect(() => {
+    let mounted = true;
 
-  function handleMarkRead(id) {
-    // api mark read(id) then update UI here
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
-    );
+    (async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const data = await getAllNotifications(); 
+        const ui = (data.notifications || []).map(mapApiNotificationToUi);
+
+        if (mounted) setNotifications(ui);
+      } catch (e) {
+        if (mounted) setError(e.message || "Failed to load notifications");
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const grouped = useMemo(
+    () => groupNotifications(notifications),
+    [notifications]
+  );
+
+  
+  async function handleMarkRead(id) {
+    try {
+      setError("");
+      await markNotificationAsRead(id);
+
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+      );
+    } catch (e) {
+      setError(e.message || "Failed to mark as read");
+    }
   }
 
-  function handleDelete(id) {
-    // api delete(id) then remove from UI here
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  
+  async function handleDelete(id) {
+    try {
+      setError("");
+      await deleteNotification(id);
+
+      setNotifications((prev) => prev.filter((n) => n.id !== id));
+    } catch (e) {
+      setError(e.message || "Failed to delete notification");
+    }
   }
 
   return (

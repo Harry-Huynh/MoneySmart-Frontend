@@ -19,12 +19,11 @@ import {
 export default function TransactionItemRow({ transaction, onDelete }) {
   const isIncome = transaction.type === "INCOME";
 
-    const router = useRouter();
+  const router = useRouter();
 
   const handleDoubleClick = () => {
     router.push(`/transactions/${transaction.id}/edit`);
   };
-
 
   function handleDelete() {
     onDelete(transaction.id);
@@ -78,10 +77,12 @@ export default function TransactionItemRow({ transaction, onDelete }) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="cursor-pointer">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-600 hover:bg-red-700 cursor-pointer"
             >
               Delete
             </AlertDialogAction>

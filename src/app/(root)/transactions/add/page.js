@@ -8,6 +8,12 @@ import { getBudgetByMonthAndYear } from "@/lib/budget.actions";
 import { getAllSavingGoals } from "@/lib/savingGoal.actions";
 import { addTransaction } from "@/lib/transaction.actions";
 import { parseDateToStartOfDay } from "@/lib/utils";
+import {
+  createBudgetPushNotification,
+  createNotificationData,
+} from "@/lib/budgetNotification.action";
+import { toast } from "sonner";
+import { addNotification } from "@/lib/notification.action";
 
 export default function AddTransactionPage() {
   const router = useRouter();
@@ -127,6 +133,7 @@ export default function AddTransactionPage() {
 
       await addTransaction(payload);
 
+      // Reset form
       reset({
         type: "EXPENSE",
         category: "",
@@ -135,6 +142,23 @@ export default function AddTransactionPage() {
         paymentMethod: "CARD",
         note: "",
       });
+
+      // Handle push notification
+      if (payload.budgetId != null) {
+        const notificationData = await createNotificationData(payload.budgetId);
+
+        if (notificationData) {
+          try {
+            const result = await addNotification(notificationData, "budget");
+
+            if (result) {
+              createBudgetPushNotification(notificationData);
+            }
+          } catch (error) {
+            setWarningMessage(error.message);
+          }
+        }
+      }
 
       router.replace("/transactions");
     } catch (error) {

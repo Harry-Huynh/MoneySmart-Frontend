@@ -3,7 +3,6 @@ import { FaArrowLeftLong } from "react-icons/fa6";
 import { FiBell } from "react-icons/fi";
 import { TbNotification } from "react-icons/tb";
 import { HiOutlineMail } from "react-icons/hi";
-import { FaRegMoneyBill1 } from "react-icons/fa6";
 import { FiPieChart } from "react-icons/fi";
 import { LuPiggyBank } from "react-icons/lu";
 import { IoSparklesOutline } from "react-icons/io5";
@@ -11,7 +10,10 @@ import { NotificationSettingsToggle } from "@/components/NotificationSettingsTog
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { getNotificationSettings, updateNotificationSettings } from "@/lib/notificationSetting.actions"; 
+import {
+  getNotificationSettings,
+  updateNotificationSettings,
+} from "@/lib/notificationSetting.actions";
 
 import {
   AlertDialog,
@@ -32,10 +34,9 @@ export default function NotificationSettingsPage() {
 
   const [settings, setSettings] = useState({
     enableNotifications: true,
-    pushNotifications: false,
+    pushNotifications: true,
     emailNotifications: true,
-    billReminders: true,
-    budgetAlerts: false,
+    budgetAlerts: true,
     savingsGoalReminders: true,
     aiInsights: true,
   });
@@ -68,7 +69,6 @@ export default function NotificationSettingsPage() {
           enableNotifications: false,
           pushNotifications: false,
           emailNotifications: false,
-          billReminders: false,
           budgetAlerts: false,
           savingsGoalReminders: false,
           aiInsights: false,
@@ -185,16 +185,6 @@ export default function NotificationSettingsPage() {
             </p>
             <div className="w-full mt-3">
               <NotificationSettingsToggle
-                icon={<FaRegMoneyBill1 className="h-5 w-5" />}
-                title="Bill Reminders"
-                description="Get notified before a bill is due"
-                checked={settings.billReminders}
-                onCheckedChange={(checked) =>
-                  updateSettings("billReminders", checked)
-                }
-                disabled={!settings.enableNotifications}
-              />
-              <NotificationSettingsToggle
                 icon={<FiPieChart className="h-5 w-5" />}
                 title="Budget Warnings"
                 description="Alerts when you approach your spending limits"
@@ -250,7 +240,10 @@ export default function NotificationSettingsPage() {
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel className="cursor-pointer" disabled={isSaving}>
+                  <AlertDialogCancel
+                    className="cursor-pointer"
+                    disabled={isSaving}
+                  >
                     Cancel
                   </AlertDialogCancel>
                   <AlertDialogAction

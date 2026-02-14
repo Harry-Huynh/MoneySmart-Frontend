@@ -5,13 +5,11 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAtomValue } from "jotai";
 import { budgetsAtom } from "@/lib/store/budgetsAtom";
 
-
 import BalanceCard from "@/components/BalanceCard";
 import BudgetCard from "@/components/BudgetCard";
 import SavingGoalsCard from "@/components/SavingGoalsCard";
 import TransactionItem from "@/components/TransactionItem";
 import AddFundsModal from "@/components/AddFundsModal";
-
 
 export default function DashboardClient({ dashboardMockData, name }) {
   const router = useRouter();
@@ -24,28 +22,6 @@ export default function DashboardClient({ dashboardMockData, name }) {
     name: b.purpose,
     amount: Number(b.amount || 0),
   }));
-
-
-  const isAddFundsModalOpen = useMemo(() => {
-    return searchParams.get("addFunds") === "1";
-  }, [searchParams]);
-
-  const openAddFundsModal = useCallback(() => {
-    router.push("/dashboard?addFunds=1", { scroll: false });
-  }, [router]);
-
-  const closeAddFundsModal = useCallback(() => {
-    router.push("/dashboard", { scroll: false });
-  }, [router]);
-
-  const handleDepositSubmit = useCallback(
-    async (amountText) => {
-      // Do later: call backend API: POST /deposit e.g
-      // now: just close modal (UI demo)
-      closeAddFundsModal();
-    },
-    [closeAddFundsModal],
-  );
 
   return (
     <div className="w-full px-6 py-6">
@@ -64,15 +40,15 @@ export default function DashboardClient({ dashboardMockData, name }) {
       </h1>
 
       <div className="mb-6">
-        <BalanceCard
-          balanceSummary={dashboardMockData.balance}
-          onAddFundsClick={openAddFundsModal}
-        />
+        <BalanceCard balanceSummary={dashboardMockData.balance} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 items-stretch">
         <BudgetCard budgetItems={dashboardBudgets} />
-        <SavingGoalsCard  href="/saving-goals" savingGoalItems={dashboardMockData.goals} />
+        <SavingGoalsCard
+          href="/saving-goals"
+          savingGoalItems={dashboardMockData.goals}
+        />
       </div>
 
       <h2 className="text-xl font-semibold text-slate-700 mb-4">
@@ -89,12 +65,6 @@ export default function DashboardClient({ dashboardMockData, name }) {
           ),
         )}
       </div>
-
-      <AddFundsModal
-        isOpen={isAddFundsModalOpen}
-        onRequestClose={closeAddFundsModal}
-        onSubmitDeposit={handleDepositSubmit}
-      />
     </div>
   );
 }

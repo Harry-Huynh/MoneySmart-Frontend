@@ -35,21 +35,11 @@ export default function BalanceCard({ balanceSummary, onAddFundsClick }) {
                 />
               </div>
             </div>
-
             {/* $$ */}
             <p className="mt-3 text-slate-600">
               {deltaAmountText} since {balanceSummary.since}
             </p>
           </div>
-
-          <button
-            type="button"
-            onClick={onAddFundsClick}
-            className="shrink-0 self-center rounded-xl px-6 py-3 text-base font-semibold text-white bg-[#4f915f] hover:bg-[#214a2b] transition cursor-pointer"
-          >
-            <FaPlus className="inline-block mr-2" />
-            Add funds
-          </button>
         </div>
       </div>
     </Card>

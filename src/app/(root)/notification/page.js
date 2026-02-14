@@ -1,12 +1,16 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import NotificationCard from "@/components/NotificationCard";
-import { getAllNotifications, markNotificationAsRead, deleteNotification } from "@/lib/notificationList.actions";
+import {
+  getAllNotifications,
+  markNotificationAsRead,
+  deleteNotification,
+} from "@/lib/notificationList.actions";
 
 /**
  * UI Notification Shape
  * Suggestion : Backend should be mapped into this shape using mapApiNotificationToUi()
- * 
+ *
  * {
  *   id: string|number,
  *   title: string,
@@ -30,7 +34,6 @@ function mapApiNotificationToUi(n) {
   };
 }
 
-
 // Helper to get relative date label (Today, Yesterday, 2 days ago,...)
 function getRelativeLabel(createdAt) {
   const now = new Date();
@@ -38,14 +41,14 @@ function getRelativeLabel(createdAt) {
   const todayUTC = Date.UTC(
     now.getUTCFullYear(),
     now.getUTCMonth(),
-    now.getUTCDate()
+    now.getUTCDate(),
   );
 
   const created = new Date(createdAt);
   const createdUTC = Date.UTC(
     created.getUTCFullYear(),
     created.getUTCMonth(),
-    created.getUTCDate()
+    created.getUTCDate(),
   );
 
   const diffDays = Math.floor((todayUTC - createdUTC) / (1000 * 60 * 60 * 24));
@@ -63,7 +66,7 @@ function groupNotifications(list) {
 
   // Sort by createdAt DESC first ( will be newest first)
   const sorted = [...list].sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
   );
 
   sorted.forEach((n) => {
@@ -75,9 +78,8 @@ function groupNotifications(list) {
   return groups;
 }
 
-
 export default function NotificationsPage() {
-  const [notifications, setNotifications] = useState([]); 
+  const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -89,7 +91,7 @@ export default function NotificationsPage() {
         setLoading(true);
         setError("");
 
-        const data = await getAllNotifications(); 
+        const data = await getAllNotifications();
         const ui = (data.notifications || []).map(mapApiNotificationToUi);
 
         if (mounted) setNotifications(ui);
@@ -107,24 +109,22 @@ export default function NotificationsPage() {
 
   const grouped = useMemo(
     () => groupNotifications(notifications),
-    [notifications]
+    [notifications],
   );
 
-  
   async function handleMarkRead(id) {
     try {
       setError("");
       await markNotificationAsRead(id);
 
       setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
       );
     } catch (e) {
       setError(e.message || "Failed to mark as read");
     }
   }
 
-  
   async function handleDelete(id) {
     try {
       setError("");
@@ -148,7 +148,9 @@ export default function NotificationsPage() {
 
         <div className="px-6 py-6 flex flex-col gap-6 overflow-y-auto max-h-[65vh]">
           {Object.keys(grouped).length === 0 ? (
-            <p className="text-sm text-gray-500">No notifications yet.</p>
+            <p className="text-md text-gray-500 text-center">
+              No notifications yet.
+            </p>
           ) : (
             Object.entries(grouped).map(([label, items]) => (
               <div key={label}>

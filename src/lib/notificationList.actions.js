@@ -11,12 +11,12 @@ export async function getAllNotifications() {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
       cache: "no-store",
-    }
+    },
   );
 
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.message || "Failed to fetch notifications");
-  return data; 
+  return data;
 }
 
 export async function getUnreadNotifications() {
@@ -29,12 +29,13 @@ export async function getUnreadNotifications() {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
       cache: "no-store",
-    }
+    },
   );
 
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.message || "Failed to fetch unread notifications");
-  return data; 
+  if (!res.ok)
+    throw new Error(data.message || "Failed to fetch unread notifications");
+  return data;
 }
 
 export async function getOneNotification(id) {
@@ -48,33 +49,12 @@ export async function getOneNotification(id) {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
       cache: "no-store",
-    }
+    },
   );
 
   const data = await res.json().catch(() => ({}));
-  if (res.ok) return data; 
+  if (res.ok) return data;
   throw new Error(data.message || "Failed to get notification");
-}
-
-export async function addNotification(payload) {
-  const token = await getToken();
-  if (!token) throw new Error("User is not authenticated");
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BACKEND_URL}/notification`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-      cache: "no-store",
-    }
-  );
-
-  const data = await res.json().catch(() => ({}));
-  if (res.status === 201) return true;
-  throw new Error(data.message || "Failed to add notification");
 }
 
 export async function markNotificationAsRead(id) {
@@ -88,7 +68,7 @@ export async function markNotificationAsRead(id) {
       method: "PUT",
       headers: { Authorization: `Bearer ${token}` },
       cache: "no-store",
-    }
+    },
   );
 
   const data = await res.json().catch(() => ({}));
@@ -106,7 +86,7 @@ export async function markAllNotificationsAsRead() {
       method: "PUT",
       headers: { Authorization: `Bearer ${token}` },
       cache: "no-store",
-    }
+    },
   );
 
   const data = await res.json().catch(() => ({}));
@@ -125,7 +105,7 @@ export async function deleteNotification(id) {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
       cache: "no-store",
-    }
+    },
   );
 
   const data = await res.json().catch(() => ({}));

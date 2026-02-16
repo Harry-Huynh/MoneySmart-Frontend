@@ -25,7 +25,7 @@ export default function BudgetCard({ budgetItems = [] }) {
             </div>
           ) : (
             budgetItems.map((budgetItem) => {
-              const isOverSpent = budgetItem.usedAmount >= budgetItem.amount;
+              const isOverSpent = budgetItem.usedAmount > budgetItem.amount;
               return (
                 <li
                   key={budgetItem.id}

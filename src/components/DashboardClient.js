@@ -1,21 +1,12 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAtomValue } from "jotai";
-import { budgetsAtom } from "@/lib/store/budgetsAtom";
-
 import BalanceCard from "@/components/BalanceCard";
 import BudgetCard from "@/components/BudgetCard";
 import SavingGoalsCard from "@/components/SavingGoalsCard";
-import TransactionItem from "@/components/TransactionItem";
-import AddFundsModal from "@/components/AddFundsModal";
 import DashboardTransactionCard from "./DashboardTransactionCard";
 
 export default function DashboardClient({ dashboardMockData, name }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
   const dashboardBudgets = dashboardMockData.budgets.map((b) => ({
     id: b.id,
     name: b.purpose,

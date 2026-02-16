@@ -62,22 +62,9 @@ export default async function Dashboard() {
       delta: 0,
       since: "01/01/2000",
     },
-    budgets: [
-      { name: "Name 1", amount: 0, checked: false },
-      { name: "Name 2", amount: 0, checked: false },
-      { name: "Name 3", amount: 0, checked: false },
-    ],
-    goals: [
-      { name: "Name 1", progressLabel: "0%", checked: false },
-      { name: "Name 2", progressLabel: "0%", checked: false },
-    ],
-    recentTransactions: [
-      { name: "Name 1", date: "01/01/2000", amount: 0 },
-      { name: "Name 2", date: "01/01/2000", amount: 0 },
-      { name: "Name 3", date: "01/01/2000", amount: 0 },
-      { name: "Name 4", date: "01/01/2000", amount: 0 },
-    ],
+    budgets: budgetData.budgets,
+    goals: savingGoalsData.savingGoals,
+    recentTransactions: transactionsData.transactions,
   };
-
   return <DashboardClient dashboardMockData={dashboardMockData} name={name} />;
 }

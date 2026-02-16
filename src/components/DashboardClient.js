@@ -10,18 +10,36 @@ import BudgetCard from "@/components/BudgetCard";
 import SavingGoalsCard from "@/components/SavingGoalsCard";
 import TransactionItem from "@/components/TransactionItem";
 import AddFundsModal from "@/components/AddFundsModal";
+import DashboardTransactionCard from "./DashboardTransactionCard";
 
 export default function DashboardClient({ dashboardMockData, name }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const budgets = useAtomValue(budgetsAtom);
-
-  // get first 3 items for dashboard display
-  const dashboardBudgets = budgets.slice(0, 3).map((b) => ({
+  const dashboardBudgets = dashboardMockData.budgets.map((b) => ({
+    id: b.id,
     name: b.purpose,
     amount: Number(b.amount || 0),
+    usedAmount: Number(b.usedAmount || 0),
   }));
+
+  const dashboardSavingGoals = dashboardMockData.goals.map((g) => ({
+    id: g.id,
+    name: g.purpose,
+    currentAmount: Number(g.currentAmount || 0),
+    targetAmount: Number(g.targetAmount || 0),
+    targetDate: g.targetDate,
+  }));
+
+  const dashboardTransactions = dashboardMockData.recentTransactions
+    .slice(0, 5)
+    .map((t) => ({
+      id: t.id,
+      type: t.type,
+      category: t.category,
+      amount: Number(t.amount || 0),
+      date: t.date,
+    }));
 
   return (
     <div className="w-full px-6 py-6">
@@ -43,27 +61,13 @@ export default function DashboardClient({ dashboardMockData, name }) {
         <BalanceCard balanceSummary={dashboardMockData.balance} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8 items-stretch">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 items-stretch">
         <BudgetCard budgetItems={dashboardBudgets} />
         <SavingGoalsCard
           href="/saving-goals"
-          savingGoalItems={dashboardMockData.goals}
+          savingGoalItems={dashboardSavingGoals}
         />
-      </div>
-
-      <h2 className="text-xl font-semibold text-slate-700 mb-4">
-        Recent Transactions
-      </h2>
-
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
-        {(dashboardMockData.recentTransactions || []).map(
-          (singleTransaction) => (
-            <TransactionItem
-              key={singleTransaction.name}
-              transactionItem={singleTransaction}
-            />
-          ),
-        )}
+        <DashboardTransactionCard transactionItems={dashboardTransactions} />
       </div>
     </div>
   );

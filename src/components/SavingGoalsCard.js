@@ -1,36 +1,78 @@
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { FaRegClock } from "react-icons/fa";
-import { MdCheckBox, MdCheckBoxOutlineBlank } from "react-icons/md";
+import { LuTarget } from "react-icons/lu";
+import { Progress } from "@/components/ui/progress";
+import { formatMoneyCAD } from "@/lib/mock/budgets";
 
 export default function SavingGoalsCard({ savingGoalItems = [] }) {
   return (
     <Link href="/saving-goals" className="block">
-      <Card className="p-6 h-full bg-[#4f915f]/12 border border-black/5 shadow-sm">
-        <div className="flex items-center gap-3 mb-4">
-          <FaRegClock className="text-[#4f915f] text-2xl" />
-          <h3 className="text-2xl font-semibold text-slate-800">
-            Saving Goals
-          </h3>
+      <Card className="p-6 h-full border border-black/5 shadow-sm flex flex-col gap-2">
+        <div className="flex items-center gap-3 mb-1">
+          <FaRegClock className="text-[#4f915f] text-xl" />
+          <h3 className="text-xl font-semibold text-slate-800">Saving Goals</h3>
         </div>
+        <p className="text-sm text-slate-600">Track your saving progress</p>
 
         <ul className="space-y-3 text-slate-700">
-          {savingGoalItems.map((savingGoalItem) => (
-            <li key={savingGoalItem.name} className="flex items-center gap-3">
-              {savingGoalItem.checked ? (
-                <MdCheckBox className="text-slate-600" />
-              ) : (
-                <MdCheckBoxOutlineBlank className="text-slate-600" />
-              )}
+          {savingGoalItems.length === 0 ? (
+            <div className="mt-3 py-8 text-center bg-gray-50 rounded-xl border border-dashed">
+              <p className="text-gray-500 text-sm">No saving goals found.</p>
+            </div>
+          ) : (
+            savingGoalItems.map((savingGoalItem) => (
+              <li
+                key={savingGoalItem.id}
+                className={
+                  "flex flex-col border border-slate-200 p-3 rounded-md gap-3"
+                }
+              >
+                <div className="flex align-center items-center gap-3">
+                  <div className={"p-2 rounded-md bg-purple-100 "}>
+                    <LuTarget className={"text-lg text-purple-700"} />
+                  </div>
+                  <div className="flex-1">
+                    <span className="font-bold">{savingGoalItem.name}</span>
+                    <p className="text-xs text-slate-500">
+                      Target Date:{" "}
+                      {new Date(savingGoalItem.targetDate).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="text-sm font-bold flex items-center gap-1">
+                    {Math.min(
+                      100,
+                      (savingGoalItem.currentAmount /
+                        savingGoalItem.targetAmount) *
+                        100,
+                    ).toFixed(0)}
+                    %
+                  </div>
+                </div>
+                <Progress
+                  value={Math.min(
+                    100,
+                    (savingGoalItem.currentAmount /
+                      savingGoalItem.targetAmount) *
+                      100,
+                  )}
+                  className={"[&>div]:bg-purple-600"}
+                ></Progress>
 
-              <span>
-                {savingGoalItem.name}
-                {savingGoalItem.progressLabel
-                  ? ` ${savingGoalItem.progressLabel}`
-                  : ""}
-              </span>
-            </li>
-          ))}
+                <div className="block flex justify-between items-center">
+                  <span className="text-xs">
+                    {formatMoneyCAD(savingGoalItem.currentAmount)} saved
+                  </span>
+
+                  <div>
+                    <span className={"text-xs"}>
+                      {formatMoneyCAD(savingGoalItem.targetAmount)} goal
+                    </span>
+                  </div>
+                </div>
+              </li>
+            ))
+          )}
         </ul>
       </Card>
     </Link>

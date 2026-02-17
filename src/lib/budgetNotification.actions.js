@@ -18,9 +18,13 @@ export const createNotificationData = async (budgetId) => {
       status: "UNREAD",
     };
 
-    if (progress >= 50 && progress < 80) {
+    if (
+      progress >= 50 &&
+      progress < 80 &&
+      totalAmount - usedAmount > thresholdAmount
+    ) {
       notificationData.message = `You have used more than 50% of ${budget.purpose}`;
-    } else if (progress >= 80) {
+    } else if (progress >= 80 && totalAmount - usedAmount > thresholdAmount) {
       notificationData.message = `You have used more than 80% of ${budget.purpose}`;
     } else if (totalAmount - usedAmount <= thresholdAmount) {
       notificationData.message = `You have used more than ${thresholdAmount} of ${budget.purpose}`;

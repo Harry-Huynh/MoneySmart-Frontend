@@ -17,6 +17,7 @@ import {
   getLastPasswordChangeDate,
 } from "@/lib/user.actions";
 import Loading from "@/components/Loading";
+import emailjs from "@emailjs/browser";
 
 const SecurityPage = () => {
   const [step, setStep] = useState(1);
@@ -90,6 +91,20 @@ const SecurityPage = () => {
     try {
       const isSuccess = await changePassword(data.newPassword);
       if (isSuccess) {
+        //get user name + email
+        const profile = await getMyProfile();
+
+        //send email
+        await emailjs.send(
+          "service_axza2lb", //service id
+          "template_jsst7xp", //template id
+          {
+            to_name: profile.name,
+            to_email: profile.email,
+          },
+          "VhHrWEi6BaHdO8UNe", //public key
+        )
+
         setErrorMessage("");
         setOpenDialog(false);
         setStep(1);

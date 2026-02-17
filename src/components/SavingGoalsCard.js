@@ -4,8 +4,12 @@ import { FaRegClock } from "react-icons/fa";
 import { LuTarget } from "react-icons/lu";
 import { Progress } from "@/components/ui/progress";
 import { formatMoneyCAD } from "@/lib/mock/budgets";
+import { returnDayInPreferredFormat } from "@/lib/utils";
 
-export default function SavingGoalsCard({ savingGoalItems = [] }) {
+export default function SavingGoalsCard({
+  savingGoalItems = [],
+  preferredDateFormat,
+}) {
   return (
     <Link href="/saving-goals" className="block">
       <Card className="p-6 h-full border border-black/5 shadow-sm flex flex-col gap-2">
@@ -36,7 +40,10 @@ export default function SavingGoalsCard({ savingGoalItems = [] }) {
                     <span className="font-bold">{savingGoalItem.name}</span>
                     <p className="text-xs text-slate-500">
                       Target Date:{" "}
-                      {new Date(savingGoalItem.targetDate).toLocaleDateString()}
+                      {returnDayInPreferredFormat(
+                        savingGoalItem.targetDate,
+                        preferredDateFormat,
+                      )}
                     </p>
                   </div>
                   <div className="text-sm font-bold flex items-center gap-1">

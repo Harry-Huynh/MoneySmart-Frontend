@@ -23,6 +23,29 @@ function dayLabel(dateString) {
   return d.toLocaleDateString([], { month: "short", day: "numeric" });
 }
 
+export function returnDayInPreferredFormat(dateString, preferredFormat) {
+  if (!dateString) return "";
+
+  const [year, month, day] = dateString.split("T")[0].split("-");
+
+  const paddedMonth = month.padStart(2, "0");
+  const paddedDay = day.padStart(2, "0");
+
+  switch (preferredFormat) {
+    case "YYYY-MM-DD":
+      return `${year}-${paddedMonth}-${paddedDay}`;
+
+    case "DD-MM-YYYY":
+      return `${paddedDay}-${paddedMonth}-${year}`;
+
+    case "MM-DD-YYYY":
+      return `${paddedMonth}-${paddedDay}-${year}`;
+
+    default:
+      return `${year}-${paddedMonth}-${paddedDay}`; // fallback
+  }
+}
+
 export function groupByDay(transactions) {
   const map = new Map();
   for (const tx of transactions) {

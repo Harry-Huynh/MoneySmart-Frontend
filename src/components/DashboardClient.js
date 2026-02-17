@@ -6,7 +6,11 @@ import BudgetCard from "@/components/BudgetCard";
 import SavingGoalsCard from "@/components/SavingGoalsCard";
 import DashboardTransactionCard from "./DashboardTransactionCard";
 
-export default function DashboardClient({ dashboardMockData, name }) {
+export default function DashboardClient({
+  dashboardMockData,
+  name,
+  preferredDateFormat,
+}) {
   const dashboardBudgets = dashboardMockData.budgets.map((b) => ({
     id: b.id,
     name: b.purpose,
@@ -57,8 +61,12 @@ export default function DashboardClient({ dashboardMockData, name }) {
         <SavingGoalsCard
           href="/saving-goals"
           savingGoalItems={dashboardSavingGoals}
+          preferredDateFormat={preferredDateFormat}
         />
-        <DashboardTransactionCard transactionItems={dashboardTransactions} />
+        <DashboardTransactionCard
+          transactionItems={dashboardTransactions}
+          preferredDateFormat={preferredDateFormat}
+        />
       </div>
     </div>
   );

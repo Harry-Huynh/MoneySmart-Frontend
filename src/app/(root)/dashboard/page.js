@@ -54,6 +54,7 @@ export default async function Dashboard() {
     ]);
 
   const name = userData?.name ?? "Unknown User";
+  const dateFormat = userData?.dateFormat ?? "YYYY-MM-DD";
 
   const dashboardMockData = {
     balance: {
@@ -66,5 +67,11 @@ export default async function Dashboard() {
     goals: savingGoalsData.savingGoals,
     recentTransactions: transactionsData.transactions,
   };
-  return <DashboardClient dashboardMockData={dashboardMockData} name={name} />;
+  return (
+    <DashboardClient
+      dashboardMockData={dashboardMockData}
+      name={name}
+      preferredDateFormat={dateFormat}
+    />
+  );
 }

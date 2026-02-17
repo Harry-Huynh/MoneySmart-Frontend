@@ -5,8 +5,12 @@ import { GrMoney } from "react-icons/gr";
 import { formatMoneyCAD } from "@/lib/mock/budgets";
 import { LuArrowDownRight } from "react-icons/lu";
 import { LuArrowUpRight } from "react-icons/lu";
+import { returnDayInPreferredFormat } from "@/lib/utils";
 
-export default function DashboardTransactionCard({ transactionItems = [] }) {
+export default function DashboardTransactionCard({
+  transactionItems = [],
+  preferredDateFormat,
+}) {
   return (
     <Link href="/transactions" className="block">
       <Card className="p-6 h-full border border-black/5 shadow-sm flex flex-col gap-2">
@@ -37,7 +41,10 @@ export default function DashboardTransactionCard({ transactionItems = [] }) {
                       {transactionItem.category}
                     </span>
                     <p className="text-xs text-slate-500">
-                      {new Date(transactionItem.date).toLocaleDateString()}
+                      {returnDayInPreferredFormat(
+                        transactionItem.date,
+                        preferredDateFormat,
+                      )}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">

@@ -7,18 +7,18 @@ import SavingGoalsCard from "@/components/SavingGoalsCard";
 import DashboardTransactionCard from "./DashboardTransactionCard";
 
 export default function DashboardClient({
-  dashboardMockData,
+  dashboardMockData = {},
   name,
   preferredDateFormat,
 }) {
-  const dashboardBudgets = dashboardMockData.budgets.map((b) => ({
+  const dashboardBudgets = (dashboardMockData?.budgets || []).map((b) => ({
     id: b.id,
     name: b.purpose,
     amount: Number(b.amount || 0),
     usedAmount: Number(b.usedAmount || 0),
   }));
 
-  const dashboardSavingGoals = dashboardMockData.goals.map((g) => ({
+  const dashboardSavingGoals = (dashboardMockData?.goals || []).map((g) => ({
     id: g.id,
     name: g.purpose,
     currentAmount: Number(g.currentAmount || 0),
@@ -26,7 +26,7 @@ export default function DashboardClient({
     targetDate: g.targetDate,
   }));
 
-  const dashboardTransactions = dashboardMockData.recentTransactions
+  const dashboardTransactions = (dashboardMockData?.recentTransactions || [])
     .slice(0, 5)
     .map((t) => ({
       id: t.id,

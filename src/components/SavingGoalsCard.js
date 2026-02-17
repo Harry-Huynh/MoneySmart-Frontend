@@ -32,7 +32,7 @@ export default function SavingGoalsCard({
                   "flex flex-col border border-slate-200 p-3 rounded-md gap-3"
                 }
               >
-                <div className="flex align-center items-center gap-3">
+                <div className="flex flex-wrap align-center items-center gap-3">
                   <div className={"p-2 rounded-md bg-purple-100 "}>
                     <LuTarget className={"text-lg text-purple-700"} />
                   </div>

@@ -1,5 +1,6 @@
 import { toast } from "sonner";
 import { getOneBudget } from "./budget.actions";
+import { formatMoneyCAD } from "@/lib/mock/budgets";
 
 export const createNotificationData = async (budgetId) => {
   try {
@@ -27,7 +28,7 @@ export const createNotificationData = async (budgetId) => {
     } else if (progress >= 80 && totalAmount - usedAmount > thresholdAmount) {
       notificationData.message = `You have used more than 80% of ${budget.purpose}`;
     } else if (totalAmount - usedAmount <= thresholdAmount) {
-      notificationData.message = `You have used more than ${thresholdAmount} of ${budget.purpose}`;
+      notificationData.message = `You have reached the threshold of ${formatMoneyCAD(thresholdAmount)} for ${budget.purpose}`;
     }
 
     return notificationData;

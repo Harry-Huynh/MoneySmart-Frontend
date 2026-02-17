@@ -31,7 +31,7 @@ export default function BudgetCard({ budgetItems = [] }) {
                   key={budgetItem.id}
                   className={`flex flex-col border border-slate-200 p-3 rounded-md gap-3 ${isOverSpent ? "bg-red-50" : null}`}
                 >
-                  <div className="flex align-center items-center gap-3">
+                  <div className="flex flex-wrap align-center items-center gap-3">
                     <div
                       className={`p-2 rounded-md ${isOverSpent ? "bg-red-100" : "bg-green-100"}`}
                     >

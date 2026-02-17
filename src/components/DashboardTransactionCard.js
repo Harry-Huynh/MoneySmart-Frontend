@@ -30,9 +30,9 @@ export default function DashboardTransactionCard({
             transactionItems.map((transactionItem) => (
               <li
                 key={transactionItem.id}
-                className="flex border border-slate-200 p-3 rounded-md gap-3"
+                className="flex flex border border-slate-200 p-3 rounded-md gap-3"
               >
-                <div className="w-full flex align-center items-center gap-3">
+                <div className="w-full flex flex-wrap align-center items-center gap-3">
                   <div className="p-2 rounded-md bg-yellow-100 ">
                     <FaMoneyBills className="text-yellow-500 text-lg" />
                   </div>

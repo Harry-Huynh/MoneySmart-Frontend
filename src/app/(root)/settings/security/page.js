@@ -15,6 +15,7 @@ import {
   verifyPassword,
   changePassword,
   getLastPasswordChangeDate,
+  getMyProfile,
 } from "@/lib/user.actions";
 import Loading from "@/components/Loading";
 import emailjs from "@emailjs/browser";
@@ -91,24 +92,33 @@ const SecurityPage = () => {
     try {
       const isSuccess = await changePassword(data.newPassword);
       if (isSuccess) {
-        //get user name + email
+       
+
+        setErrorMessage("");
+        setOpenDialog(false);
+        setStep(1);
+        reset();
+        try{
+           //get user name + email
         const profile = await getMyProfile();
+        console.log(profile.name)
 
         //send email
         await emailjs.send(
           "service_axza2lb", //service id
           "template_jsst7xp", //template id
           {
-            to_name: profile.name,
-            to_email: profile.email,
+            name: profile.name,
+            email: profile.email,
           },
           "VhHrWEi6BaHdO8UNe", //public key
-        )
+         );
 
-        setErrorMessage("");
-        setOpenDialog(false);
-        setStep(1);
-        reset();
+      console.log("Email sent successfully");
+    } catch (emailError) {
+      console.error("Email failed:", emailError);
+    }
+        
       } else {
         setErrorMessage("Failed to change password. Please try again.");
       }

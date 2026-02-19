@@ -104,15 +104,16 @@ const SecurityPage = () => {
         console.log(profile.name)
 
         //send email
-        await emailjs.send(
-          "service_axza2lb", //service id
-          "template_jsst7xp", //template id
-          {
-            name: profile.name,
-            email: profile.email,
-          },
-          "VhHrWEi6BaHdO8UNe", //public key
-         );
+      await emailjs.send(
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
+        {
+          name: profile.name,
+          email: profile.email,
+        },
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY,
+      );
+
 
       console.log("Email sent successfully");
     } catch (emailError) {

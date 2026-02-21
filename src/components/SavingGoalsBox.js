@@ -158,7 +158,7 @@ const exceededAmount = Math.max((goal.currentAmount || 0) - (goal.targetAmount |
   </span>
 
   {rawPercent > 100 && (
-    <span className="text-[10px] font-semibold opacity-80">
+    <span className="text-[13px] font-semibold opacity-80">
       +{(rawPercent - 100).toFixed(0)}%
     </span>
   )}

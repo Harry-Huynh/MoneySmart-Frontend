@@ -42,7 +42,7 @@ const overspent = Math.max(budget.usedAmount - budget.amount, 0);
   const daysLeft = calculateDaysLeft();
 
   function getBudgetColor(percent) {
-  if (percent >= 100) return "bg-red-600";        
+  if (percent >= 100) return "bg-red-500";        
   if (percent >= 90)  return "bg-orange-600";     
   if (percent >= 70)  return "bg-orange-400";     
   if (percent >= 50)  return "bg-yellow-400";    
@@ -160,14 +160,22 @@ const bg = getBudgetColor(rawPercent);
               <div className="flex items-start gap-3 flex-1 min-w-0">
                 {/* Percent Circle */}
 <div
-  className={`shrink-0 w-20 h-16 rounded-full flex flex-col items-center justify-center ${getBudgetColor(rawPercent)}`}
+  className={`shrink-0 w-20 h-16 rounded-full flex flex-col items-center justify-center
+  ${
+    rawPercent >= 100 ? "bg-red-100 text-red-800"
+    : rawPercent >= 90 ? "bg-orange-100 text-orange-800"
+    : rawPercent >= 70 ? "bg-orange-100 text-orange-700"
+    : rawPercent >= 50 ? "bg-yellow-100 text-yellow-800"
+    : rawPercent >= 30 ? "bg-lime-100 text-lime-800"
+    : "bg-green-100 text-green-800"
+  }`}
 >
   <span className="text-lg font-bold leading-none">
     {rawPercent.toFixed(0)}%
   </span>
 
   {rawPercent > 100 && (
-    <span className="text-[10px] font-semibold opacity-80">
+    <span className="text-[13px] font-semibold opacity-80">
       +{(rawPercent - 100).toFixed(0)}%
     </span>
   )}
@@ -203,7 +211,7 @@ const bg = getBudgetColor(rawPercent);
                 <span className="flex items-center gap-2">
   {formatMoneyCAD(budget.usedAmount)} spent
   {overspent > 0 && (
-    <span className="text-xs font-semibold text-red-600">
+    <span className="text-xs font-semibold text-red-500">
       (Overspent {formatMoneyCAD(overspent)})
     </span>
   )}

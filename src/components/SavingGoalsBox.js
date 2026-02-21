@@ -22,6 +22,7 @@ export default function SavingGoalsBox({ goal, onDelete, preferredDateFormat }) 
     goal.targetAmount > 0
       ? Math.round((goal.currentAmount / goal.targetAmount) * 100)
       : 0;
+  const progressBar = Math.min(Math.max(progress, 0), 100);
 
   function cardColor() {
     if (progress < 40) return "bg-orange-400";
@@ -118,7 +119,7 @@ export default function SavingGoalsBox({ goal, onDelete, preferredDateFormat }) 
         <div className="w-full bg-white/30 rounded-full h-2.5">
           <div
             className="bg-white h-2.5 rounded-full"
-            style={{ width: `${progress}%` }}
+            style={{ width: `${progressBar}%` }}
           ></div>
         </div>
       </div>
@@ -181,7 +182,7 @@ export default function SavingGoalsBox({ goal, onDelete, preferredDateFormat }) 
                           ? "bg-yellow-500"
                           : "bg-green-500"
                     }`}
-                    style={{ width: `${progress}%` }}
+                    style={{ width: `${progressBar}%` }}
                   />
                 </div>
 

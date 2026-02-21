@@ -12,9 +12,15 @@ import {
   createBudgetPushNotification,
   createNotificationData,
 } from "@/lib/budgetNotification.actions";
+import {
+  createSavingGoalNotificationDataByMilestones,
+  createSavingGoalPushNotification,
+  shouldNotifySavingGoal,
+} from "@/lib/savingGoalNotification.actions";
 import { addNotification } from "@/lib/notification.actions";
 
 export default function AddTransactionPage() {
+  const SAVING_GOAL_NOTIFICATION_TYPE = "savingGoals";
   const router = useRouter();
   const [warningMessage, setWarningMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -152,6 +158,35 @@ export default function AddTransactionPage() {
 
             if (result) {
               createBudgetPushNotification(notificationData);
+            }
+          } catch (error) {
+            setWarningMessage(error.message);
+          }
+        }
+      }
+
+      if (payload.savingGoalId != null) {
+        const savingGoalNotificationData =
+          await createSavingGoalNotificationDataByMilestones(
+          payload.savingGoalId,
+          payload.amount
+        );
+
+        const shouldSendSavingGoalNotification =
+          savingGoalNotificationData &&
+          shouldNotifySavingGoal(
+            payload.savingGoalId,
+            savingGoalNotificationData.milestone,
+          );
+
+        if (shouldSendSavingGoalNotification) {
+          try {
+            const wasSavingGoalNotificationCreated = await addNotification(
+              savingGoalNotificationData,
+              SAVING_GOAL_NOTIFICATION_TYPE,
+            );
+            if (wasSavingGoalNotificationCreated) {
+              createSavingGoalPushNotification(savingGoalNotificationData);
             }
           } catch (error) {
             setWarningMessage(error.message);

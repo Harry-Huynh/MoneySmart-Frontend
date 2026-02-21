@@ -26,6 +26,10 @@ export default function BudgetCard({ budgetItems = [] }) {
           ) : (
             budgetItems.map((budgetItem) => {
               const isOverSpent = budgetItem.usedAmount > budgetItem.amount;
+              const overspent = Math.max(budgetItem.usedAmount - budgetItem.amount, 0);
+              const remaining = Math.max(budgetItem.amount - budgetItem.usedAmount, 0);
+              const rawPercent =
+                budgetItem.amount > 0 ? (budgetItem.usedAmount / budgetItem.amount) * 100 : 0;
               return (
                 <li
                   key={budgetItem.id}
@@ -50,7 +54,7 @@ export default function BudgetCard({ budgetItems = [] }) {
                   <Progress
                     value={Math.min(
                       100,
-                      (budgetItem.usedAmount / budgetItem.amount) * 100,
+                      rawPercent,
                     )}
                     className={`${
                       isOverSpent
@@ -59,29 +63,32 @@ export default function BudgetCard({ budgetItems = [] }) {
                     }`}
                   ></Progress>
 
-                  <div className="block flex justify-between items-center">
-                    <div>
-                      <span className="text-xs font-bold">
-                        {formatMoneyCAD(budgetItem.usedAmount)}
-                      </span>
-                      <span className="text-xs">
-                        {" "}
-                        of {formatMoneyCAD(budgetItem.amount)}
-                      </span>
-                    </div>
-                    <div>
-                      <span
-                        className={`text-xs ${isOverSpent ? "text-red-700" : "text-green-700"}`}
-                      >
-                        {formatMoneyCAD(
-                          budgetItem.amount - budgetItem.usedAmount,
-                        )}
-                      </span>
-                      {isOverSpent ? null : (
-                        <span className="text-xs text-green-700"> left</span>
-                      )}
-                    </div>
-                  </div>
+                <div className="block flex justify-between items-center">
+  <div className="flex items-center gap-2">
+    <span className="text-xs font-bold">
+      {formatMoneyCAD(budgetItem.usedAmount)}
+    </span>
+    {overspent > 0 && (
+      <span className="text-[11px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-semibold">
+        Overspent {formatMoneyCAD(overspent)}
+      </span>
+    )}
+    <span className="text-xs"> of {formatMoneyCAD(budgetItem.amount)}</span>
+  </div>
+
+  <div>
+    {overspent > 0 ? (
+      <span className="text-xs text-red-500 font-semibold">Over</span>
+    ) : (
+      <>
+        <span className="text-xs text-green-700 font-semibold">
+          {formatMoneyCAD(remaining)}
+        </span>
+        <span className="text-xs text-green-700"> left</span>
+      </>
+    )}
+  </div>
+</div>
                 </li>
               );
             })

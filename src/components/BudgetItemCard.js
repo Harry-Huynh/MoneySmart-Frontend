@@ -18,7 +18,12 @@ import DeleteBudgetAlert from "@/components/DeleteBudgetAlert";
 export default function BudgetItemCard({ budget, index = 0, onDelete }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openDetails, setOpenDetails] = useState(false);
-  const p = percent(budget.usedAmount, budget.amount);
+  const rawPercent =
+  budget.amount > 0 ? (budget.usedAmount / budget.amount) * 100 : 0;
+
+const fillPercent = Math.min(rawPercent, 100);
+
+const overspent = Math.max(budget.usedAmount - budget.amount, 0);
 
   const formatDate = (dateString) => {
     if (!dateString) return "Not set";
@@ -44,14 +49,16 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
 
   const daysLeft = calculateDaysLeft();
 
-  const colorByIndex = [
-    "bg-orange-400",
-    "bg-yellow-400",
-    "bg-yellow-400",
-    "bg-green-400",
-  ];
-  const bg = colorByIndex[index % colorByIndex.length];
-
+  function getBudgetColor(percent) {
+  if (percent >= 100) return "bg-red-500";        
+  if (percent >= 90)  return "bg-orange-600";     
+  if (percent >= 70)  return "bg-orange-400";     
+  if (percent >= 50)  return "bg-yellow-400";    
+  if (percent >= 30)  return "bg-lime-400";       
+  return "bg-green-500";                          
+}
+  
+const bg = getBudgetColor(rawPercent);
   function toggleMenu(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -72,7 +79,7 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
             <h3 className="text-xl font-bold leading-tight">
               {budget.purpose}
             </h3>
-            <p className="text-sm opacity-90">{p.toFixed(2)}% used</p>
+            <p className="text-sm opacity-90">{rawPercent.toFixed(2)}% used</p>
           </div>
         </div>
 
@@ -122,25 +129,30 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
 
         {/* Content */}
         {/* Bottom progress area (like Saving Goals) */}
-        <div className="mt-6">
-          <div className="flex items-center justify-between text-sm opacity-95">
-            <span>Progress</span>
+        <div className="mt-6 space-y-2">
+  <div className="flex items-center justify-between text-sm opacity-95">
+    <span>Progress</span>
 
-            <span className="text-xs opacity-90">
-              {formatMoneyCAD(budget.usedAmount)} /{" "}
-              {formatMoneyCAD(budget.amount)}
-            </span>
+    <span className="text-xs opacity-90 tabular-nums">
+      {formatMoneyCAD(budget.usedAmount)} / {formatMoneyCAD(budget.amount)}
+    </span>
+  </div>
 
-            <span>{p.toFixed(2)}%</span>
-          </div>
+  {overspent > 0 && (
+    <div className="flex items-center justify-between">
+      <span className="text-[11px] px-2 py-0.5 rounded-full bg-white/20 text-white font-semibold">
+        Overspent {formatMoneyCAD(overspent)}
+      </span>
+    </div>
+  )}
 
-          <div className="mt-2 w-full bg-white/30 rounded-full h-2.5">
-            <div
-              className="bg-white h-2.5 rounded-full"
-              style={{ width: `${p}%` }}
-            />
-          </div>
-        </div>
+  <div className="w-full bg-white/30 rounded-full h-2.5">
+    <div
+      className="bg-white h-2.5 rounded-full"
+      style={{ width: `${fillPercent}%` }}
+    />
+  </div>
+</div>
       </Card>
 
       {/* Details dialog (read-only) */}
@@ -155,11 +167,20 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start gap-3 flex-1 min-w-0">
                 {/* % Circle */}
-                <div className="shrink-0 w-20 h-16 rounded-full flex items-center justify-center bg-orange-100 text-orange-800">
-                  <span className="text-lg font-bold whitespace-nowrap">
-                    {p.toFixed(2)}%
-                  </span>
-                </div>
+                {/* Percent Circle */}
+<div
+  className={`shrink-0 w-20 h-16 rounded-full flex flex-col items-center justify-center ${getBudgetColor(rawPercent)}`}
+>
+  <span className="text-lg font-bold leading-none">
+    {rawPercent.toFixed(0)}%
+  </span>
+
+  {rawPercent > 100 && (
+    <span className="text-[10px] font-semibold opacity-80">
+      +{(rawPercent - 100).toFixed(0)}%
+    </span>
+  )}
+</div>
 
                 <div className="flex-1 min-w-0">
                   <h2 className="text-xl sm:text-2xl font-bold text-gray-800 truncate">
@@ -182,13 +203,20 @@ export default function BudgetItemCard({ budget, index = 0, onDelete }) {
 
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div
-                  className="h-3 rounded-full bg-orange-500"
-                  style={{ width: `${p}%` }}
-                />
+  className={`h-3 rounded-full ${rawPercent >= 100 ? "bg-red-500" : rawPercent >= 80 ? "bg-orange-500" : "bg-green-500"}`}
+  style={{ width: `${fillPercent}%` }}
+/>
               </div>
 
               <div className="flex justify-between text-sm text-gray-600">
-                <span>{formatMoneyCAD(budget.usedAmount)} spent</span>
+                <span className="flex items-center gap-2">
+  {formatMoneyCAD(budget.usedAmount)} spent
+  {overspent > 0 && (
+    <span className="text-xs font-semibold text-red-600">
+      (Overspent {formatMoneyCAD(overspent)})
+    </span>
+  )}
+</span>
                 <span>{formatMoneyCAD(budget.amount)} total</span>
               </div>
             </div>

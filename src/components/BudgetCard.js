@@ -78,7 +78,7 @@ export default function BudgetCard({ budgetItems = [] }) {
 
   <div>
     {overspent > 0 ? (
-      <span className="text-xs text-red-500 font-semibold">Over</span>
+      <span className="text-xs text-red-600 font-semibold">Over</span>
     ) : (
       <>
         <span className="text-xs text-green-700 font-semibold">

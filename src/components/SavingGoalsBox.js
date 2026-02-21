@@ -13,8 +13,9 @@ import {
 import Link from "next/link";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { formatMoneyCAD } from "@/lib/mock/budgets";
+import { returnDayInPreferredFormat } from "@/lib/utils";
 
-export default function SavingGoalsBox({ goal, onDelete }) {
+export default function SavingGoalsBox({ goal, onDelete, preferredDateFormat }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showInfoDialog, setShowInfoDialog] = useState(false);
   const progress =
@@ -29,24 +30,25 @@ export default function SavingGoalsBox({ goal, onDelete }) {
   }
   // Format date for display
   const formatDate = (dateString) => {
-    if (!dateString) return "Not set";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
+  if (!dateString) return "Not set";
+  return returnDayInPreferredFormat(dateString, preferredDateFormat);
+};
 
   // Calculate days left
   const calculateDaysLeft = () => {
-    if (!goal.targetDate) return "-";
-    const targetDate = new Date(goal.targetDate);
-    const today = new Date();
-    const diffTime = targetDate - today;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays > 0 ? diffDays : "Expired";
-  };
+  if (!goal.targetDate) return "-";
+
+  const [y, m, d] = goal.targetDate.split("T")[0].split("-").map(Number);
+  const target = new Date(y, m - 1, d);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const diffTime = target - today;
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  return diffDays > 0 ? diffDays : "Expired";
+};
 
   return (
     <div

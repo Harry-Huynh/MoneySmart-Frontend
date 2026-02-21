@@ -14,8 +14,10 @@ import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { formatMoneyCAD, percent } from "@/lib/mock/budgets";
 import DeleteBudgetAlert from "@/components/DeleteBudgetAlert";
+import { returnDayInPreferredFormat } from "@/lib/utils";
 
-export default function BudgetItemCard({ budget, index = 0, onDelete }) {
+
+export default function BudgetItemCard({ budget, index = 0, onDelete, preferredDateFormat }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [openDetails, setOpenDetails] = useState(false);
   const rawPercent =
@@ -25,16 +27,6 @@ const fillPercent = Math.min(rawPercent, 100);
 
 const overspent = Math.max(budget.usedAmount - budget.amount, 0);
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "Not set";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      timeZone: "UTC",
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
 
   // Calculate days left if endDate exists
   const calculateDaysLeft = () => {
@@ -50,7 +42,7 @@ const overspent = Math.max(budget.usedAmount - budget.amount, 0);
   const daysLeft = calculateDaysLeft();
 
   function getBudgetColor(percent) {
-  if (percent >= 100) return "bg-red-500";        
+  if (percent >= 100) return "bg-red-600";        
   if (percent >= 90)  return "bg-orange-600";     
   if (percent >= 70)  return "bg-orange-400";     
   if (percent >= 50)  return "bg-yellow-400";    
@@ -166,7 +158,6 @@ const bg = getBudgetColor(rawPercent);
           <div className="sticky top-0 bg-white border-b border-gray-200 p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-start gap-3 flex-1 min-w-0">
-                {/* % Circle */}
                 {/* Percent Circle */}
 <div
   className={`shrink-0 w-20 h-16 rounded-full flex flex-col items-center justify-center ${getBudgetColor(rawPercent)}`}
@@ -257,9 +248,9 @@ const bg = getBudgetColor(rawPercent);
                   <div>
                     <div className="font-medium text-gray-700">Start Date</div>
                     <div className="text-lg font-bold text-gray-800">
-                      {"startDate" in budget && budget.startDate
-                        ? formatDate(budget.startDate)
-                        : "Not set"}
+                     {"startDate" in budget && budget.startDate
+  ? returnDayInPreferredFormat(budget.startDate, preferredDateFormat)
+  : "Not set"}
                     </div>
                   </div>
                 </div>
@@ -274,8 +265,8 @@ const bg = getBudgetColor(rawPercent);
                     <div className="font-medium text-gray-700">End Date</div>
                     <div className="text-lg font-bold text-gray-800">
                       {"endDate" in budget && budget.endDate
-                        ? formatDate(budget.endDate)
-                        : "Not set"}
+  ? returnDayInPreferredFormat(budget.endDate, preferredDateFormat)
+  : "Not set"}
                     </div>
                     {daysLeft !== null && budget.endDate && (
                       <div className="flex items-center gap-2 mt-2">

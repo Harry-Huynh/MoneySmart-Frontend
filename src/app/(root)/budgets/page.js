@@ -8,10 +8,13 @@ import BudgetItemCard from "@/components/BudgetItemCard";
 import MonthNavigation from "@/components/MonthNavigation";
 import BudgetSummaryBox from "@/components/BudgetSummaryBox";
 import { getBudgetByMonthAndYear, deleteBudget } from "@/lib/budget.actions";
+import { getMyProfile } from "@/lib/user.actions";
 
 export default function BudgetsClient() {
   const [budgets, setBudgets] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(() => new Date());
+  const [preferredDateFormat, setPreferredDateFormat] =
+    useState("YYYY-MM-DD");
 
   useEffect(() => {
     async function fetchBudgets() {
@@ -23,6 +26,18 @@ export default function BudgetsClient() {
     }
     fetchBudgets();
   }, [selectedMonth]);
+
+  useEffect(() => {
+  async function fetchProfile() {
+    try {
+      const profile = await getMyProfile();
+      setPreferredDateFormat(profile?.dateFormat ?? "YYYY-MM-DD");
+    } catch {
+      setPreferredDateFormat("YYYY-MM-DD");
+    }
+  }
+  fetchProfile();
+}, []);
 
   // Prev / Next month
   function onPrevMonth() {
@@ -135,6 +150,7 @@ export default function BudgetsClient() {
                   budget={b}
                   index={index}
                   onDelete={handleDelete}
+                  preferredDateFormat={preferredDateFormat}
                 />
               ))}
             </div>

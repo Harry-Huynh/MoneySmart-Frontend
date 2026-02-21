@@ -5,12 +5,25 @@ import Link from "next/link";
 import SavingGoalsBox from "@/components/SavingGoalsBox";
 import ConfirmDeleteModal from "@/components/ConfirmDeleteModal";
 import { deleteSavingGoal, getAllSavingGoals } from "@/lib/savingGoal.actions";
-
+import { getMyProfile } from "@/lib/user.actions";
 export default function SavingGoalsPage() {
   const [goals, setGoals] = useState([]);
   const [activeGoal, setActiveGoal] = useState(null);
   const [showDelete, setShowDelete] = useState(false);
+  const [preferredDateFormat, setPreferredDateFormat] =
+    useState("YYYY-MM-DD");
 
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const profile = await getMyProfile();
+        setPreferredDateFormat(profile?.dateFormat ?? "YYYY-MM-DD");
+      } catch {
+        setPreferredDateFormat("YYYY-MM-DD");
+      }
+    }
+    fetchProfile();
+  }, []);
   useEffect(() => {
     async function fetchGoals() {
       const { savingGoals } = await getAllSavingGoals();
@@ -40,6 +53,7 @@ export default function SavingGoalsPage() {
             <SavingGoalsBox
               key={goal.id}
               goal={goal}
+              preferredDateFormat={preferredDateFormat}
               onEdit={() => {
                 setActiveGoal(goal);
                 setShowForm(true);

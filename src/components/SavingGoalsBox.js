@@ -18,17 +18,22 @@ import { returnDayInPreferredFormat } from "@/lib/utils";
 export default function SavingGoalsBox({ goal, onDelete, preferredDateFormat }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showInfoDialog, setShowInfoDialog] = useState(false);
-  const progress =
-    goal.targetAmount > 0
-      ? Math.round((goal.currentAmount / goal.targetAmount) * 100)
-      : 0;
-  const progressBar = Math.min(Math.max(progress, 0), 100);
+  
+  const rawPercent =
+  goal?.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 0;
 
-  function cardColor() {
-    if (progress < 40) return "bg-orange-400";
-    if (progress < 80) return "bg-yellow-400";
-    return "bg-green-400";
-  }
+const progressBar = Math.min(Math.max(rawPercent, 0), 100); // keep bar capped at 100
+
+const exceededPercent = rawPercent > 100 ? rawPercent - 100 : 0;
+const exceededAmount = Math.max((goal.currentAmount || 0) - (goal.targetAmount || 0), 0);
+  const percentColor =
+  rawPercent >= 100
+    ? "bg-emerald-600"
+    : rawPercent >= 80
+      ? "bg-lime-500"
+      : rawPercent >= 50
+        ? "bg-amber-500"
+        : "bg-orange-500";
   // Format date for display
   const formatDate = (dateString) => {
   if (!dateString) return "Not set";
@@ -37,25 +42,24 @@ export default function SavingGoalsBox({ goal, onDelete, preferredDateFormat }) 
 
   // Calculate days left
   const calculateDaysLeft = () => {
-  if (!goal.targetDate) return "-";
+    if (!goal?.targetDate) return null;
 
-  const [y, m, d] = goal.targetDate.split("T")[0].split("-").map(Number);
-  const target = new Date(y, m - 1, d);
+    const [y, m, d] = goal.targetDate.split("T")[0].split("-").map(Number);
+    const target = new Date(y, m - 1, d);
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-  const diffTime = target - today;
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  return diffDays > 0 ? diffDays : "Expired";
-};
+    const diffTime = target - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays > 0 ? diffDays : "Expired";
+  };
 
   return (
     <div
       className={`relative min-h-45 w-full p-5
                   rounded-2xl shadow text-white
-                  flex flex-col justify-between ${cardColor()}
+                  flex flex-col justify-between ${percentColor}
                 cursor-pointer hover:opacity-95 transition-opacity
                 `}
       onClick={() => setShowInfoDialog(true)}
@@ -64,7 +68,7 @@ export default function SavingGoalsBox({ goal, onDelete, preferredDateFormat }) 
       <div className="flex justify-between items-start">
         <div className="flex-1">
           <h3 className="text-lg font-bold mb-1">{goal.purpose}</h3>
-          <p className="text-sm opacity-90">{progress.toFixed(2)}% complete</p>
+          <p className="text-sm opacity-90">{rawPercent.toFixed(2)}% complete</p>
         </div>
 
         <button
@@ -105,25 +109,30 @@ export default function SavingGoalsBox({ goal, onDelete, preferredDateFormat }) 
       )}
 
       {/* Progress Bar */}
-      <div className="mt-4">
-        <div className="flex justify-between text-sm mb-1">
-          <span>Progress</span>
+<div className="mt-6 space-y-2">
+  <div className="flex items-center justify-between text-sm opacity-95">
+    <span>Progress</span>
 
-          <span className="text-xs opacity-90">
-            {formatMoneyCAD(goal.currentAmount)} /{" "}
-            {formatMoneyCAD(goal.targetAmount)}
-          </span>
+    <span className="text-xs opacity-90 tabular-nums">
+      {formatMoneyCAD(goal.currentAmount)} / {formatMoneyCAD(goal.targetAmount)}
+    </span>
+  </div>
 
-          <span className="font-medium">{progress.toFixed(2)}%</span>
-        </div>
-        <div className="w-full bg-white/30 rounded-full h-2.5">
-          <div
-            className="bg-white h-2.5 rounded-full"
-            style={{ width: `${progressBar}%` }}
-          ></div>
-        </div>
-      </div>
+  {exceededAmount > 0 && (
+    <div className="flex items-center justify-between">
+      <span className="text-[11px] px-2 py-0.5 rounded-full bg-white/20 text-white font-semibold">
+        Exceeded {formatMoneyCAD(exceededAmount)}
+      </span>
+    </div>
+  )}
 
+  <div className="w-full bg-white/30 rounded-full h-2.5">
+    <div
+      className="bg-white h-2.5 rounded-full"
+      style={{ width: `${progressBar}%` }}
+    />
+  </div>
+</div>
       {/* Info Dialog - Made Wider */}
       {showInfoDialog && (
         <Dialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
@@ -138,18 +147,22 @@ export default function SavingGoalsBox({ goal, onDelete, preferredDateFormat }) 
                 <div className="flex items-start gap-3 flex-1 min-w-0">
                   {/* Percentage Circle - Now with dynamic sizing */}
                   <div
-                    className={`shrink-0 w-20 h-16 rounded-full flex items-center justify-center ${
-                      progress < 40
-                        ? "bg-orange-100 text-orange-800"
-                        : progress < 80
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-green-100 text-green-800"
-                    }`}
-                  >
-                    <span className="text-lg font-bold whitespace-nowrap">
-                      {progress.toFixed(2)}%
-                    </span>
-                  </div>
+  className={`shrink-0 w-20 h-16 rounded-full flex flex-col items-center justify-center
+  ${rawPercent >= 100 ? "bg-emerald-100 text-emerald-800"
+  : rawPercent >= 80 ? "bg-lime-100 text-lime-800"
+  : rawPercent >= 50 ? "bg-amber-100 text-amber-800"
+  : "bg-orange-100 text-orange-800"}`}
+>
+  <span className="text-lg font-bold leading-none">
+    {rawPercent.toFixed(0)}%
+  </span>
+
+  {rawPercent > 100 && (
+    <span className="text-[10px] font-semibold opacity-80">
+      +{(rawPercent - 100).toFixed(0)}%
+    </span>
+  )}
+</div>
 
                   {/* Title Section - Now with truncation */}
                   <div className="flex-1 min-w-0">
@@ -175,21 +188,30 @@ export default function SavingGoalsBox({ goal, onDelete, preferredDateFormat }) 
 
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div
-                    className={`h-3 rounded-full ${
-                      progress < 40
-                        ? "bg-orange-500"
-                        : progress < 80
-                          ? "bg-yellow-500"
-                          : "bg-green-500"
-                    }`}
+  className={`h-3 rounded-full ${
+    rawPercent >= 100
+      ? "bg-emerald-500"
+      : rawPercent >= 80
+        ? "bg-lime-500"
+        : rawPercent >= 50
+          ? "bg-amber-500"
+          : "bg-orange-500"
+  }`}
                     style={{ width: `${progressBar}%` }}
                   />
                 </div>
 
                 <div className="flex justify-between text-sm text-gray-600">
-                  <span>{formatMoneyCAD(goal.currentAmount)} saved</span>
-                  <span>{formatMoneyCAD(goal.targetAmount)} target</span>
-                </div>
+  <span className="flex items-center gap-2">
+  {formatMoneyCAD(goal.currentAmount)} saved
+  {exceededAmount > 0 && (
+    <span className="text-emerald-700 font-semibold">
+      (Exceeded {formatMoneyCAD(exceededAmount)})
+    </span>
+  )}
+</span>
+  <span>{formatMoneyCAD(goal.targetAmount)} target</span>
+</div>
               </div>
 
               {/* Financial Details Grid - Wider layout */}
@@ -225,7 +247,7 @@ export default function SavingGoalsBox({ goal, onDelete, preferredDateFormat }) 
                   </div>
                   <div className="text-2xl font-bold text-purple-700">
                     {formatMoneyCAD(
-                      (goal.targetAmount || 0) - (goal.currentAmount || 0),
+                      Math.max((goal.targetAmount || 0) - (goal.currentAmount || 0), 0),
                     )}
                   </div>
                 </div>

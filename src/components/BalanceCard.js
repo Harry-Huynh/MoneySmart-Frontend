@@ -1,20 +1,12 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { FaPlus } from "react-icons/fa";
 import CountUp from "react-countup";
+import { formatCurrencyCAD } from "@/lib/utils";
 
-function formatCurrencyCAD(amountNumber) {
-  return new Intl.NumberFormat("en-CA", {
-    style: "currency",
-    currency: "CAD",
-  }).format(Number(amountNumber || 0));
-}
-
-export default function BalanceCard({ balanceSummary, onAddFundsClick }) {
+export default function BalanceCard({ balanceSummary }) {
   if (!balanceSummary) return null;
 
-  const currentBalanceAmountText = formatCurrencyCAD(balanceSummary.amount);
   const deltaAmountText = formatCurrencyCAD(balanceSummary.delta);
 
   return (

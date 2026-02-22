@@ -1,4 +1,4 @@
-import { formatMoneyCAD } from "@/lib/mock/budgets";
+import { formatCurrencyCAD } from "@/lib/utils";
 import React from "react";
 import { FaArrowTrendUp } from "react-icons/fa6";
 import { PiHandWithdrawBold, PiHandDepositBold } from "react-icons/pi";
@@ -41,7 +41,7 @@ export default function TransactionSummaryCard({
       <div>
         <p className="text-lg text-stone-600">{title}</p>
         <p className={`text-2xl ${s.textColor} font-semibold`}>
-          {formatMoneyCAD(amount)}
+          {formatCurrencyCAD(amount)}
         </p>
       </div>
       <div

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { FaMoneyBills } from "react-icons/fa6";
 import { GrMoney } from "react-icons/gr";
-import { formatMoneyCAD } from "@/lib/mock/budgets";
+import { formatCurrencyCAD } from "@/lib/utils";
 import { LuArrowDownRight } from "react-icons/lu";
 import { LuArrowUpRight } from "react-icons/lu";
 import { returnDayInPreferredFormat } from "@/lib/utils";
@@ -50,7 +50,7 @@ export default function DashboardTransactionCard({
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-bold flex-1">
                       {transactionItem.type === "EXPENSE" ? "-" : null}
-                      {formatMoneyCAD(transactionItem.amount)}
+                      {formatCurrencyCAD(transactionItem.amount)}
                     </span>
                     {transactionItem.type === "EXPENSE" ? (
                       <LuArrowDownRight className="text-lg text-red-500" />

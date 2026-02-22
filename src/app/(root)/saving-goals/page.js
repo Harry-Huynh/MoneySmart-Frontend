@@ -10,8 +10,7 @@ export default function SavingGoalsPage() {
   const [goals, setGoals] = useState([]);
   const [activeGoal, setActiveGoal] = useState(null);
   const [showDelete, setShowDelete] = useState(false);
-  const [preferredDateFormat, setPreferredDateFormat] =
-    useState("YYYY-MM-DD");
+  const [preferredDateFormat, setPreferredDateFormat] = useState("YYYY-MM-DD");
 
   useEffect(() => {
     async function fetchProfile() {
@@ -31,7 +30,6 @@ export default function SavingGoalsPage() {
     }
     fetchGoals();
   }, []);
-  
 
   // Delete goal
   const deleteGoal = async () => {

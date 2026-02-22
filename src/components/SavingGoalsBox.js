@@ -12,33 +12,40 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { formatMoneyCAD } from "@/lib/mock/budgets";
+import { formatCurrencyCAD } from "@/lib/utils";
 import { returnDayInPreferredFormat } from "@/lib/utils";
 
-export default function SavingGoalsBox({ goal, onDelete, preferredDateFormat }) {
+export default function SavingGoalsBox({
+  goal,
+  onDelete,
+  preferredDateFormat,
+}) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [showInfoDialog, setShowInfoDialog] = useState(false);
-  
+
   const rawPercent =
-  goal?.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 0;
+    goal?.targetAmount > 0 ? (goal.currentAmount / goal.targetAmount) * 100 : 0;
 
-const progressBar = Math.min(Math.max(rawPercent, 0), 100); // keep bar capped at 100
+  const progressBar = Math.min(Math.max(rawPercent, 0), 100); // keep bar capped at 100
 
-const exceededPercent = rawPercent > 100 ? rawPercent - 100 : 0;
-const exceededAmount = Math.max((goal.currentAmount || 0) - (goal.targetAmount || 0), 0);
+  const exceededAmount = Math.max(
+    (goal.currentAmount || 0) - (goal.targetAmount || 0),
+    0,
+  );
   const percentColor =
-  rawPercent >= 100
-    ? "bg-emerald-600"
-    : rawPercent >= 80
-      ? "bg-lime-500"
-      : rawPercent >= 50
-        ? "bg-amber-500"
-        : "bg-orange-500";
+    rawPercent >= 100
+      ? "bg-emerald-600"
+      : rawPercent >= 80
+        ? "bg-lime-500"
+        : rawPercent >= 50
+          ? "bg-amber-500"
+          : "bg-orange-500";
+
   // Format date for display
   const formatDate = (dateString) => {
-  if (!dateString) return "Not set";
-  return returnDayInPreferredFormat(dateString, preferredDateFormat);
-};
+    if (!dateString) return "Not set";
+    return returnDayInPreferredFormat(dateString, preferredDateFormat);
+  };
 
   // Calculate days left
   const calculateDaysLeft = () => {
@@ -68,7 +75,9 @@ const exceededAmount = Math.max((goal.currentAmount || 0) - (goal.targetAmount |
       <div className="flex justify-between items-start">
         <div className="flex-1">
           <h3 className="text-lg font-bold mb-1">{goal.purpose}</h3>
-          <p className="text-sm opacity-90">{rawPercent.toFixed(2)}% complete</p>
+          <p className="text-sm opacity-90">
+            {rawPercent.toFixed(2)}% complete
+          </p>
         </div>
 
         <button
@@ -109,30 +118,31 @@ const exceededAmount = Math.max((goal.currentAmount || 0) - (goal.targetAmount |
       )}
 
       {/* Progress Bar */}
-<div className="mt-6 space-y-2">
-  <div className="flex items-center justify-between text-sm opacity-95">
-    <span>Progress</span>
+      <div className="mt-6 space-y-2">
+        <div className="flex items-center justify-between text-sm opacity-95">
+          <span>Progress</span>
 
-    <span className="text-xs opacity-90 tabular-nums">
-      {formatMoneyCAD(goal.currentAmount)} / {formatMoneyCAD(goal.targetAmount)}
-    </span>
-  </div>
+          <span className="text-xs opacity-90 tabular-nums">
+            {formatCurrencyCAD(goal.currentAmount)} /{" "}
+            {formatCurrencyCAD(goal.targetAmount)}
+          </span>
+        </div>
 
-  {exceededAmount > 0 && (
-    <div className="flex items-center justify-between">
-      <span className="text-[11px] px-2 py-0.5 rounded-full bg-white/20 text-white font-semibold">
-        Exceeded {formatMoneyCAD(exceededAmount)}
-      </span>
-    </div>
-  )}
+        {exceededAmount > 0 && (
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] px-2 py-0.5 rounded-full bg-white/20 text-white font-semibold">
+              Exceeded {formatCurrencyCAD(exceededAmount)}
+            </span>
+          </div>
+        )}
 
-  <div className="w-full bg-white/30 rounded-full h-2.5">
-    <div
-      className="bg-white h-2.5 rounded-full"
-      style={{ width: `${progressBar}%` }}
-    />
-  </div>
-</div>
+        <div className="w-full bg-white/30 rounded-full h-2.5">
+          <div
+            className="bg-white h-2.5 rounded-full"
+            style={{ width: `${progressBar}%` }}
+          />
+        </div>
+      </div>
       {/* Info Dialog - Made Wider */}
       {showInfoDialog && (
         <Dialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
@@ -147,22 +157,27 @@ const exceededAmount = Math.max((goal.currentAmount || 0) - (goal.targetAmount |
                 <div className="flex items-start gap-3 flex-1 min-w-0">
                   {/* Percentage Circle - Now with dynamic sizing */}
                   <div
-  className={`shrink-0 w-20 h-16 rounded-full flex flex-col items-center justify-center
-  ${rawPercent >= 100 ? "bg-emerald-100 text-emerald-800"
-  : rawPercent >= 80 ? "bg-lime-100 text-lime-800"
-  : rawPercent >= 50 ? "bg-amber-100 text-amber-800"
-  : "bg-orange-100 text-orange-800"}`}
->
-  <span className="text-lg font-bold leading-none">
-    {rawPercent.toFixed(0)}%
-  </span>
+                    className={`shrink-0 w-20 h-16 rounded-full flex flex-col items-center justify-center
+  ${
+    rawPercent >= 100
+      ? "bg-emerald-100 text-emerald-800"
+      : rawPercent >= 80
+        ? "bg-lime-100 text-lime-800"
+        : rawPercent >= 50
+          ? "bg-amber-100 text-amber-800"
+          : "bg-orange-100 text-orange-800"
+  }`}
+                  >
+                    <span className="text-lg font-bold leading-none">
+                      {rawPercent.toFixed(0)}%
+                    </span>
 
-  {rawPercent > 100 && (
-    <span className="text-[13px] font-semibold opacity-80">
-      +{(rawPercent - 100).toFixed(0)}%
-    </span>
-  )}
-</div>
+                    {rawPercent > 100 && (
+                      <span className="text-[13px] font-semibold opacity-80">
+                        +{(rawPercent - 100).toFixed(0)}%
+                      </span>
+                    )}
+                  </div>
 
                   {/* Title Section - Now with truncation */}
                   <div className="flex-1 min-w-0">
@@ -188,30 +203,30 @@ const exceededAmount = Math.max((goal.currentAmount || 0) - (goal.targetAmount |
 
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div
-  className={`h-3 rounded-full ${
-    rawPercent >= 100
-      ? "bg-emerald-500"
-      : rawPercent >= 80
-        ? "bg-lime-500"
-        : rawPercent >= 50
-          ? "bg-amber-500"
-          : "bg-orange-500"
-  }`}
+                    className={`h-3 rounded-full ${
+                      rawPercent >= 100
+                        ? "bg-emerald-500"
+                        : rawPercent >= 80
+                          ? "bg-lime-500"
+                          : rawPercent >= 50
+                            ? "bg-amber-500"
+                            : "bg-orange-500"
+                    }`}
                     style={{ width: `${progressBar}%` }}
                   />
                 </div>
 
                 <div className="flex justify-between text-sm text-gray-600">
-  <span className="flex items-center gap-2">
-  {formatMoneyCAD(goal.currentAmount)} saved
-  {exceededAmount > 0 && (
-    <span className="text-emerald-700 font-semibold">
-      (Exceeded {formatMoneyCAD(exceededAmount)})
-    </span>
-  )}
-</span>
-  <span>{formatMoneyCAD(goal.targetAmount)} target</span>
-</div>
+                  <span className="flex items-center gap-2">
+                    {formatCurrencyCAD(goal.currentAmount)} saved
+                    {exceededAmount > 0 && (
+                      <span className="text-emerald-700 font-semibold">
+                        (Exceeded {formatCurrencyCAD(exceededAmount)})
+                      </span>
+                    )}
+                  </span>
+                  <span>{formatCurrencyCAD(goal.targetAmount)} target</span>
+                </div>
               </div>
 
               {/* Financial Details Grid - Wider layout */}
@@ -222,7 +237,7 @@ const exceededAmount = Math.max((goal.currentAmount || 0) - (goal.targetAmount |
                     <span className="font-medium">Target Amount</span>
                   </div>
                   <div className="text-2xl font-bold text-gray-800">
-                    {formatMoneyCAD(
+                    {formatCurrencyCAD(
                       goal.targetAmount?.toLocaleString() || Number("0"),
                     )}
                   </div>
@@ -234,7 +249,7 @@ const exceededAmount = Math.max((goal.currentAmount || 0) - (goal.targetAmount |
                     <span className="font-medium">Saved Amount</span>
                   </div>
                   <div className="text-2xl font-bold text-green-700">
-                    {formatMoneyCAD(
+                    {formatCurrencyCAD(
                       goal.currentAmount?.toLocaleString() || Number("0"),
                     )}
                   </div>
@@ -246,8 +261,11 @@ const exceededAmount = Math.max((goal.currentAmount || 0) - (goal.targetAmount |
                     <span className="font-medium">Remaining</span>
                   </div>
                   <div className="text-2xl font-bold text-purple-700">
-                    {formatMoneyCAD(
-                      Math.max((goal.targetAmount || 0) - (goal.currentAmount || 0), 0),
+                    {formatCurrencyCAD(
+                      Math.max(
+                        (goal.targetAmount || 0) - (goal.currentAmount || 0),
+                        0,
+                      ),
                     )}
                   </div>
                 </div>

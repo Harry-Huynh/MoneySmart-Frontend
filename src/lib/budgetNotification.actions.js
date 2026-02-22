@@ -1,6 +1,7 @@
 import { toast } from "sonner";
 import { getOneBudget } from "./budget.actions";
-import { formatMoneyCAD } from "@/lib/mock/budgets";
+import { formatCurrencyCAD } from "@/lib/utils";
+import { RiAlarmWarningFill } from "react-icons/ri";
 
 export const createNotificationData = async (budgetId) => {
   try {
@@ -28,7 +29,7 @@ export const createNotificationData = async (budgetId) => {
     } else if (progress >= 80 && totalAmount - usedAmount > thresholdAmount) {
       notificationData.message = `You have used more than 80% of ${budget.purpose}`;
     } else if (totalAmount - usedAmount <= thresholdAmount) {
-      notificationData.message = `You have reached the threshold of ${formatMoneyCAD(thresholdAmount)} for ${budget.purpose}`;
+      notificationData.message = `You have reached the threshold of ${formatCurrencyCAD(thresholdAmount)} for ${budget.purpose}`;
     }
 
     return notificationData;
@@ -38,10 +39,15 @@ export const createNotificationData = async (budgetId) => {
 };
 
 export const createBudgetPushNotification = (notificationData) => {
-  return toast.warning(
-    <div className="flex flex-col gap-1">
-      <span className="font-semibold text-md">{notificationData.title}</span>
-      <span className="text-sm opacity-90">{notificationData.message}</span>
+  return toast(
+    <div className="flex items-center gap-3">
+      <div className="text-xl self-center">
+        <RiAlarmWarningFill />
+      </div>
+      <div className="flex flex-col gap-1">
+        <span className="font-semibold text-md">{notificationData.title}</span>
+        <span className="text-sm opacity-90">{notificationData.message}</span>
+      </div>
     </div>,
     {
       style: {

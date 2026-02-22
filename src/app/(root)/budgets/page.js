@@ -13,8 +13,7 @@ import { getMyProfile } from "@/lib/user.actions";
 export default function BudgetsClient() {
   const [budgets, setBudgets] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(() => new Date());
-  const [preferredDateFormat, setPreferredDateFormat] =
-    useState("YYYY-MM-DD");
+  const [preferredDateFormat, setPreferredDateFormat] = useState("YYYY-MM-DD");
 
   useEffect(() => {
     async function fetchBudgets() {
@@ -28,16 +27,16 @@ export default function BudgetsClient() {
   }, [selectedMonth]);
 
   useEffect(() => {
-  async function fetchProfile() {
-    try {
-      const profile = await getMyProfile();
-      setPreferredDateFormat(profile?.dateFormat ?? "YYYY-MM-DD");
-    } catch {
-      setPreferredDateFormat("YYYY-MM-DD");
+    async function fetchProfile() {
+      try {
+        const profile = await getMyProfile();
+        setPreferredDateFormat(profile?.dateFormat ?? "YYYY-MM-DD");
+      } catch {
+        setPreferredDateFormat("YYYY-MM-DD");
+      }
     }
-  }
-  fetchProfile();
-}, []);
+    fetchProfile();
+  }, []);
 
   // Prev / Next month
   function onPrevMonth() {

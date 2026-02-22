@@ -28,12 +28,16 @@ function formatTransactionAmount(amountValue) {
 export default function TransactionItem({ transactionItem }) {
   const IconComponent = getTransactionIconComponent(transactionItem?.category);
   const amountText = formatTransactionAmount(transactionItem?.amount);
-  const { id } = transactionItem; 
+  const { id } = transactionItem;
   return (
     <Card className="p-5 rounded-2xl border shadow-sm">
       <div className="flex items-center gap-3 mb-3">
-        {React.createElement(IconComponent, { className: "text-slate-700 text-xl" })}
-        <p className="font-semibold text-slate-800">{transactionItem?.category}</p>
+        {React.createElement(IconComponent, {
+          className: "text-slate-700 text-xl",
+        })}
+        <p className="font-semibold text-slate-800">
+          {transactionItem?.category}
+        </p>
       </div>
 
       <p className="text-slate-500 text-sm">{transactionItem?.date}</p>

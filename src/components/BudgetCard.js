@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card";
 import { FaRegStar } from "react-icons/fa";
 import { GiWallet } from "react-icons/gi";
 import { RiErrorWarningLine } from "react-icons/ri";
-import { formatMoneyCAD } from "@/lib/mock/budgets";
+import { formatCurrencyCAD } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 
 export default function BudgetCard({ budgetItems = [] }) {
@@ -26,10 +26,18 @@ export default function BudgetCard({ budgetItems = [] }) {
           ) : (
             budgetItems.map((budgetItem) => {
               const isOverSpent = budgetItem.usedAmount > budgetItem.amount;
-              const overspent = Math.max(budgetItem.usedAmount - budgetItem.amount, 0);
-              const remaining = Math.max(budgetItem.amount - budgetItem.usedAmount, 0);
+              const overspent = Math.max(
+                budgetItem.usedAmount - budgetItem.amount,
+                0,
+              );
+              const remaining = Math.max(
+                budgetItem.amount - budgetItem.usedAmount,
+                0,
+              );
               const rawPercent =
-                budgetItem.amount > 0 ? (budgetItem.usedAmount / budgetItem.amount) * 100 : 0;
+                budgetItem.amount > 0
+                  ? (budgetItem.usedAmount / budgetItem.amount) * 100
+                  : 0;
               return (
                 <li
                   key={budgetItem.id}
@@ -52,10 +60,7 @@ export default function BudgetCard({ budgetItems = [] }) {
                     ) : null}
                   </div>
                   <Progress
-                    value={Math.min(
-                      100,
-                      rawPercent,
-                    )}
+                    value={Math.min(100, rawPercent)}
                     className={`${
                       isOverSpent
                         ? "[&>div]:bg-red-600"
@@ -63,32 +68,37 @@ export default function BudgetCard({ budgetItems = [] }) {
                     }`}
                   ></Progress>
 
-                <div className="block flex justify-between items-center">
-  <div className="flex items-center gap-2">
-    <span className="text-xs font-bold">
-      {formatMoneyCAD(budgetItem.usedAmount)}
-    </span>
-    {overspent > 0 && (
-      <span className="text-[11px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-semibold">
-        Overspent {formatMoneyCAD(overspent)}
-      </span>
-    )}
-    <span className="text-xs"> of {formatMoneyCAD(budgetItem.amount)}</span>
-  </div>
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold">
+                        {formatCurrencyCAD(budgetItem.usedAmount)}
+                      </span>
+                      {overspent > 0 && (
+                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 font-semibold">
+                          Overspent {formatCurrencyCAD(overspent)}
+                        </span>
+                      )}
+                      <span className="text-xs">
+                        {" "}
+                        of {formatCurrencyCAD(budgetItem.amount)}
+                      </span>
+                    </div>
 
-  <div>
-    {overspent > 0 ? (
-      <span className="text-xs text-red-600 font-semibold">Over</span>
-    ) : (
-      <>
-        <span className="text-xs text-green-700 font-semibold">
-          {formatMoneyCAD(remaining)}
-        </span>
-        <span className="text-xs text-green-700"> left</span>
-      </>
-    )}
-  </div>
-</div>
+                    <div>
+                      {overspent > 0 ? (
+                        <span className="text-xs text-red-600 font-semibold">
+                          Over
+                        </span>
+                      ) : (
+                        <>
+                          <span className="text-xs text-green-700 font-semibold">
+                            {formatCurrencyCAD(remaining)}
+                          </span>
+                          <span className="text-xs text-green-700"> left</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </li>
               );
             })

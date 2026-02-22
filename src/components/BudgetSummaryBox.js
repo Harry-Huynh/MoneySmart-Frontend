@@ -1,7 +1,7 @@
 "use client";
 
 import { FaRegMoneyBillAlt, FaArrowDown, FaArrowUp } from "react-icons/fa";
-import { formatMoneyCAD } from "@/lib/mock/budgets";
+import { formatCurrencyCAD } from "@/lib/utils";
 
 function getStyle(type) {
   // style giống transactions (3 màu nhẹ + icon tròn)
@@ -42,11 +42,13 @@ export default function BudgetSummaryBox({ title, amount, type = "budget" }) {
       <div>
         <p className="text-stone-600 text-sm mb-1">{title}</p>
         <p className={`text-2xl font-bold ${amountClass}`}>
-          {formatMoneyCAD(amount)}
+          {formatCurrencyCAD(amount)}
         </p>
       </div>
 
-      <div className={`w-12 h-12 rounded-full flex items-center justify-center ${iconWrap}`}>
+      <div
+        className={`w-12 h-12 rounded-full flex items-center justify-center ${iconWrap}`}
+      >
         <Icon size={22} />
       </div>
     </div>

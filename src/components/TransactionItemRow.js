@@ -1,4 +1,4 @@
-import { formatMoneyCAD } from "@/lib/mock/budgets";
+import { formatCurrencyCAD } from "@/lib/utils";
 import React from "react";
 import { PiHandWithdrawBold, PiHandDepositBold } from "react-icons/pi";
 import { FaRegTrashCan } from "react-icons/fa6";
@@ -54,7 +54,7 @@ export default function TransactionItemRow({ transaction, onDelete }) {
       <span
         className={`text-gray-700 font-semibold ${isIncome ? "text-green-700" : "text-red-700"}`}
       >
-        {(isIncome ? "+" : "-") + formatMoneyCAD(transaction.amount)}
+        {(isIncome ? "+" : "-") + formatCurrencyCAD(transaction.amount)}
       </span>
 
       <AlertDialog>

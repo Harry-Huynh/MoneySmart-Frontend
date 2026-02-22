@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import Image from "next/image";
-import Link from "next/link";
+import { NumericFormat } from "react-number-format";
 
 export default function SavingGoalsForm({
   goal = null,
@@ -17,21 +17,21 @@ export default function SavingGoalsForm({
   const [loading, setLoading] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
-  // Set default values based on whether we're editing or adding
-  const defaultValues = {
-    amount: 0,
-    purpose: "",
-    date: "",
-    note: "",
-  };
-
   const {
     register,
     handleSubmit,
     reset,
     formState: { errors },
     watch,
-  } = useForm({ defaultValues });
+    control,
+  } = useForm({
+    defaultValues: {
+      amount: "",
+      purpose: "",
+      date: "",
+      note: "",
+    },
+  });
 
   // Watch amount field for progress calculation
   const amount = watch("amount");
@@ -49,8 +49,9 @@ export default function SavingGoalsForm({
   }, [goal, isEdit, reset]);
 
   // Calculate progress
-  const currentAmount = parseFloat(savedAmount) || 0;
-  const targetAmount = parseFloat(amount) || 0;
+  const currentAmount = parseFloat(savedAmount || 0);
+  const targetAmount =
+    parseFloat((amount ?? "0").toString().replace(/[^0-9.]/g, "")) || 0;
   const progress =
     targetAmount > 0 ? Math.round((currentAmount / targetAmount) * 100) : 0;
 
@@ -61,7 +62,7 @@ export default function SavingGoalsForm({
       // Convert amount to number if it's a string
       const formattedData = {
         ...data,
-        amount: Number(data.amount),
+        amount: parseFloat(data.amount.replace(/[^0-9.]/g, "")),
       };
 
       await onSave(formattedData);
@@ -94,17 +95,6 @@ export default function SavingGoalsForm({
 
   return (
     <section className="min-h-screen bg-gray-50 px-6 py-10">
-      {/* Back */}
-      <Link
-        href="/saving-goals"
-        className="inline-flex items-center text-gray-700 mb-8 hover:text-black text-lg font-medium group"
-      >
-        <span className="mr-2 group-hover:-translate-x-1 transition-transform">
-          ←
-        </span>
-        Back to Saving Goals
-      </Link>
-
       {/* Cancel Confirmation Dialog */}
       {showCancelConfirm && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -184,20 +174,34 @@ export default function SavingGoalsForm({
               <label className="font-medium text-gray-700">
                 Target Amount:
               </label>
-              <input
-                type="number"
-                {...register("amount", {
-                  required: true,
+
+              <Controller
+                name="amount"
+                control={control}
+                rules={{
+                  required: "Amount is required",
                   min: {
                     value: 0.01,
                     message: "Amount must be greater than 0",
                   },
-                })}
-                className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                placeholder="Enter target amount"
-                step="0.01"
-                min="0.01"
+                }}
+                render={({ field }) => (
+                  <NumericFormat
+                    {...field}
+                    thousandSeparator
+                    prefix="$"
+                    decimalScale={2}
+                    fixedDecimalScale
+                    allowNegative={false}
+                    className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    placeholder="$0.00"
+                    onValueChange={(values) => {
+                      field.onChange(values.floatValue);
+                    }}
+                  />
+                )}
               />
+
               {errors.amount && (
                 <p className="text-sm text-red-500">
                   {errors.amount.type === "required"

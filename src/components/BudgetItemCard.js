@@ -18,7 +18,6 @@ import { returnDayInPreferredFormat } from "@/lib/utils";
 
 export default function BudgetItemCard({
   budget,
-  index = 0,
   onDelete,
   preferredDateFormat,
 }) {
@@ -50,7 +49,7 @@ export default function BudgetItemCard({
     if (percent >= 70) return "bg-orange-400";
     if (percent >= 50) return "bg-yellow-400";
     if (percent >= 30) return "bg-lime-400";
-    return "bg-green-500";
+    return "bg-green-600";
   }
 
   const bg = getBudgetColor(rawPercent);

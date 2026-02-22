@@ -90,14 +90,6 @@ export async function createSavingGoalNotificationDataByMilestones(
       deliveryMethod: DELIVERY_METHOD,
       level: "WARNING",
       milestone: "EXCEEDED",
-      data: {
-        savingGoalId,
-        goalName: savingGoalName,
-        targetAmount,
-        savedAmount: savedAmountAfterTransaction,
-        exceededBy: transactionAmount,
-        progress: Math.round(progressRatioAfterTransaction * 100),
-      },
     };
   }
 
@@ -124,13 +116,6 @@ export async function createSavingGoalNotificationDataByMilestones(
       deliveryMethod: DELIVERY_METHOD,
       level: "SUCCESS",
       milestone: "ACHIEVED",
-      data: {
-        savingGoalId,
-        goalName: savingGoalName,
-        targetAmount,
-        savedAmount: savedAmountAfterTransaction,
-        progress: Math.round(progressRatioAfterTransaction * 100),
-      },
     };
   }
 
@@ -151,13 +136,6 @@ export async function createSavingGoalNotificationDataByMilestones(
       deliveryMethod: DELIVERY_METHOD,
       level: "INFO",
       milestone: highestCrossedMilestone.milestoneKey,
-      data: {
-        savingGoalId,
-        goalName: savingGoalName,
-        targetAmount,
-        savedAmount: savedAmountAfterTransaction,
-        progress: Math.round(progressRatioAfterTransaction * 100),
-      },
     };
   }
 

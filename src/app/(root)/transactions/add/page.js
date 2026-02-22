@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import Image from "next/image";
 import { getBudgetByMonthAndYear } from "@/lib/budget.actions";
 import { getAllSavingGoals } from "@/lib/savingGoal.actions";
@@ -18,6 +18,7 @@ import {
   shouldNotifySavingGoal,
 } from "@/lib/savingGoalNotification.actions";
 import { addNotification } from "@/lib/notification.actions";
+import { NumericFormat } from "react-number-format";
 
 export default function AddTransactionPage() {
   const SAVING_GOAL_NOTIFICATION_TYPE = "savingGoals";
@@ -32,6 +33,7 @@ export default function AddTransactionPage() {
     reset,
     formState: { errors },
     watch,
+    control,
   } = useForm({
     defaultValues: {
       type: "EXPENSE",
@@ -108,7 +110,7 @@ export default function AddTransactionPage() {
     try {
       const payload = {
         type: data.type,
-        amount: Number(data.amount),
+        amount: parseFloat(data.amount.replace(/[^0-9.]/g, "")),
         date: data.date,
         paymentMethod: data.paymentMethod,
         note: data.note,
@@ -168,9 +170,9 @@ export default function AddTransactionPage() {
       if (payload.savingGoalId != null) {
         const savingGoalNotificationData =
           await createSavingGoalNotificationDataByMilestones(
-          payload.savingGoalId,
-          payload.amount
-        );
+            payload.savingGoalId,
+            payload.amount,
+          );
 
         const shouldSendSavingGoalNotification =
           savingGoalNotificationData &&
@@ -369,19 +371,31 @@ export default function AddTransactionPage() {
             <div className="flex flex-col gap-2">
               <label className="font-medium text-gray-700">Amount:</label>
 
-              <input
-                type="number"
-                {...register("amount", {
-                  required: true,
+              <Controller
+                name="amount"
+                control={control}
+                rules={{
+                  required: "Amount is required",
                   min: {
                     value: 0.01,
                     message: "Amount must be greater than 0",
                   },
-                })}
-                className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                placeholder="Enter target amount"
-                step="0.01"
-                min="0.0"
+                }}
+                render={({ field }) => (
+                  <NumericFormat
+                    {...field}
+                    thousandSeparator
+                    prefix="$"
+                    decimalScale={2}
+                    fixedDecimalScale
+                    allowNegative={false}
+                    className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    placeholder="$0.00"
+                    onValueChange={(values) => {
+                      field.onChange(values.floatValue);
+                    }}
+                  />
+                )}
               />
 
               {errors.amount && (

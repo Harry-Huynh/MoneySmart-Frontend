@@ -1,146 +1,72 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { addBudget } from "@/lib/budget.actions";
+import { useForm, Controller } from "react-hook-form";
 import Image from "next/image";
+import { addBudget } from "@/lib/budget.actions";
 import { parseDateToStartOfDay, parseDateToEndOfDay } from "@/lib/utils";
+import { useState } from "react";
+import { NumericFormat } from "react-number-format";
 
 export default function AddBudgetPage() {
   const router = useRouter();
-  const [form, setForm] = useState({
-    amount: "",
-    purpose: "",
-    startDate: "",
-    endDate: "",
-    thresholdAmount: "",
-    note: "",
-  });
-  const today = new Date().toISOString().split("T")[0];
-  const [errors, setErrors] = useState({});
   const [errorMessage, setErrorMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function isValidMoneyInput(value) {
-    const s = String(value ?? "").trim();
-    if (s === "") return false;
+  const today = new Date().toISOString().split("T")[0];
 
-    // non-negative number, max 2 decimal places
-    return /^(?:0|[1-9]\d*)(?:\.\d{0,2})?$/.test(s);
-  }
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+    control,
+  } = useForm({
+    defaultValues: {
+      amount: "",
+      purpose: "",
+      startDate: "",
+      endDate: "",
+      thresholdAmount: "",
+      note: "",
+    },
+  });
 
-  function validateForm(nextForm) {
-    const nextErrors = {};
+  const onSubmit = async (data) => {
+    setErrorMessage("");
+    setLoading(true);
 
-    const amountRaw = String(nextForm.amount ?? "").trim();
-    const thresholdRaw = String(nextForm.thresholdAmount ?? "").trim();
-
-    if (!amountRaw) {
-      nextErrors.amount = "Amount is required";
-    } else if (!isValidMoneyInput(amountRaw)) {
-      // Amount validation
-      nextErrors.amount =
-        "Amount must be a non-negative number with up to 2 decimals (e.g., 12.59)";
-    } else {
-      const amount = Number(amountRaw);
-      if (Number.isNaN(amount) || amount < 0) {
-        nextErrors.amount = "Amount must be ≥ 0";
-      }
-    }
-
-    // Start date validation
-    if (!nextForm.startDate) {
-      nextErrors.startDate = "Start date is required";
-    } else if (nextForm.startDate < today) {
-      nextErrors.startDate = "Start date cannot be in the past";
-    }
-
-    // End date validation (optional, but if provided must be after start date)
-    if (nextForm.endDate) {
-      if (nextForm.startDate && nextForm.endDate < nextForm.startDate) {
-        nextErrors.endDate = "End date must be after start date";
-      }
-      if (nextForm.endDate < today) {
-        nextErrors.endDate = "End date cannot be in the past";
-      }
-    } else {
-      nextErrors.endDate = "End date is required";
-    }
-
-    // Threshold amount validation
-    const thresholdIsEmpty = thresholdRaw === "";
-    if (!thresholdIsEmpty) {
-      if (!isValidMoneyInput(thresholdRaw)) {
-        nextErrors.thresholdAmount =
-          "Threshold must be a non-negative number with up to 2 decimals";
-      } else {
-        const threshold = Number(thresholdRaw);
-        const amount = Number(amountRaw);
-
-        if (Number.isNaN(threshold) || threshold < 0) {
-          nextErrors.thresholdAmount =
-            "Threshold must be greater than or equal to 0";
-        } else if (!Number.isNaN(amount) && threshold > amount) {
-          nextErrors.thresholdAmount =
-            "Threshold must be less than or equal to Amount";
-        }
-      }
-    } else {
-      nextErrors.thresholdAmount = "Threshold amount is required";
-    }
-
-    if (!nextForm.purpose || nextForm.purpose.trim() === "") {
-      nextErrors.purpose = "Purpose is required";
-    }
-
-    return nextErrors;
-  }
-
-  function updateField(key, value) {
-    setForm((p) => ({ ...p, [key]: value }));
-  }
-
-  async function onSubmit(e) {
-    e.preventDefault();
-    const nextErrors = validateForm(form);
-    setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
     try {
-      const startDate = parseDateToStartOfDay(form.startDate);
-      const endDate = parseDateToEndOfDay(form.endDate);
+      const startDate = parseDateToStartOfDay(data.startDate);
+      const endDate = parseDateToEndOfDay(data.endDate);
 
       await addBudget(
-        form.amount,
-        form.purpose,
+        parseFloat(data.amount.replace(/[^0-9.]/g, "")),
+        data.purpose,
         startDate,
         endDate,
-        form.thresholdAmount,
-        form.note,
+        parseFloat(data.thresholdAmount.replace(/[^0-9.]/g, "")),
+        data.note,
       );
+
       router.replace("/budgets");
     } catch (error) {
       setErrorMessage(
         error.message || "An unexpected error occurred. Please try again.",
       );
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <section className="min-h-screen bg-gray-50 px-6 py-8">
-      <Link
-        href="/budgets"
-        className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium text-xl cursor-pointer"
-      >
-        ← Add Budget
-      </Link>
-
-      <div className="max-w-4xl mx-auto bg-white rounded-3xl shadow-md overflow-hidden mt-6 relative">
-        {/* purple header */}
+    <section className="flex justify-center items-center min-h-screen bg-gray-50 px-6 py-10">
+      <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-md overflow-hidden relative">
+        {/* Header */}
         <div className="bg-linear-to-r from-purple-200 to-purple-300 px-8 py-6 text-center">
-          <h2 className="text-2xl font-semibold text-gray-800">New Budget</h2>
+          <h2 className="text-2xl font-semibold text-gray-800">Add Budget</h2>
         </div>
 
-        {/* pig overlay */}
         <Image
           src="/pig-icon.png"
           alt="Piggy"
@@ -149,129 +75,192 @@ export default function AddBudgetPage() {
           className="absolute left-0 top-0 w-64 h-auto"
         />
 
-        {/* form */}
-        <form onSubmit={onSubmit} className="p-10 pt-16 space-y-6">
-          <div className="flex items-center gap-4">
-            <label className="w-40 font-medium">Amount:</label>
-            <div className="flex-1">
-              <input
-                type="number"
-                min={0}
-                step="0.01"
-                inputMode="decimal"
-                className="w-full bg-yellow-50 border rounded-md px-4 py-2"
-                value={form.amount}
-                onChange={(e) => updateField("amount", e.target.value)}
+        <form onSubmit={handleSubmit(onSubmit)} className="p-8 pt-16">
+          <div className="space-y-3">
+            {/* Amount */}
+            <div className="flex flex-col gap-2">
+              <label className="font-medium text-gray-700">Amount:</label>
+
+              <Controller
+                name="amount"
+                control={control}
+                rules={{
+                  required: "Amount is required",
+                  min: {
+                    value: 0.01,
+                    message: "Amount must be greater than 0",
+                  },
+                }}
+                render={({ field }) => (
+                  <NumericFormat
+                    {...field}
+                    thousandSeparator
+                    prefix="$"
+                    decimalScale={2}
+                    fixedDecimalScale
+                    allowNegative={false}
+                    className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    placeholder="$0.00"
+                    onValueChange={(values) => {
+                      field.onChange(values.floatValue);
+                    }}
+                  />
+                )}
               />
-
-              {errors.amount ? (
-                <p className="text-red-500 text-sm mt-1">{errors.amount}</p>
-              ) : null}
+              {errors.amount && (
+                <p className="text-sm text-red-500">{errors.amount.message}</p>
+              )}
             </div>
-          </div>
 
-          <div className="flex items-center gap-4">
-            <label className="w-40 font-medium">Purpose:</label>
-            <div className="flex-1">
+            {/* Purpose */}
+            <div className="flex flex-col gap-2">
+              <label className="font-medium text-gray-700">Purpose:</label>
               <input
                 type="text"
-                className="w-full bg-yellow-50 border rounded-md px-4 py-2"
-                value={form.purpose}
-                onChange={(e) => updateField("purpose", e.target.value)}
+                {...register("purpose", {
+                  required: "Purpose is required",
+                  minLength: {
+                    value: 2,
+                    message: "Purpose must be at least 2 characters",
+                  },
+                })}
+                className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                placeholder="What is this budget for?"
               />
-
-              {errors.purpose ? (
-                <p className="text-red-500 text-sm mt-1">{errors.purpose}</p>
-              ) : null}
+              {errors.purpose && (
+                <p className="text-sm text-red-500">{errors.purpose.message}</p>
+              )}
             </div>
-          </div>
 
-          <div className="flex items-center gap-4">
-            <label className="w-40 font-medium">Start Date:</label>
-            <div className="flex-1">
+            {/* Start Date */}
+            <div className="flex flex-col gap-2">
+              <label className="font-medium text-gray-700">Start Date:</label>
               <input
                 type="date"
                 min={today}
-                className="w-full bg-yellow-50 border rounded-md px-4 py-2"
-                value={form.startDate}
-                onChange={(e) => updateField("startDate", e.target.value)}
+                {...register("startDate", {
+                  required: "Start date is required",
+                  validate: (value) =>
+                    value >= today || "Start date cannot be in the past",
+                })}
+                className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent cursor-pointer"
               />
-
-              {errors.startDate ? (
-                <p className="text-red-500 text-sm mt-1">{errors.startDate}</p>
-              ) : null}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <label className="w-40 font-medium">End Date:</label>
-            <div className="flex-1">
-              <input
-                type="date"
-                min={today}
-                className="w-full bg-yellow-50 border rounded-md px-4 py-2"
-                value={form.endDate}
-                onChange={(e) => updateField("endDate", e.target.value)}
-                placeholder="(Optional)"
-              />
-
-              {errors.endDate ? (
-                <p className="text-red-500 text-sm mt-1">{errors.endDate}</p>
-              ) : null}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <label className="w-40 font-medium">Threshold Amount:</label>
-            <div className="flex-1">
-              <input
-                type="number"
-                min={0}
-                step="0.01"
-                inputMode="decimal"
-                className="w-full bg-yellow-50 border rounded-md px-4 py-2"
-                value={form.thresholdAmount}
-                onChange={(e) => updateField("thresholdAmount", e.target.value)}
-              />
-
-              {errors.thresholdAmount ? (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.thresholdAmount}
+              {errors.startDate && (
+                <p className="text-sm text-red-500">
+                  {errors.startDate.message}
                 </p>
-              ) : null}
+              )}
             </div>
-          </div>
 
-          <div className="flex items-start gap-4">
-            <label className="w-40 font-medium pt-2">Note:</label>
-            <textarea
-              rows="4"
-              className="flex-1 bg-yellow-50 border rounded-md px-4 py-2 resize-none"
-              value={form.note}
-              onChange={(e) => updateField("note", e.target.value)}
-              placeholder="(Optional)"
-            />
-          </div>
+            {/* End Date */}
+            <div className="flex flex-col gap-2">
+              <label className="font-medium text-gray-700">End Date:</label>
+              <input
+                type="date"
+                min={today}
+                {...register("endDate", {
+                  required: "End date is required",
+                  validate: (value) => {
+                    const startDate = getValues("startDate");
 
-          {errorMessage && (
-            <p className="text-red-500 text-md text-center">{errorMessage}</p>
-          )}
+                    if (value < today) return "End date cannot be in the past";
+                    if (startDate && value < startDate)
+                      return "End date must be after start date";
+                    return true;
+                  },
+                })}
+                className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent cursor-pointer"
+              />
+              {errors.endDate && (
+                <p className="text-sm text-red-500">{errors.endDate.message}</p>
+              )}
+            </div>
 
-          <div className="flex justify-end gap-4 pt-2">
-            <button
-              type="button"
-              onClick={() => router.replace("/budgets")}
-              className="flex-1 px-6 py-3 rounded-lg bg-gray-200 hover:bg-gray-300 transition font-semibold cursor-pointer"
-            >
-              Cancel
-            </button>
+            {/* Threshold */}
+            <div className="flex flex-col gap-2">
+              <label className="font-medium text-gray-700">
+                Threshold Amount:
+              </label>
 
-            <button
-              type="submit"
-              className="flex-1 px-6 py-3 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white font-semibold cursor-pointer transition"
-            >
-              Save Budget
-            </button>
+              <Controller
+                name="thresholdAmount"
+                control={control}
+                rules={{
+                  required: "Threshold amount is required",
+                  min: {
+                    value: 0.01,
+                    message: "Amount must be greater than 0",
+                  },
+                  validate: (value) => {
+                    const amount = getValues("amount");
+                    if (
+                      parseFloat(value.replace(/[^0-9.]/g, "")) >
+                      parseFloat(amount.replace(/[^0-9.]/g, ""))
+                    )
+                      return "Threshold must be less than or equal to Amount";
+                    return true;
+                  },
+                }}
+                render={({ field }) => (
+                  <NumericFormat
+                    {...field}
+                    thousandSeparator
+                    prefix="$"
+                    decimalScale={2}
+                    fixedDecimalScale
+                    allowNegative={false}
+                    className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    placeholder="$0.00"
+                    onValueChange={(values) => {
+                      field.onChange(values.floatValue);
+                    }}
+                  />
+                )}
+              />
+
+              {errors.thresholdAmount && (
+                <p className="text-sm text-red-500">
+                  {errors.thresholdAmount.message}
+                </p>
+              )}
+            </div>
+
+            {/* Note */}
+            <div className="flex flex-col gap-2">
+              <label className="font-medium text-gray-700">
+                Note (Optional):
+              </label>
+              <textarea
+                rows="4"
+                {...register("note")}
+                className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
+              />
+            </div>
+
+            {errorMessage && (
+              <p className="text-red-500 text-sm p-3 bg-red-50 rounded-lg">
+                {errorMessage}
+              </p>
+            )}
+
+            {/* Buttons */}
+            <div className="flex justify-end gap-4 pt-6">
+              <button
+                type="button"
+                onClick={() => router.replace("/budgets")}
+                className="flex-1 px-6 py-3 rounded-lg bg-gray-100 hover:bg-gray-200 font-semibold transition cursor-pointer"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                className="flex-1 px-6 py-3 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white font-semibold transition cursor-pointer"
+                disabled={loading}
+              >
+                {loading ? "Saving..." : "Save Budget"}
+              </button>
+            </div>
           </div>
         </form>
       </div>

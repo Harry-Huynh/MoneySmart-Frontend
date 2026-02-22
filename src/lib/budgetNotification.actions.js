@@ -18,6 +18,7 @@ export const createNotificationData = async (budgetId) => {
       title: "Budget Warnings",
       deliveryMethod: "PUSH_NOTIFICATION",
       status: "UNREAD",
+      level: "WARNING",
     };
 
     if (

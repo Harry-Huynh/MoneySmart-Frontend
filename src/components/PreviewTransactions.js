@@ -92,12 +92,12 @@ const PreviewTransactions = ({
         <DialogFooter className="mt-4">
           <button
             onClick={() => setIsPreviewOpen(false)}
-            className="px-6 py-2 rounded-lg border hover:bg-gray-100"
+            className="px-6 py-2 rounded-lg border hover:bg-gray-100 cursor-pointer"
           >
             Cancel
           </button>
 
-          <button className="px-6 py-2 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600">
+          <button className="px-6 py-2 rounded-lg bg-emerald-500 text-white hover:bg-emerald-600 cursor-pointer">
             Save Transactions
           </button>
         </DialogFooter>

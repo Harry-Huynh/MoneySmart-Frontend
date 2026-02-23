@@ -4,6 +4,7 @@ export const handleFileSelect = (
   event,
   setUploadedRows,
   setOpenPreviewTable,
+  fileInputRef,
 ) => {
   const files = Array.from(event.target.files);
   if (!files.length) return;
@@ -35,7 +36,10 @@ export const handleFileSelect = (
 
     setUploadedRows(importedRows);
     setOpenPreviewTable(true);
-    e.target.files = null;
+
+    if (fileInputRef && fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
   reader.readAsArrayBuffer(file);
 };
@@ -50,26 +54,45 @@ export const handleDragLeave = (e, setIsDragging) => {
   setIsDragging(false);
 };
 
-export const handleDrop = (e, setIsDragging, setUploadedFiles) => {
+export const handleDrop = (
+  e,
+  setIsDragging,
+  setUploadedRows,
+  setOpenPreviewTable,
+) => {
   e.preventDefault();
   setIsDragging(false);
 
   const files = Array.from(e.dataTransfer.files);
-  const validFiles = files.filter((file) => {
-    const validTypes = [
-      "text/csv",
-      "application/vnd.ms-excel",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    ];
-    const validExtensions = [".csv", ".xls", ".xlsx"];
-    const extension = "." + file.name.split(".").pop().toLowerCase();
+  if (!files.length) return;
 
-    return (
-      validTypes.includes(file.type) || validExtensions.includes(extension)
-    );
-  });
+  const file = files[0];
 
-  setUploadedFiles(validFiles);
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const data = new Uint8Array(event.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+
+    const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+    const importedRows = rows.slice(1).map((row, index) => ({
+      id: index,
+      category: "",
+      amount: row[0] || 0,
+      type: row[1] || "",
+      date: row[2] || "",
+      note: row[3] || "",
+      paymentMethod: row[4] || "",
+    }));
+
+    setUploadedRows(importedRows);
+    setOpenPreviewTable(true);
+  };
+
+  reader.readAsArrayBuffer(file);
 };
 
 export const handleDownloadTemplate = () => {

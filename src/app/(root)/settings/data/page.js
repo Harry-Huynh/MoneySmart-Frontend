@@ -19,7 +19,6 @@ import {
   handleDownloadTemplate,
 } from "@/lib/import.actions";
 import PreviewTransactions from "@/components/PreviewTransactions";
-import { parseDateToStartOfDay } from "@/lib/utils";
 import { getBudgetByMonthAndYear } from "@/lib/budget.actions";
 import { getAllSavingGoals } from "@/lib/savingGoal.actions";
 
@@ -40,6 +39,7 @@ export default function DataManagementPage() {
     Number(selectedYear) > new Date().getFullYear();
 
   const handleBrowseClick = () => {
+    fileInputRef.current.value = "";
     fileInputRef.current.click();
   };
 
@@ -183,8 +183,13 @@ export default function DataManagementPage() {
                 <input
                   type="file"
                   ref={fileInputRef}
-                  onChange={(e) =>
-                    handleFileSelect(e, setUploadedRows, setIsPreviewOpen)
+                  onChange={(e) => (e) =>
+                    handleFileSelect(e, setUploadedRows, setIsPreviewOpen)(
+                      e,
+                      setUploadedRows,
+                      setIsPreviewOpen,
+                      fileInputRef,
+                    )
                   }
                   accept=".csv,.xls,.xlsx"
                   multiple
@@ -198,7 +203,13 @@ export default function DataManagementPage() {
                     !isUploadDisabled && handleDragLeave(e, setIsDragging)
                   }
                   onDrop={(e) =>
-                    !isUploadDisabled && handleDrop(e, setIsDragging)
+                    !isUploadDisabled &&
+                    handleDrop(
+                      e,
+                      setIsDragging,
+                      setUploadedRows,
+                      setIsPreviewOpen,
+                    )
                   }
                   onClick={() => !isUploadDisabled && handleBrowseClick()}
                   className={`
@@ -214,11 +225,9 @@ export default function DataManagementPage() {
                   `}
                 >
                   <MdUpload className="mx-auto text-4xl mb-4 text-gray-400" />
-                  <p className="text-lg font-medium mb-2">
-                    Drag & Drop File(s)
-                  </p>
+                  <p className="text-lg font-medium mb-2">Drag & Drop File</p>
                   <p className="text-gray-600 mb-4">
-                    CSV or XLSX files. File size limit: 25MB
+                    CSV or XLSX file. File size limit: 25MB
                   </p>
                   <button
                     className={`"px-6 py-2 w-40 bg-gray-200 ${isUploadDisabled ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300 cursor-pointer"} rounded-lg font-medium transition-colors "`}

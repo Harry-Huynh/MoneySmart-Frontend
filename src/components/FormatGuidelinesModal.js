@@ -64,8 +64,7 @@ const FormatGuidelinesModal = ({ shown, onClose, onDownload }) => {
           </p>
         </div>
 
-        <div className="p-6 overflow-y-auto max-h-[70vh]">
-
+        <div className="p-6 overflow-y-auto max-h-[60vh]">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {formatGuidelines.map((section, index) => (
               <div key={index} className="bg-gray-50 rounded-2xl p-6">
@@ -135,7 +134,7 @@ const FormatGuidelinesModal = ({ shown, onClose, onDownload }) => {
                 </p>
                 <button
                   onClick={onDownload}
-                  className="mt-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium text-sm transition-colors"
+                  className="mt-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-medium text-sm transition-colors cursor-pointer"
                 >
                   Download Sample Template
                 </button>

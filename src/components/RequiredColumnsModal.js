@@ -2,13 +2,13 @@ import { MdClose } from "react-icons/md";
 
 const RequiredColumnsModal = ({ shown, onClose }) => {
   const requiredColumns = [
-    {
-      name: "category",
-      type: "string",
-      required: true,
-      description: "Transaction category (e.g., Groceries, Salary, Rent)",
-      example: "Groceries",
-    },
+    // {
+    //   name: "category",
+    //   type: "string",
+    //   required: true,
+    //   description: "Transaction category (e.g., Groceries, Salary, Rent)",
+    //   example: "Groceries",
+    // },
     {
       name: "amount",
       type: "number",
@@ -70,7 +70,7 @@ const RequiredColumnsModal = ({ shown, onClose }) => {
           </p>
         </div>
 
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+        <div className="p-6 overflow-y-auto max-h-[calc(80vh-140px)]">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
@@ -144,12 +144,12 @@ const RequiredColumnsModal = ({ shown, onClose }) => {
               Sample Data Preview
             </h3>
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse bg-white rounded-lg overflow-hidden">
+              <table className="w-full border-collapse bg-white rounded-lg overflow-hidden text-left">
                 <thead>
                   <tr className="bg-emerald-100">
-                    <th className="p-3 font-medium text-emerald-800 border-b">
+                    {/* <th className="p-3 font-medium text-emerald-800 border-b">
                       category
-                    </th>
+                    </th> */}
                     <th className="p-3 font-medium text-emerald-800 border-b">
                       amount
                     </th>
@@ -169,7 +169,7 @@ const RequiredColumnsModal = ({ shown, onClose }) => {
                 </thead>
                 <tbody>
                   <tr>
-                    <td className="p-3 border-b">Salary</td>
+                    {/* <td className="p-3 border-b">Salary</td> */}
                     <td className="p-3 border-b">3500</td>
                     <td className="p-3 border-b">INCOME</td>
                     <td className="p-3 border-b">2026-01-15</td>
@@ -177,7 +177,7 @@ const RequiredColumnsModal = ({ shown, onClose }) => {
                     <td className="p-3 border-b">CARD</td>
                   </tr>
                   <tr>
-                    <td className="p-3 border-b">Groceries</td>
+                    {/* <td className="p-3 border-b">Groceries</td> */}
                     <td className="p-3 border-b">120.45</td>
                     <td className="p-3 border-b">EXPENSE</td>
                     <td className="p-3 border-b">2026-01-18</td>
@@ -185,7 +185,7 @@ const RequiredColumnsModal = ({ shown, onClose }) => {
                     <td className="p-3 border-b">CASH</td>
                   </tr>
                   <tr>
-                    <td className="p-3 border-b">Rent</td>
+                    {/* <td className="p-3 border-b">Rent</td> */}
                     <td className="p-3 border-b">1800</td>
                     <td className="p-3 border-b">EXPENSE</td>
                     <td className="p-3 border-b">2026-01-01</td>

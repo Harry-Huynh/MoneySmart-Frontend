@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   MdUpload,
   MdDownload,
@@ -11,114 +11,41 @@ import {
 import Link from "next/link";
 import RequiredColumnsModal from "@/components/RequiredColumnsModal";
 import FormatGuidelinesModal from "@/components/FormatGuidelinesModal";
+import {
+  handleFileSelect,
+  handleDragOver,
+  handleDragLeave,
+  handleDrop,
+  handleDownloadTemplate,
+} from "@/lib/import.actions";
+import PreviewTransactions from "@/components/PreviewTransactions";
+import { parseDateToStartOfDay } from "@/lib/utils";
+import { getBudgetByMonthAndYear } from "@/lib/budget.actions";
+import { getAllSavingGoals } from "@/lib/savingGoal.actions";
 
 export default function DataManagementPage() {
-  const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [showColumnsModal, setShowColumnsModal] = useState(false);
   const [showGuidelinesModal, setShowGuidelinesModal] = useState(false);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [uploadedRows, setUploadedRows] = useState([]);
   const fileInputRef = useRef(null);
+  const [selectedMonth, setSelectedMonth] = useState(1);
+  const [selectedYear, setSelectedYear] = useState("");
+  const [categories, setCategories] = useState([]);
 
-  const handleFileSelect = (event) => {
-    const files = Array.from(event.target.files);
-    setUploadedFiles(files);
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    setIsDragging(true);
-  };
-
-  const handleDragLeave = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    setIsDragging(false);
-
-    const files = Array.from(e.dataTransfer.files);
-    const validFiles = files.filter((file) => {
-      const validTypes = [
-        "text/csv",
-        "application/vnd.ms-excel",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      ];
-      const validExtensions = [".csv", ".xls", ".xlsx"];
-      const extension = "." + file.name.split(".").pop().toLowerCase();
-
-      return (
-        validTypes.includes(file.type) || validExtensions.includes(extension)
-      );
-    });
-
-    setUploadedFiles(validFiles);
-  };
+  const isUploadDisabled =
+    !selectedYear ||
+    Number(selectedYear) < 2000 ||
+    Number(selectedYear) > new Date().getFullYear();
 
   const handleBrowseClick = () => {
     fileInputRef.current.click();
   };
 
-  const handleDownloadTemplate = () => {
-    // Create sample CSV data based on your Transaction model
-    const sampleData = [
-      ["category", "amount", "type", "date", "note", "paymentMethod"],
-      ["Salary", "3500", "INCOME", "2026-01-15", "January salary", "CARD"],
-      [
-        "Groceries",
-        "120.45",
-        "EXPENSE",
-        "2026-01-18",
-        "Weekly groceries",
-        "CASH",
-      ],
-      ["Rent", "1800", "EXPENSE", "2026-01-01", "January rent", "CHEQUE"],
-      [
-        "Dining",
-        "45.75",
-        "EXPENSE",
-        "2026-01-20",
-        "Dinner with friends",
-        "CARD",
-      ],
-      [
-        "Freelance",
-        "800",
-        "INCOME",
-        "2026-01-25",
-        "Web design project",
-        "CASH",
-      ],
-    ];
-
-    // Create CSV content
-    const csvContent = sampleData
-      .map((row) => row.map((cell) => `"${cell}"`).join(","))
-      .join("\n");
-
-    // Create blob and download
-    const blob = new Blob([csvContent], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "sample_transactions.csv";
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-  };
-
-  const handleCancel = () => {
-    setUploadedFiles([]);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  };
-
   const formatItems = [
     {
-      title: "Download sample CSV/Excel template",
+      title: "Download sample Excel template",
       description: "Get a ready-to-use template with sample data",
       onClick: handleDownloadTemplate,
       icon: MdDownload,
@@ -136,6 +63,41 @@ export default function DataManagementPage() {
       icon: MdOutlineDescription,
     },
   ];
+
+  useEffect(() => {
+    if (!isUploadDisabled) {
+      async function fetchExpenseCategories() {
+        const month = Number(selectedMonth);
+        const year = Number(selectedYear);
+
+        console.log(month, year);
+
+        const [b, s] = await Promise.all([
+          getBudgetByMonthAndYear(month - 1, year),
+          getAllSavingGoals(),
+        ]);
+
+        console.log(b, s);
+
+        const merged = [
+          ...(b.budgets || []).map((x) => ({
+            id: x.id,
+            name: x.purpose,
+            model: "Budget",
+          })),
+          ...(s.savingGoals || []).map((x) => ({
+            id: x.id,
+            name: x.purpose,
+            model: "Saving Goal",
+          })),
+        ];
+
+        setCategories(merged);
+      }
+
+      fetchExpenseCategories();
+    }
+  }, [selectedMonth, selectedYear, isUploadDisabled]);
 
   return (
     <>
@@ -167,34 +129,87 @@ export default function DataManagementPage() {
                 Import Transactions (CSV, Excel)
               </h2>
 
+              {/* Timeframe Selection */}
+              <div className="mb-4">
+                <h2 className="text-lg font-medium mb-4 text-gray-700">
+                  Select Timeframe
+                </h2>
+
+                <div className="flex gap-4">
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                    className="border px-4 py-2 rounded-lg"
+                  >
+                    <option value="">Select Month</option>
+                    {[
+                      "January",
+                      "February",
+                      "March",
+                      "April",
+                      "May",
+                      "June",
+                      "July",
+                      "August",
+                      "September",
+                      "October",
+                      "November",
+                      "December",
+                    ].map((month, idx) => (
+                      <option key={idx} value={idx + 1}>
+                        {month}
+                      </option>
+                    ))}
+                  </select>
+
+                  <input
+                    type="number"
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                    placeholder="Year (e.g., 2026)"
+                    className="border px-4 py-2 rounded-lg w-32"
+                  />
+                </div>
+              </div>
+
               {/* File Upload Area */}
-              <div className="mb-8">
+              <div
+                className={`mb-8 ${isUploadDisabled && "opacity-50 cursor-not-allowed"}`}
+              >
                 <h3 className="text-lg font-medium mb-4 text-gray-700">
                   File Upload
                 </h3>
-
                 {/* Hidden file input */}
                 <input
                   type="file"
                   ref={fileInputRef}
-                  onChange={handleFileSelect}
+                  onChange={(e) =>
+                    handleFileSelect(e, setUploadedRows, setIsPreviewOpen)
+                  }
                   accept=".csv,.xls,.xlsx"
                   multiple
                   className="hidden"
                 />
-
                 <div
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
-                  onDrop={handleDrop}
-                  onClick={handleBrowseClick}
+                  onDragOver={(e) =>
+                    !isUploadDisabled && handleDragOver(e, setIsDragging)
+                  }
+                  onDragLeave={(e) =>
+                    !isUploadDisabled && handleDragLeave(e, setIsDragging)
+                  }
+                  onDrop={(e) =>
+                    !isUploadDisabled && handleDrop(e, setIsDragging)
+                  }
+                  onClick={() => !isUploadDisabled && handleBrowseClick()}
                   className={`
-                    border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer
+                    border-2 border-dashed rounded-2xl p-8 text-center 
                     transition-all duration-200
                     ${
-                      isDragging
-                        ? "border-emerald-500 bg-emerald-50"
-                        : "border-gray-300 hover:border-emerald-400 hover:bg-gray-50"
+                      isUploadDisabled
+                        ? "border-gray-200 bg-gray-50 cursor-not-allowed"
+                        : isDragging
+                          ? "border-emerald-500 bg-emerald-50 cursor-pointer"
+                          : "border-gray-300 hover:border-emerald-400 hover:bg-gray-50 cursor-pointer"
                     }
                   `}
                 >
@@ -205,46 +220,24 @@ export default function DataManagementPage() {
                   <p className="text-gray-600 mb-4">
                     CSV or XLSX files. File size limit: 25MB
                   </p>
-                  <button className="px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg font-medium transition-colors cursor-pointer">
+                  <button
+                    className={`"px-6 py-2 w-40 bg-gray-200 ${isUploadDisabled ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-300 cursor-pointer"} rounded-lg font-medium transition-colors "`}
+                  >
                     Browse Files
                   </button>
                 </div>
 
                 {/* Uploaded Files Preview */}
-                {uploadedFiles.length > 0 && (
-                  <div className="mt-6 p-4 bg-gray-50 rounded-xl">
-                    <h4 className="font-medium mb-2">Selected Files:</h4>
-                    <ul className="space-y-2">
-                      {uploadedFiles.map((file, index) => (
-                        <li
-                          key={index}
-                          className="flex items-center justify-between p-3 bg-white rounded-lg border"
-                        >
-                          <div>
-                            <p className="font-medium">{file.name}</p>
-                            <p className="text-sm text-gray-500">
-                              {(file.size / 1024 / 1024).toFixed(2)} MB
-                            </p>
-                          </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              const newFiles = [...uploadedFiles];
-                              newFiles.splice(index, 1);
-                              setUploadedFiles(newFiles);
-                            }}
-                            className="text-red-500 hover:text-red-700 p-1"
-                          >
-                            Remove
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+
+                <PreviewTransactions
+                  uploadedRows={uploadedRows}
+                  categories={categories}
+                  isOpen={isPreviewOpen}
+                  setIsPreviewOpen={setIsPreviewOpen}
+                />
 
                 {/* Action Buttons */}
-                <div className="flex flex-wrap gap-4 mt-8">
+                {/*<div className="flex flex-wrap gap-4 mt-8">
                   <button
                     onClick={() =>
                       alert(
@@ -293,7 +286,7 @@ export default function DataManagementPage() {
                   >
                     Cancel
                   </button>
-                </div>
+                </div> */}
               </div>
             </div>
 

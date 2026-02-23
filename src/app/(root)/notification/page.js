@@ -28,9 +28,10 @@ function mapApiNotificationToUi(n) {
     id: n.id,
     title: n.title ?? "Notification",
     subtitle: n.message ?? "",
-    type: n.type, // ✅ backend category
+    type: n.type,
     isRead: (n.status || "").toUpperCase() === "READ",
     createdAt: n.createdAt,
+    level: n.level,
   };
 }
 

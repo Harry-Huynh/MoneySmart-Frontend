@@ -1,4 +1,14 @@
-import { MdDelete, MdDone } from "react-icons/md";
+import { RiAlarmWarningFill } from "react-icons/ri";
+import { BiSolidErrorAlt } from "react-icons/bi";
+import { FaCircleInfo } from "react-icons/fa6";
+import { FaCheckCircle } from "react-icons/fa";
+import { MdDelete } from "react-icons/md";
+
+// Level of notification
+const success = "SUCCESS";
+const warning = "WARNING";
+const error = "ERROR";
+const info = "INFO";
 
 export default function NotificationCard({
   notification,
@@ -6,10 +16,12 @@ export default function NotificationCard({
   onDelete,
 }) {
   const unread = !notification.isRead;
-  const isDelete = notification.type === "delete";
+  const level = notification.level;
 
   return (
-    <div className="relative flex items-center gap-4 px-4 py-4 rounded-xl border border-gray-200 bg-white overflow-hidden">
+    <div
+      className={`relative flex items-center gap-4 px-4 py-4 rounded-xl border border-gray-200 bg-white overflow-hidden ${level === error ? "bg-red-100!" : level === warning ? "bg-amber-100!" : "bg-emerald-100!"}`}
+    >
       {/* for status bar inside the card */}
       <div
         className={`absolute left-0 top-0 h-full w-1
@@ -19,9 +31,17 @@ export default function NotificationCard({
       <div
         className={`
           ml-2 p-2 rounded-lg
-          ${isDelete ? "bg-red-100 text-red-600" : "bg-emerald-100 text-emerald-600"}`}
+          ${level === error ? "bg-red-300 text-red-600" : level === warning ? "bg-amber-300 text-amber-600" : "bg-emerald-300 text-emerald-600"}`}
       >
-        {isDelete ? <MdDelete size={22} /> : <MdDone size={22} />}
+        {level === error ? (
+          <BiSolidErrorAlt size={22} />
+        ) : level === warning ? (
+          <RiAlarmWarningFill size={22} />
+        ) : level === info ? (
+          <FaCircleInfo size={22} />
+        ) : (
+          <FaCheckCircle size={22} />
+        )}
       </div>
 
       <div className="flex-1">

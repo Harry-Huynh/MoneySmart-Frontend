@@ -7,7 +7,7 @@ import { getOneBudget, updateBudget } from "@/lib/budget.actions";
 import BudgetCancelEditAlert from "@/components/BudgetCancelEditAlert";
 import { parseDateToStartOfDay, parseDateToEndOfDay } from "@/lib/utils";
 import { NumericFormat } from "react-number-format";
-import { useForm, Controller, set } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 
 export default function EditBudgetPage() {
   const router = useRouter();

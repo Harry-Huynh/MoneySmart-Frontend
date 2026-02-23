@@ -27,10 +27,6 @@ export default function BalanceCard({ balanceSummary }) {
                 />
               </div>
             </div>
-            {/* $$ */}
-            <p className="mt-3 text-slate-600">
-              {deltaAmountText} since {balanceSummary.since}
-            </p>
           </div>
         </div>
       </div>

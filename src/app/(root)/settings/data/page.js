@@ -21,6 +21,7 @@ import {
 import PreviewTransactions from "@/components/PreviewTransactions";
 import { getBudgetByMonthAndYear } from "@/lib/budget.actions";
 import { getAllSavingGoals } from "@/lib/savingGoal.actions";
+import { addTransaction } from "@/lib/transaction.actions";
 
 export default function DataManagementPage() {
   const [isDragging, setIsDragging] = useState(false);
@@ -33,10 +34,20 @@ export default function DataManagementPage() {
   const [selectedYear, setSelectedYear] = useState("");
   const [categories, setCategories] = useState([]);
 
+  const now = new Date();
+  const currentYear = now.getUTCFullYear();
+  const currentMonth = now.getUTCMonth() + 1;
+
+  const year = Number(selectedYear);
+  const month = Number(selectedMonth);
+  const minYear = 2000;
+
   const isUploadDisabled =
+    !selectedMonth ||
     !selectedYear ||
-    Number(selectedYear) < 2000 ||
-    Number(selectedYear) > new Date().getFullYear();
+    Number(selectedYear) < minYear ||
+    Number(selectedYear) > currentYear ||
+    (year === currentYear && month > currentMonth);
 
   const handleBrowseClick = () => {
     fileInputRef.current.value = "";
@@ -70,14 +81,10 @@ export default function DataManagementPage() {
         const month = Number(selectedMonth);
         const year = Number(selectedYear);
 
-        console.log(month, year);
-
         const [b, s] = await Promise.all([
           getBudgetByMonthAndYear(month - 1, year),
           getAllSavingGoals(),
         ]);
-
-        console.log(b, s);
 
         const merged = [
           ...(b.budgets || []).map((x) => ({
@@ -98,6 +105,54 @@ export default function DataManagementPage() {
       fetchExpenseCategories();
     }
   }, [selectedMonth, selectedYear, isUploadDisabled]);
+
+  const handleCategoryChange = (rowId, categoryId) => {
+    setUploadedRows((prev) =>
+      prev.map((r) => (r.id === rowId ? { ...r, categoryId } : r)),
+    );
+  };
+
+  const saveTransaction = async (row) => {
+    try {
+      const payload = {
+        type: row.type,
+        amount: row.amount,
+        date: row.date,
+        paymentMethod: row.paymentMethod,
+        note: row.note,
+      };
+      if (row.type === "INCOME") {
+        payload.category = row.categoryId;
+      } else {
+        const [model, id] = String(row.categoryId).split(":");
+
+        const selected = categories.find(
+          (c) => c.model === model && String(c.id) === String(id),
+        );
+
+        payload.category = selected.name;
+
+        if (selected.model === "Budget") {
+          payload.budgetId = selected.id;
+          payload.savingGoalId = null;
+        } else {
+          payload.budgetId = null;
+          payload.savingGoalId = selected.id;
+        }
+      }
+      console.log(payload);
+
+      await addTransaction(payload);
+    } catch (e) {
+      throw e;
+    }
+  };
+
+  const handleSaveAll = async (rows) => {
+    for (const row of rows) {
+      await saveTransaction(row);
+    }
+  };
 
   return (
     <>
@@ -164,10 +219,12 @@ export default function DataManagementPage() {
 
                   <input
                     type="number"
+                    min={minYear}
+                    max={currentYear}
                     value={selectedYear}
                     onChange={(e) => setSelectedYear(e.target.value)}
                     placeholder="Year (e.g., 2026)"
-                    className="border px-4 py-2 rounded-lg w-32"
+                    className="border px-4 py-2 rounded-lg w-45"
                   />
                 </div>
               </div>
@@ -183,12 +240,14 @@ export default function DataManagementPage() {
                 <input
                   type="file"
                   ref={fileInputRef}
-                  onChange={(e) => (e) =>
-                    handleFileSelect(e, setUploadedRows, setIsPreviewOpen)(
+                  onChange={(e) =>
+                    handleFileSelect(
                       e,
                       setUploadedRows,
                       setIsPreviewOpen,
                       fileInputRef,
+                      selectedMonth,
+                      selectedYear,
                     )
                   }
                   accept=".csv,.xls,.xlsx"
@@ -209,6 +268,8 @@ export default function DataManagementPage() {
                       setIsDragging,
                       setUploadedRows,
                       setIsPreviewOpen,
+                      selectedMonth,
+                      selectedYear,
                     )
                   }
                   onClick={() => !isUploadDisabled && handleBrowseClick()}
@@ -243,59 +304,9 @@ export default function DataManagementPage() {
                   categories={categories}
                   isOpen={isPreviewOpen}
                   setIsPreviewOpen={setIsPreviewOpen}
+                  onChangeCategory={handleCategoryChange}
+                  onSaveAll={handleSaveAll}
                 />
-
-                {/* Action Buttons */}
-                {/*<div className="flex flex-wrap gap-4 mt-8">
-                  <button
-                    onClick={() =>
-                      alert(
-                        "Import functionality would process the uploaded files",
-                      )
-                    }
-                    disabled={uploadedFiles.length === 0}
-                    className={`
-                      px-8 py-3 rounded-lg font-medium transition-colors
-                      ${
-                        uploadedFiles.length === 0
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-emerald-500 hover:bg-emerald-600 text-white"
-                      }
-                    `}
-                  >
-                    Import
-                  </button>
-                  <button
-                    onClick={() =>
-                      alert("Save functionality would store the uploaded files")
-                    }
-                    disabled={uploadedFiles.length === 0}
-                    className={`
-                      px-8 py-3 rounded-lg font-medium transition-colors
-                      ${
-                        uploadedFiles.length === 0
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-blue-500 hover:bg-blue-600 text-white"
-                      }
-                    `}
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={handleCancel}
-                    disabled={uploadedFiles.length === 0}
-                    className={`
-                      px-8 py-3 rounded-lg font-medium transition-colors
-                      ${
-                        uploadedFiles.length === 0
-                          ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                          : "bg-gray-200 hover:bg-gray-300"
-                      }
-                    `}
-                  >
-                    Cancel
-                  </button>
-                </div> */}
               </div>
             </div>
 

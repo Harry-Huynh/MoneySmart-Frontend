@@ -43,7 +43,7 @@ const PreviewTransactions = ({
         showCloseButton={false}
       >
         {/* Header */}
-        <div className="mb-4">
+        <div>
           <h2 className="text-2xl font-semibold text-gray-800">
             Preview Transactions
           </h2>
@@ -51,9 +51,17 @@ const PreviewTransactions = ({
             Review and adjust transactions before saving
           </p>
         </div>
+        <div className="border border-blue-300 rounded-md p-3 bg-blue-50 select-none">
+          <p className="text-blue-700 font-bold text-lg">Disclaimer:</p>
+          <p className="text-blue-600 text-xs">
+            The list below includes only transactions that meet the required
+            format and match the selected timeframe. All other entries have been
+            excluded.
+          </p>
+        </div>
 
         {/* Scrollable Table Area */}
-        <div className="flex-1 overflow-auto border rounded-xl">
+        <div className="flex-1 overflow-y-auto border rounded-xl max-h-[60vh]">
           <table className="min-w-300 w-full text-sm border-collapse">
             {/* Sticky Header */}
             <thead className="bg-gray-100 sticky top-0 z-10">
@@ -169,6 +177,16 @@ const PreviewTransactions = ({
             {isSaving ? "Saving..." : "Save Transactions"}
           </button>
         </DialogFooter>
+        {isSaving && (
+          <div className="absolute inset-0 bg-white/70 backdrop-blur-sm flex items-center justify-center z-50 rounded-lg">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
+              <p className="mt-4 text-gray-700 font-medium">
+                Saving transactions...
+              </p>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

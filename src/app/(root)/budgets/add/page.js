@@ -7,6 +7,11 @@ import { addBudget } from "@/lib/budget.actions";
 import { parseDateToStartOfDay, parseDateToEndOfDay } from "@/lib/utils";
 import { useState } from "react";
 import { NumericFormat } from "react-number-format";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export default function AddBudgetPage() {
   const router = useRouter();
@@ -178,9 +183,22 @@ export default function AddBudgetPage() {
 
             {/* Threshold */}
             <div className="flex flex-col gap-2">
-              <label className="font-medium text-gray-700">
-                Threshold Amount:
-              </label>
+              <div className="flex">
+                <Tooltip>
+                  <TooltipTrigger>
+                    <label className="font-medium text-gray-700">
+                      Threshold Amount:
+                    </label>
+                  </TooltipTrigger>
+
+                  <TooltipContent side="right" className="text-md">
+                    <p>
+                      The threshold amount is the amount that you want to be
+                      notified when the budget is nearly used up.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
 
               <Controller
                 name="thresholdAmount"

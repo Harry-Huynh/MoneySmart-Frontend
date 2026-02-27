@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import BalanceCard from "@/components/BalanceCard";
 import BudgetCard from "@/components/BudgetCard";
 import SavingGoalsCard from "@/components/SavingGoalsCard";
+import TrendChart from "@/components/TrendChart";
 import DashboardTransactionCard from "./DashboardTransactionCard";
 
 export default function DashboardClient({
@@ -35,6 +36,16 @@ export default function DashboardClient({
       amount: Number(t.amount || 0),
       date: t.date,
     }));
+
+    const allTransactions = (dashboardMockData?.recentTransactions || []).map(
+      (t) => ({
+        id: t.id,
+        type: t.type,
+        category: t.category,
+        amount: Number(t.amount || 0),
+        date: t.date,
+      })
+    );
 
   return (
     <div className="w-full px-6 py-6">
@@ -68,6 +79,9 @@ export default function DashboardClient({
           preferredDateFormat={preferredDateFormat}
         />
       </div>
+      <div className="mb-8">
+        <TrendChart transactions={allTransactions} />
+        </div>
     </div>
   );
 }

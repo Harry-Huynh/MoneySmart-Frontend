@@ -22,6 +22,7 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { IoMdNotificationsOutline } from "react-icons/io";
 import { IoLogOutOutline } from "react-icons/io5";
 import { GiWallet } from "react-icons/gi";
+import { RiRobot2Line } from "react-icons/ri";
 import { useRouter } from "next/navigation";
 import { removeToken } from "@/lib/user.actions";
 
@@ -56,6 +57,11 @@ const items = [
     url: "/notification",
     icon: IoMdNotificationsOutline,
   },
+  {
+    title: "AI Insights",
+    url: "/ai",
+    icon: RiRobot2Line,
+  }
 ];
 
 export default function AppSidebar() {

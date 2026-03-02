@@ -1,5 +1,7 @@
 const money = (n) =>
-  new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD" }).format(Number(n || 0));
+  new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD" }).format(
+    Number(n || 0),
+  );
 
 const dateStr = (d) => (d ? new Date(d).toISOString().split("T")[0] : "");
 

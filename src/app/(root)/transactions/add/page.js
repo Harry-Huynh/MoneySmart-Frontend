@@ -49,21 +49,24 @@ export default function AddTransactionPage() {
 
   const date = watch("date");
   const type = watch("type");
-  
+
   useEffect(() => {
-  async function loadProfile() {
-    try {
-      const p = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`, {
-        headers: { Authorization: `Bearer ${await getToken()}` },
-        cache: "no-store",
-      }).then((r) => r.json());
-      setProfile(p);
-    } catch (e) {
-      console.error("Failed to load profile:", e);
+    async function loadProfile() {
+      try {
+        const p = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`,
+          {
+            headers: { Authorization: `Bearer ${await getToken()}` },
+            cache: "no-store",
+          },
+        ).then((r) => r.json());
+        setProfile(p);
+      } catch (e) {
+        console.error("Failed to load profile:", e);
+      }
     }
-  }
-  loadProfile();
-}, []);
+    loadProfile();
+  }, []);
   // Get categories
   useEffect(() => {
     async function fetchExpenseCategories() {
@@ -155,14 +158,13 @@ export default function AddTransactionPage() {
       }
 
       const result = await addTransaction(payload);
-      console.log("Transaction result:", result);
-console.log("Notifications:", result?.notifications);
-console.log("Profile email:", profile?.email);
+
       sendNotificationsClient({
-  notifications: result?.notifications,
-  to_email: profile?.email,
-  customerName: profile?.fullName || profile?.name || "",
-}).catch(console.error);
+        notifications: result?.notifications,
+        to_email: profile?.email,
+        customerName: profile?.fullName || profile?.name || "",
+      }).catch(console.error);
+
       // Reset form
       reset({
         type: "EXPENSE",

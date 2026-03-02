@@ -46,7 +46,7 @@ function RadioDropdown({ label, value, onValueChange, options }) {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="w-[340px]">
+      <DropdownMenuContent className="w-85">
         <DropdownMenuLabel>{label}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuRadioGroup value={value} onValueChange={onValueChange}>
@@ -99,7 +99,7 @@ export default function AccountSettingsEditForm() {
   async function handleSave(e) {
     e.preventDefault();
     e.stopPropagation();
-    
+
     try {
       setSaving(true);
       setError("");
@@ -115,7 +115,7 @@ export default function AccountSettingsEditForm() {
       // Go back to view page
       router.push("/settings/account");
     } catch (e) {
-        setError(e?.message || "Failed to save changes");
+      setError(e?.message || "Failed to save changes");
     } finally {
       setSaving(false);
     }
@@ -162,7 +162,6 @@ export default function AccountSettingsEditForm() {
       {/* Buttons inside card + cursor-pointer */}
       <div className="px-6 pb-6 pt-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        
           <Link
             href="/settings/account"
             className="h-12 w-full rounded-2xl bg-gray-100 text-gray-900 font-semibold hover:bg-gray-200 transition cursor-pointer flex items-center justify-center"
@@ -174,12 +173,12 @@ export default function AccountSettingsEditForm() {
             href="#"
             onClick={handleSave}
             className="h-12 w-full rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition cursor-pointer inline-flex items-center justify-center"
-            >
+          >
             <span className="inline-flex items-center gap-2">
-                <FiSave className="h-4 w-4" />
-                {saving ? "Saving..." : "Save Changes"}
+              <FiSave className="h-4 w-4" />
+              {saving ? "Saving..." : "Save Changes"}
             </span>
-            </Link>
+          </Link>
         </div>
       </div>
     </div>

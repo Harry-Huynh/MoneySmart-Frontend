@@ -105,6 +105,7 @@ if (type === "BUDGET_PROGRESS_50") {
   };
 }
 
+// saving goal
   if (type === "GOAL_MILESTONE") {
     return {
       subject: `[${app}] Milestone reached: ${payload.purpose}`,

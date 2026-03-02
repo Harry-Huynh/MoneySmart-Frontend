@@ -30,7 +30,7 @@ function buildEmailContent(type, payload) {
     };
   }
 
-  if (type === "BUDGET_OVERSPENT") {
+  if (type === "BUDGET_EXCEEDED") {
     const overBy = Number(payload.usedAmount) - Number(payload.amount);
     return {
       subject: `[${app}] Overspent: ${payload.purpose}`,
@@ -48,6 +48,62 @@ function buildEmailContent(type, payload) {
       footer_note: "Adjust spending or increase the budget next cycle.",
     };
   }
+
+  if (type === "BUDGET_USED_ALL") {
+  return {
+    subject: `[${app}] Budget fully used: ${payload.purpose}`,
+    title: `${name} Budget fully used`,
+    badge: "Budget Alert",
+    severity: "warning",
+    summary: `You have used 100% of your budget "${payload.purpose}".`,
+    details: [
+      { label: "Budget amount", value: money(payload.amount) },
+      { label: "Used amount", value: money(payload.usedAmount) },
+      { label: "End date", value: dateStr(payload.endDate) },
+    ],
+    cta_text: "Review spending",
+    cta_url: `${APP_URL}/transactions`,
+    footer_note: "Be careful with additional expenses until the budget resets.",
+  };
+}
+
+if (type === "BUDGET_PROGRESS_80") {
+  return {
+    subject: `[${app}] 80% of budget used: ${payload.purpose}`,
+    title: `${name} Budget at 80%`,
+    badge: "Budget Alert",
+    severity: "warning",
+    summary: `You have used more than 80% of "${payload.purpose}".`,
+    details: [
+      { label: "Budget amount", value: money(payload.amount) },
+      { label: "Used amount", value: money(payload.usedAmount) },
+      { label: "Progress", value: `${Math.round(payload.progress)}%` },
+      { label: "End date", value: dateStr(payload.endDate) },
+    ],
+    cta_text: "Review budgets",
+    cta_url: `${APP_URL}/budgets`,
+    footer_note: "You are approaching your spending limit.",
+  };
+}
+
+if (type === "BUDGET_PROGRESS_50") {
+  return {
+    subject: `[${app}] 50% of budget used: ${payload.purpose}`,
+    title: `${name} Budget at 50%`,
+    badge: "Budget Alert",
+    severity: "info",
+    summary: `You have used more than 50% of "${payload.purpose}".`,
+    details: [
+      { label: "Budget amount", value: money(payload.amount) },
+      { label: "Used amount", value: money(payload.usedAmount) },
+      { label: "Progress", value: `${Math.round(payload.progress)}%` },
+      { label: "End date", value: dateStr(payload.endDate) },
+    ],
+    cta_text: "Review budgets",
+    cta_url: `${APP_URL}/budgets`,
+    footer_note: "Keep an eye on your spending.",
+  };
+}
 
   if (type === "GOAL_MILESTONE") {
     return {
@@ -84,6 +140,26 @@ function buildEmailContent(type, payload) {
     };
   }
 
+  if (type === "GOAL_EXCEEDED") {
+  const exceededBy = Number(payload.exceededBy ?? (Number(payload.currentAmount) - Number(payload.targetAmount)));
+
+  return {
+    subject: `[${app}] Goal exceeded: ${payload.purpose}`,
+    title: `${name} Saving goal exceeded`,
+    badge: "Saving Goal",
+    severity: "warning",
+    summary: `You already achieved "${payload.purpose}" and saved more than the target.`,
+    details: [
+      { label: "Current", value: money(payload.currentAmount) },
+      { label: "Target", value: money(payload.targetAmount) },
+      { label: "Exceeded by", value: money(exceededBy) },
+      { label: "Target date", value: dateStr(payload.targetDate) },
+    ],
+    cta_text: "View goals",
+    cta_url: `${APP_URL}/saving-goals`,
+    footer_note: "Consider increasing the target or creating a new goal.",
+  };
+}
   return null;
 }
 

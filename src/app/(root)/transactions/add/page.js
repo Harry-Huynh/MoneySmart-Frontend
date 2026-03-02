@@ -1,5 +1,5 @@
 "use client";
-
+import { getToken } from "@/lib/user.actions";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
@@ -8,6 +8,7 @@ import { getBudgetByMonthAndYear } from "@/lib/budget.actions";
 import { getAllSavingGoals } from "@/lib/savingGoal.actions";
 import { addTransaction } from "@/lib/transaction.actions";
 import { parseDateToStartOfDay } from "@/lib/utils";
+import { sendNotificationsClient } from "@/lib/notifyClient";
 import {
   createBudgetPushNotification,
   createNotificationData,
@@ -26,6 +27,7 @@ export default function AddTransactionPage() {
   const [warningMessage, setWarningMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState([]);
+  const [profile, setProfile] = useState(null);
 
   const {
     register,
@@ -47,7 +49,21 @@ export default function AddTransactionPage() {
 
   const date = watch("date");
   const type = watch("type");
-
+  
+  useEffect(() => {
+  async function loadProfile() {
+    try {
+      const p = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/me`, {
+        headers: { Authorization: `Bearer ${await getToken()}` },
+        cache: "no-store",
+      }).then((r) => r.json());
+      setProfile(p);
+    } catch (e) {
+      console.error("Failed to load profile:", e);
+    }
+  }
+  loadProfile();
+}, []);
   // Get categories
   useEffect(() => {
     async function fetchExpenseCategories() {
@@ -138,8 +154,15 @@ export default function AddTransactionPage() {
         }
       }
 
-      await addTransaction(payload);
-
+      const result = await addTransaction(payload);
+      console.log("Transaction result:", result);
+console.log("Notifications:", result?.notifications);
+console.log("Profile email:", profile?.email);
+      sendNotificationsClient({
+  notifications: result?.notifications,
+  to_email: profile?.email,
+  customerName: profile?.fullName || profile?.name || "",
+}).catch(console.error);
       // Reset form
       reset({
         type: "EXPENSE",

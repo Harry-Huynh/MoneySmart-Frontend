@@ -75,9 +75,10 @@ export async function addTransaction(payload) {
     },
   );
 
-  const data = await res.json().catch(() => ({}));
-  if (res.status === 201) return true;
-  throw new Error(data.message || "Failed to add transaction");
+   const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || "Failed to add transaction");
+
+  return data;
 }
 
 export async function updateTransaction(id, payload) {
@@ -99,8 +100,9 @@ export async function updateTransaction(id, payload) {
   );
 
   const data = await res.json().catch(() => ({}));
-  if (res.ok) return data;
-  throw new Error(data.message || "Failed to update transaction");
+  if (!res.ok) throw new Error(data.message || "Failed to update transaction");
+
+  return data;
 }
 
 export async function deleteTransaction(id) {
@@ -117,7 +119,8 @@ export async function deleteTransaction(id) {
     },
   );
 
-  const data = await res.json().catch(() => ({}));
-  if (res.status === 200) return true;
-  throw new Error(data.message || "Failed to delete transaction");
+   const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.message || "Failed to delete transaction");
+
+  return data;
 }

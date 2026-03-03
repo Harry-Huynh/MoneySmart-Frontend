@@ -22,6 +22,8 @@ export async function sendNotificationsClient({
           to_name: customerName,
           subject: content.subject,
           title: content.title,
+          severity_bg: content.severity_bg,
+  severity_color: content.severity_color,
           badge: content.badge,
           severity: content.severity,
           summary: content.summary,

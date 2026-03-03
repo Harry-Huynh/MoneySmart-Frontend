@@ -1,121 +1,188 @@
-"use client";
+"use client"
 
-import { useState, useMemo } from "react";
-import { Box, Typography, Select, MenuItem } from "@mui/material";
-import { BarChart, PieChart } from "@mui/x-charts";
+import { useState, useMemo } from "react"
+import { Card } from "@/components/ui/card"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts"
 
 export default function TrendChart({ transactions = [] }) {
-  const [chartType, setChartType] = useState("bar");
+  const [viewType, setViewType] = useState("monthly")
+  const [range, setRange] = useState("6")
 
-  // 📊 Weekly Income vs Expense
+  /* ---------------- Filter by Date Range ---------------- */
+  const filteredTransactions = useMemo(() => {
+    const now = new Date()
+    const monthsBack = Number(range)
+
+    const startDate = new Date(
+      now.getFullYear(),
+      now.getMonth() - monthsBack + 1,
+      1
+    )
+
+    return transactions.filter((t) => {
+      const date = new Date(t.date)
+      return date >= startDate && date <= now
+    })
+  }, [transactions, range])
+
+  /* ---------------- Monthly Data (Always Show All Months) ---------------- */
+  const monthlyData = useMemo(() => {
+    const now = new Date()
+    const monthsBack = Number(range)
+    const result = []
+
+    for (let i = monthsBack - 1; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
+
+      const monthTransactions = filteredTransactions.filter((t) => {
+        const d = new Date(t.date)
+        return (
+          d.getMonth() === date.getMonth() &&
+          d.getFullYear() === date.getFullYear()
+        )
+      })
+
+      const income = monthTransactions
+        .filter((t) => t.type === "INCOME")
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0)
+
+      const expense = monthTransactions
+        .filter((t) => t.type === "EXPENSE")
+        .reduce((sum, t) => sum + Number(t.amount || 0), 0)
+
+      result.push({
+        name: date.toLocaleString("default", { month: "short" }),
+        income,
+        expense,
+      })
+    }
+
+    return result
+  }, [filteredTransactions, range])
+
+  /* ---------------- Weekly Data (Current Month Only) ---------------- */
   const weeklyData = useMemo(() => {
-    const weeks = {};
+    const weeks = [1, 2, 3, 4, 5].map((week) => ({
+      name: `Week ${week}`,
+      income: 0,
+      expense: 0,
+    }))
 
-    transactions.forEach((t) => {
-      const date = new Date(t.date);
-      const week = getWeekNumber(date);
+    filteredTransactions.forEach((t) => {
+      const date = new Date(t.date)
+      const week = getWeekNumber(date) - 1
 
-      if (!weeks[week]) {
-        weeks[week] = { income: 0, expense: 0 };
+      if (weeks[week]) {
+        if (t.type === "INCOME") {
+          weeks[week].income += Number(t.amount || 0)
+        } else {
+          weeks[week].expense += Number(t.amount || 0)
+        }
       }
+    })
 
-      if (t.type === "INCOME") {
-        weeks[week].income += Number(t.amount || 0);
-      } else if (t.type === "EXPENSE") {
-        weeks[week].expense += Number(t.amount || 0);
-      }
-    });
+    return weeks
+  }, [filteredTransactions])
 
-    return Object.entries(weeks).map(([week, values]) => ({
-      label: `Week ${week}`,
-      income: values.income,
-      expense: values.expense,
-    }));
-  }, [transactions]);
-
-  // 🥧 Expense Category Breakdown
-  const expenseByCategory = useMemo(() => {
-    const map = {};
-
-    transactions
-      .filter((t) => t.type === "EXPENSE")
-      .forEach((t) => {
-        const category = t.category || "Other";
-        map[category] = (map[category] || 0) + Number(t.amount || 0);
-      });
-
-    return Object.entries(map).map(([label, value], index) => ({
-      id: index,
-      label,
-      value,
-    }));
-  }, [transactions]);
+  const chartData =
+    viewType === "monthly" ? monthlyData : weeklyData
 
   return (
-   <Box
-    sx={{
-      backgroundColor: "white",
-      borderRadius: 4,
-      p: 3,
-      boxShadow: 2,
-      mt: 4,
+    <div className="mt-8 flex justify-start">
+      <Card className="w-[750px] rounded-2xl p-6 shadow-sm">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold text-slate-800">
+            Cash Flow
+          </h2>
 
-      width: "100%",      // allow responsiveness
-      maxWidth: 750,      // control chart width (adjust if needed)
-      ml: 0,              // stick to left
-    }}
-  >
-      <Box display="flex" justifyContent="space-between" mb={3}>
-        <Typography variant="h6" fontWeight={600}>
-          Financial Trends
-        </Typography>
+          <div className="flex gap-4">
+            <Select
+              value={viewType}
+              onValueChange={setViewType}
+            >
+              <SelectTrigger className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="monthly">
+                  Monthly
+                </SelectItem>
+                <SelectItem value="weekly">
+                  Weekly
+                </SelectItem>
+              </SelectContent>
+            </Select>
 
-        <Select
-          size="small"
-          value={chartType}
-          onChange={(e) => setChartType(e.target.value)}
-        >
-          <MenuItem value="bar">Weekly Trend</MenuItem>
-          <MenuItem value="pie">Expense Breakdown</MenuItem>
-        </Select>
-      </Box>
+            <Select value={range} onValueChange={setRange}>
+              <SelectTrigger className="w-36">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="3">
+                  Last 3 months
+                </SelectItem>
+                <SelectItem value="6">
+                  Last 6 months
+                </SelectItem>
+                <SelectItem value="12">
+                  Last 12 months
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
-      {chartType === "bar" ? (
-        <BarChart
-          xAxis={[
-            {
-              scaleType: "band",
-              data: weeklyData.map((d) => d.label),
-            },
-          ]}
-          series={[
-            {
-              label: "Income",
-              data: weeklyData.map((d) => d.income),
-            },
-            {
-              label: "Expense",
-              data: weeklyData.map((d) => d.expense),
-            },
-          ]}
-          height={320}
-        />
-      ) : (
-        <PieChart
-          series={[
-            {
-              data: expenseByCategory,
-            },
-          ]}
-          height={320}
-        />
-      )}
-    </Box>
-  );
+        {/* Bar Chart */}
+        <div className="w-full h-[320px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData}>
+              <XAxis dataKey="name" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar
+                dataKey="income"
+                fill="#22c55e"
+                radius={[6, 6, 0, 0]}
+              />
+              <Bar
+                dataKey="expense"
+                fill="#ef4444"
+                radius={[6, 6, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </Card>
+    </div>
+  )
 }
 
+/* ---------------- Week Helper ---------------- */
 function getWeekNumber(date) {
-  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-  const diff = date - firstDay;
-  return Math.floor(diff / (7 * 24 * 60 * 60 * 1000)) + 1;
+  const firstDay = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    1
+  )
+  const diff = date - firstDay
+  return (
+    Math.floor(diff / (7 * 24 * 60 * 60 * 1000)) + 1
+  )
 }

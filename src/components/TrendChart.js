@@ -68,6 +68,7 @@ export default function TrendChart({ transactions = [] }) {
       result.push({
         name: date.toLocaleString("default", { month: "short" }),
         fullName: date.toLocaleString("default", { month: "long" }),
+        year: date.getFullYear(),
         income,
         expense,
       })
@@ -112,7 +113,13 @@ export default function TrendChart({ transactions = [] }) {
 
   const chartData =
     viewType === "monthly" ? monthlyData : weeklyData
-
+  const currentYear = new Date().getFullYear()
+  //mont and year for weekly
+  const now = new Date()
+const currentMonthLabel = now.toLocaleString("default", {
+  month: "long",
+})
+const currentMonthYear = `${currentMonthLabel} ${now.getFullYear()}`
   return (
     <div className="mt-8 flex justify-start">
       <Card className="w-[750px] rounded-2xl p-6 shadow-sm">
@@ -157,36 +164,69 @@ export default function TrendChart({ transactions = [] }) {
           </div>
         </div>
 
-        <div className="w-full h-[320px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData}>
-              <XAxis dataKey="name" />
-              <YAxis tickFormatter={(value) => `$${value}`} />
-             <Tooltip
-                  labelFormatter={(label, payload) => {
-                    if (viewType === "monthly" && payload?.length) {
-                      return payload[0].payload.fullName
+      <div className="w-full h-[360px]">
+            <ResponsiveContainer width="100%" height="85%">
+              <BarChart data={chartData}>
+                <XAxis dataKey="name" />
+                <YAxis tickFormatter={(value) => `$${value}`} />
+
+              <Tooltip
+                labelFormatter={(label, payload) => {
+                  if (payload?.length) {
+                    if (viewType === "monthly") {
+                      const { fullName, year } = payload[0].payload
+                      return `${fullName} ${year}`
                     }
-                    return label
-                  }}
-                  formatter={(value) => `$${value}`}
+
+                    if (viewType === "weekly") {
+                      return `${label} • ${currentMonthYear}`
+                    }
+                  }
+                  return label
+                }}
+                formatter={(value) => `$${value}`}
+              />
+
+                <Bar
+                  dataKey="income"
+                  name="Income"
+                  fill="#22c55e"
+                  radius={[6, 6, 0, 0]}
                 />
-              <Legend />
-              <Bar
-                dataKey="income"
-                name="Income"
-                fill="#22c55e"
-                radius={[6, 6, 0, 0]}
-              />
-              <Bar
-                dataKey="expense"
-                name="Expense"
-                fill="#ef4444"
-                radius={[6, 6, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+                <Bar
+                  dataKey="expense"
+                  name="Expense"
+                  fill="#ef4444"
+                  radius={[6, 6, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
+
+           {/* PERIOD LABEL */}
+            <div className="text-center text-xl font-extrabold text-slate-900 mt-1">
+              {viewType === "monthly"
+                ? currentYear
+                : currentMonthYear}
+            </div>
+
+            {/* LEGEND */}
+            <div className="flex justify-center gap-10 mt-3">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-emerald-500 rounded-sm"></div>
+                <span className="text-lg font-bold text-slate-800">
+                  Income
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 bg-rose-500 rounded-sm"></div>
+                <span className="text-lg font-bold text-slate-800">
+                  Expense
+                </span>
+              </div>
+            </div>
+          </div>
+        
       </Card>
     </div>
   )

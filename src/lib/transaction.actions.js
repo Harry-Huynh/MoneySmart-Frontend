@@ -34,10 +34,12 @@ export async function getAllTransactionsByMonthAndYear(month, year) {
       cache: "no-store",
     },
   );
+  
 
   if (!res.ok) throw new Error(data.message || "Failed to fetch transactions");
   return await res.json();
 }
+
 export async function getOneTransaction(id) {
   const token = await getToken();
   if (!token) throw new Error("User is not authenticated");

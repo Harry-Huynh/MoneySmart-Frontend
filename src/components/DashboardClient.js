@@ -37,7 +37,7 @@ export default function DashboardClient({
       date: t.date,
     }));
 
-    const allTransactions = (dashboardMockData?.recentTransactions || []).map(
+    const allTransactions = (dashboardMockData?.allTransactions || []).map(
       (t) => ({
         id: t.id,
         type: t.type,
@@ -46,6 +46,8 @@ export default function DashboardClient({
         date: t.date,
       })
     );
+
+    console.log("ALL TRANSACTIONS PASSED TO TREND:", allTransactions)
 
   return (
     <div className="w-full px-6 py-6">

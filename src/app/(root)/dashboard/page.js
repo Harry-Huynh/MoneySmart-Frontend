@@ -1,8 +1,9 @@
 import React from "react";
 import DashboardClient from "@/components/DashboardClient";
-import { getBudgetByMonthAndYear } from "@/lib/budget.actions";
+import { getBudgetByMonthAndYear} from "@/lib/budget.actions";
 import { getMyProfile } from "@/lib/user.actions";
-import { getAllTransactionsByMonthAndYear } from "@/lib/transaction.actions";
+import { getAllTransactionsByMonthAndYear, 
+          getAllTransactions as fetchAllTransactions  } from "@/lib/transaction.actions";
 import { get } from "react-hook-form";
 import { getAllSavingGoals } from "@/lib/savingGoal.actions";
 
@@ -44,14 +45,22 @@ async function getAllTransactions() {
     return [];
   }
 }
+async function getAllTransactionsForTrend() {
+  try {
+    return await fetchAllTransactions(); // ✅ fetch ALL months
+  } catch (error) {
+    return [];
+  }
+}
 export default async function Dashboard() {
   // Dummy data for display purposes
-  const [userData, budgetData, savingGoalsData, transactionsData] =
+  const [userData, budgetData, savingGoalsData, transactionsData, trendTransactionsData] =
     await Promise.all([
       getUserData(),
       getThisMonthBudgetData(),
       getSavingGoals(),
       getAllTransactions(),
+      getAllTransactionsForTrend(),  // ALL months
     ]);
 
   const name = userData?.name ?? "Unknown User";
@@ -67,6 +76,7 @@ export default async function Dashboard() {
     budgets: budgetData.budgets,
     goals: savingGoalsData.savingGoals,
     recentTransactions: transactionsData.transactions,
+    allTransactions: trendTransactionsData.transactions,
   };
   return (
     <DashboardClient

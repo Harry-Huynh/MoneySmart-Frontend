@@ -35,12 +35,12 @@ export default function TrendChart({ transactions = [] }) {
     )
 
     return transactions.filter((t) => {
-      const date = new Date(t.date)
+      const date = parseLocalDate(t.date)
       return date >= startDate && date <= now
     })
   }, [transactions, range])
 
-  /* ---------------- Monthly Data (Always Show All Months) ---------------- */
+  /* ---------------- Monthly Data ---------------- */
   const monthlyData = useMemo(() => {
     const now = new Date()
     const monthsBack = Number(range)
@@ -50,7 +50,7 @@ export default function TrendChart({ transactions = [] }) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1)
 
       const monthTransactions = filteredTransactions.filter((t) => {
-        const d = new Date(t.date)
+        const d = parseLocalDate(t.date)
         return (
           d.getMonth() === date.getMonth() &&
           d.getFullYear() === date.getFullYear()
@@ -75,7 +75,7 @@ export default function TrendChart({ transactions = [] }) {
     return result
   }, [filteredTransactions, range])
 
-  /* ---------------- Weekly Data (Current Month Only) ---------------- */
+  /* ---------------- Weekly Data ---------------- */
   const weeklyData = useMemo(() => {
     const weeks = [1, 2, 3, 4, 5].map((week) => ({
       name: `Week ${week}`,
@@ -84,7 +84,7 @@ export default function TrendChart({ transactions = [] }) {
     }))
 
     filteredTransactions.forEach((t) => {
-      const date = new Date(t.date)
+      const date = parseLocalDate(t.date)
       const week = getWeekNumber(date) - 1
 
       if (weeks[week]) {
@@ -185,4 +185,18 @@ function getWeekNumber(date) {
   return (
     Math.floor(diff / (7 * 24 * 60 * 60 * 1000)) + 1
   )
+}
+
+/* ---------------- Safe Local Date Parser ---------------- */
+function parseLocalDate(dateString) {
+  if (!dateString) return new Date()
+
+  // If already full ISO string (with time), just return new Date
+  if (dateString.includes("T")) {
+    return new Date(dateString)
+  }
+
+  // If format is YYYY-MM-DD
+  const [year, month, day] = dateString.split("-")
+  return new Date(year, month - 1, day)
 }

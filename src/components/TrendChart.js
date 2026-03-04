@@ -23,7 +23,7 @@ export default function TrendChart({ transactions = [] }) {
   const [viewType, setViewType] = useState("monthly")
   const [range, setRange] = useState("6")
 
-  /* ---------------- Filter by Date Range ---------------- */
+  /* ---------------- Filter by Date Range (Monthly Only) ---------------- */
   const filteredTransactions = useMemo(() => {
     const now = new Date()
     const monthsBack = Number(range)
@@ -67,6 +67,7 @@ export default function TrendChart({ transactions = [] }) {
 
       result.push({
         name: date.toLocaleString("default", { month: "short" }),
+        fullName: date.toLocaleString("default", { month: "long" }),
         income,
         expense,
       })
@@ -75,29 +76,39 @@ export default function TrendChart({ transactions = [] }) {
     return result
   }, [filteredTransactions, range])
 
-  /* ---------------- Weekly Data ---------------- */
+  /* ---------------- Weekly Data (Current Month Only) ---------------- */
   const weeklyData = useMemo(() => {
+    const now = new Date()
+
+    const currentMonthTransactions = transactions.filter((t) => {
+      const d = parseLocalDate(t.date)
+      return (
+        d.getMonth() === now.getMonth() &&
+        d.getFullYear() === now.getFullYear()
+      )
+    })
+
     const weeks = [1, 2, 3, 4, 5].map((week) => ({
       name: `Week ${week}`,
       income: 0,
       expense: 0,
     }))
 
-    filteredTransactions.forEach((t) => {
+    currentMonthTransactions.forEach((t) => {
       const date = parseLocalDate(t.date)
       const week = getWeekNumber(date) - 1
 
       if (weeks[week]) {
         if (t.type === "INCOME") {
           weeks[week].income += Number(t.amount || 0)
-        } else {
+        } else if (t.type === "EXPENSE") {
           weeks[week].expense += Number(t.amount || 0)
         }
       }
     })
 
     return weeks
-  }, [filteredTransactions])
+  }, [transactions])
 
   const chartData =
     viewType === "monthly" ? monthlyData : weeklyData
@@ -105,17 +116,13 @@ export default function TrendChart({ transactions = [] }) {
   return (
     <div className="mt-8 flex justify-start">
       <Card className="w-[750px] rounded-2xl p-6 shadow-sm">
-        {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-slate-800">
             Cash Flow
           </h2>
 
           <div className="flex gap-4">
-            <Select
-              value={viewType}
-              onValueChange={setViewType}
-            >
+            <Select value={viewType} onValueChange={setViewType}>
               <SelectTrigger className="w-36">
                 <SelectValue />
               </SelectTrigger>
@@ -129,40 +136,51 @@ export default function TrendChart({ transactions = [] }) {
               </SelectContent>
             </Select>
 
-            <Select value={range} onValueChange={setRange}>
-              <SelectTrigger className="w-36">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="3">
-                  Last 3 months
-                </SelectItem>
-                <SelectItem value="6">
-                  Last 6 months
-                </SelectItem>
-                <SelectItem value="12">
-                  Last 12 months
-                </SelectItem>
-              </SelectContent>
-            </Select>
+            {viewType === "monthly" && (
+              <Select value={range} onValueChange={setRange}>
+                <SelectTrigger className="w-36">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="3">
+                    Last 3 months
+                  </SelectItem>
+                  <SelectItem value="6">
+                    Last 6 months
+                  </SelectItem>
+                  <SelectItem value="12">
+                    Last 12 months
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           </div>
         </div>
 
-        {/* Bar Chart */}
         <div className="w-full h-[320px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData}>
               <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip />
+              <YAxis tickFormatter={(value) => `$${value}`} />
+             <Tooltip
+                  labelFormatter={(label, payload) => {
+                    if (viewType === "monthly" && payload?.length) {
+                      return payload[0].payload.fullName
+                    }
+                    return label
+                  }}
+                  formatter={(value) => `$${value}`}
+                />
               <Legend />
               <Bar
                 dataKey="income"
+                name="Income"
                 fill="#22c55e"
                 radius={[6, 6, 0, 0]}
               />
               <Bar
                 dataKey="expense"
+                name="Expense"
                 fill="#ef4444"
                 radius={[6, 6, 0, 0]}
               />
@@ -191,12 +209,10 @@ function getWeekNumber(date) {
 function parseLocalDate(dateString) {
   if (!dateString) return new Date()
 
-  // If already full ISO string (with time), just return new Date
   if (dateString.includes("T")) {
     return new Date(dateString)
   }
 
-  // If format is YYYY-MM-DD
   const [year, month, day] = dateString.split("-")
   return new Date(year, month - 1, day)
 }

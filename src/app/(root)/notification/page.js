@@ -57,8 +57,7 @@ function getRelativeLabel(createdAt) {
   if (diffDays === 0) return "Today";
   if (diffDays === 1) return "Yesterday";
   if (diffDays < 7) return `${diffDays} days ago`;
-  if (diffDays < 14) return "1 week ago";
-  return "Earlier";
+  return created.toLocaleDateString([], { month: "long", day: "numeric" });
 }
 
 // Group notifications by relative day label

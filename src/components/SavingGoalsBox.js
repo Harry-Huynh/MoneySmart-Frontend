@@ -34,9 +34,9 @@ export default function SavingGoalsBox({
   );
   const percentColor =
     rawPercent >= 100
-      ? "bg-emerald-600"
+      ? "bg-emerald-700"
       : rawPercent >= 80
-        ? "bg-lime-500"
+        ? "bg-green-600"
         : rawPercent >= 50
           ? "bg-amber-500"
           : "bg-orange-500";

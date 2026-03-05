@@ -47,8 +47,8 @@ export default function BudgetItemCard({
     if (percent >= 100) return "bg-red-500";
     if (percent >= 90) return "bg-orange-600";
     if (percent >= 70) return "bg-orange-400";
-    if (percent >= 50) return "bg-yellow-400";
-    if (percent >= 30) return "bg-lime-400";
+    if (percent >= 50) return "bg-emerald-700";
+    if (percent >= 30) return "bg-emerald-600";
     return "bg-green-600";
   }
 

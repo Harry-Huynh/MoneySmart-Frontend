@@ -3,12 +3,16 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import Image from "next/image";
 import { getBudgetByMonthAndYear } from "@/lib/budget.actions";
 import { getAllSavingGoals } from "@/lib/savingGoal.actions";
-import { getOneTransaction, updateTransaction } from "@/lib/transaction.actions";
+import {
+  getOneTransaction,
+  updateTransaction,
+} from "@/lib/transaction.actions";
 import { parseDateToStartOfDay } from "@/lib/utils";
+import { NumericFormat } from "react-number-format";
 
 export default function EditTransactionPage() {
   const { id } = useParams();
@@ -25,6 +29,7 @@ export default function EditTransactionPage() {
     setValue,
     formState: { errors },
     watch,
+    control,
   } = useForm({
     defaultValues: {
       type: "EXPENSE",
@@ -46,7 +51,7 @@ export default function EditTransactionPage() {
       try {
         const response = await getOneTransaction(id);
         const transactionData = response.transaction || response;
-        
+
         // Format date to YYYY-MM-DD directly from the ISO string
         let formattedDate = "";
         if (transactionData.date) {
@@ -67,7 +72,7 @@ export default function EditTransactionPage() {
           const [b, s] = await Promise.all([
             getBudgetByMonthAndYear(
               dateObj.getUTCMonth(),
-              dateObj.getUTCFullYear()
+              dateObj.getUTCFullYear(),
             ),
             getAllSavingGoals(),
           ]);
@@ -91,14 +96,16 @@ export default function EditTransactionPage() {
 
           if (transactionData.budgetId) {
             const budgetCategory = merged.find(
-              (c) => c.model === "Budget" && c.id === transactionData.budgetId
+              (c) => c.model === "Budget" && c.id === transactionData.budgetId,
             );
             if (budgetCategory) {
               setValue("category", `Budget:${budgetCategory.id}`);
             }
           } else if (transactionData.savingGoalId) {
             const savingCategory = merged.find(
-              (c) => c.model === "Saving Goal" && c.id === transactionData.savingGoalId
+              (c) =>
+                c.model === "Saving Goal" &&
+                c.id === transactionData.savingGoalId,
             );
             if (savingCategory) {
               setValue("category", `Saving Goal:${savingCategory.id}`);
@@ -110,8 +117,7 @@ export default function EditTransactionPage() {
 
         setFormInitialized(true);
       } catch (error) {
-        console.error("Failed to load transaction:", error);
-        alert("Failed to get transaction information");
+        setWarningMessage(error.message);
         router.replace("/transactions");
       }
     }
@@ -128,7 +134,7 @@ export default function EditTransactionPage() {
   useEffect(() => {
     async function fetchExpenseCategories() {
       if (!date || type !== "EXPENSE") return;
-      
+
       const dateObj = parseDateToStartOfDay(date);
       if (isNaN(dateObj)) return;
 
@@ -136,7 +142,7 @@ export default function EditTransactionPage() {
         const [b, s] = await Promise.all([
           getBudgetByMonthAndYear(
             dateObj.getUTCMonth(),
-            dateObj.getUTCFullYear()
+            dateObj.getUTCFullYear(),
           ),
           getAllSavingGoals(),
         ]);
@@ -166,14 +172,14 @@ export default function EditTransactionPage() {
   const handleSave = async (data, event) => {
     // Prevent default form submission
     event?.preventDefault();
-    
+
     setLoading(true);
     setWarningMessage("");
 
     try {
       const payload = {
         type: data.type,
-        amount: Number(data.amount),
+        amount: parseFloat(data.amount.replace(/[^0-9.]/g, "")),
         date: data.date,
         paymentMethod: data.paymentMethod,
         note: data.note,
@@ -242,12 +248,15 @@ export default function EditTransactionPage() {
 
   return (
     <section className="flex justify-center items-center min-h-screen bg-gray-50 px-6 py-10">
+      {/* Card */}
       <div className="shrink-0 w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-md overflow-hidden relative">
+        {/* purple header */}
         <div className="bg-linear-to-r from-purple-200 to-purple-300 px-8 py-6 text-center">
           <h2 className="text-2xl font-semibold text-gray-800">
             Edit Transaction
           </h2>
         </div>
+        {/* pig overlay */}
         <Image
           src="/pig-icon.png"
           alt="Piggy"
@@ -256,9 +265,11 @@ export default function EditTransactionPage() {
           className="absolute left-0 top-0 w-64 h-auto"
         />
 
-        {/* Change from onSubmit={handleSubmit(handleSave)} to onSubmit={handleSubmit(onSubmit)} */}
-        <form onSubmit={handleSubmit(onSubmit)} className="p-8 pt-16">
+        {/* Content */}
+        <form onSubmit={handleSubmit(handleSave)} className="p-8 pt-16">
+          {/* Form Fields - Full width layout */}
           <div className="space-y-3">
+            {/* Type of transaction */}
             <div className="flex flex-col gap-2">
               <label className="font-medium text-gray-700">Type:</label>
               <select
@@ -268,11 +279,13 @@ export default function EditTransactionPage() {
                 <option value="EXPENSE">Expense</option>
                 <option value="INCOME">Income</option>
               </select>
+
               {errors.type && (
                 <p className="text-sm text-red-500">Type is required</p>
               )}
             </div>
 
+            {/* Date */}
             <div className="flex flex-col gap-2">
               <label className="font-medium text-gray-700">Date:</label>
               <input
@@ -300,7 +313,7 @@ export default function EditTransactionPage() {
                   )
                     .toISOString()
                     .split("T")[0]
-                }
+                } // Set max to today
                 min={
                   new Date(
                     Date.UTC(
@@ -313,11 +326,13 @@ export default function EditTransactionPage() {
                     .split("T")[0]
                 }
               />
+
               {errors.date && (
                 <p className="text-sm text-red-500">Date is required</p>
               )}
             </div>
 
+            {/* Category */}
             <div className="flex flex-col gap-2">
               <label className="font-medium text-gray-700">Category:</label>
               <select
@@ -331,6 +346,7 @@ export default function EditTransactionPage() {
                         "Please select a Budget or SavingGoal."
                       );
                     }
+
                     if (type === "INCOME") {
                       const incomeCategories = [
                         "Salary",
@@ -347,12 +363,14 @@ export default function EditTransactionPage() {
                         "Invalid income category."
                       );
                     }
+
                     return true;
                   },
                 })}
                 className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
               >
                 <option value="">Select a category</option>
+
                 {type === "EXPENSE" &&
                   category.map((cat) => (
                     <option
@@ -362,6 +380,7 @@ export default function EditTransactionPage() {
                       {cat.name} ({cat.model})
                     </option>
                   ))}
+
                 {type === "INCOME" && (
                   <>
                     <option value="Salary">Salary</option>
@@ -375,8 +394,10 @@ export default function EditTransactionPage() {
                   </>
                 )}
               </select>
+
               {errors.category && (
                 <p className="text-sm text-red-500">
+                  {" "}
                   {errors.category.type === "required"
                     ? "Category is required"
                     : errors.category.message}
@@ -384,22 +405,37 @@ export default function EditTransactionPage() {
               )}
             </div>
 
+            {/* Amount */}
             <div className="flex flex-col gap-2">
               <label className="font-medium text-gray-700">Amount:</label>
-              <input
-                type="number"
-                {...register("amount", {
-                  required: true,
+
+              <Controller
+                name="amount"
+                control={control}
+                rules={{
+                  required: "Amount is required",
                   min: {
                     value: 0.01,
                     message: "Amount must be greater than 0",
                   },
-                })}
-                className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                placeholder="Enter amount"
-                step="0.01"
-                min="0.0"
+                }}
+                render={({ field }) => (
+                  <NumericFormat
+                    {...field}
+                    thousandSeparator
+                    prefix="$"
+                    decimalScale={2}
+                    fixedDecimalScale
+                    allowNegative={false}
+                    className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                    placeholder="$0.00"
+                    onValueChange={(values) => {
+                      field.onChange(values.floatValue);
+                    }}
+                  />
+                )}
               />
+
               {errors.amount && (
                 <p className="text-sm text-red-500">
                   {errors.amount.type === "required"
@@ -409,6 +445,7 @@ export default function EditTransactionPage() {
               )}
             </div>
 
+            {/* Payment Method */}
             <div className="flex flex-col gap-2">
               <label className="font-medium text-gray-700">
                 Payment Method:
@@ -421,13 +458,14 @@ export default function EditTransactionPage() {
                 <option value="CHEQUE">Cheque</option>
                 <option value="CARD">Card</option>
               </select>
-              {errors.paymentMethod && (
+              {errors.type && (
                 <p className="text-sm text-red-500">
                   Payment Method is required
                 </p>
               )}
             </div>
 
+            {/* Note */}
             <div className="flex flex-col gap-2">
               <label className="font-medium text-gray-700">
                 Note (Optional):
@@ -441,19 +479,21 @@ export default function EditTransactionPage() {
                   },
                 })}
                 className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
-                placeholder="Any additional notes about this transaction..."
+                placeholder="Any additional notes about this goal..."
               />
               {errors.note && (
                 <p className="text-sm text-red-500">{errors.note.message}</p>
               )}
             </div>
 
+            {/* Warning */}
             {warningMessage && (
               <p className="text-red-500 text-sm p-3 bg-red-50 rounded-lg">
                 {warningMessage}
               </p>
             )}
 
+            {/* Buttons */}
             <div className="flex justify-end gap-4 pt-6">
               <button
                 type="button"
@@ -462,12 +502,13 @@ export default function EditTransactionPage() {
               >
                 Cancel
               </button>
+
               <button
                 type="submit"
                 disabled={loading}
                 className="flex-1 px-6 py-3 rounded-lg bg-yellow-500 hover:bg-yellow-600 text-white font-semibold disabled:opacity-50 transition cursor-pointer"
               >
-                {loading ? "Updating..." : "Save"}
+                {loading ? "Updating..." : "Save Transaction"}
               </button>
             </div>
           </div>

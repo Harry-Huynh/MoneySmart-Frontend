@@ -32,7 +32,7 @@ export default function TransactionItemRow({ transaction, onDelete }) {
   return (
     <div
       onDoubleClick={handleDoubleClick}
-      className={`w-full py-2 px-2 my-2 flex items-center justify-between border border-gray-100 rounded-md gap-4 select-none hover:border-gray-300 group`}
+      className={`w-full py-2 px-2 my-2 flex items-center justify-between border border-gray-100 rounded-md gap-4 select-none hover:border-gray-300 group cursor-pointer`}
     >
       <div
         className={`w-12 h-12 rounded-full flex items-center justify-center ${isIncome ? "bg-green-100" : "bg-red-100"}`}

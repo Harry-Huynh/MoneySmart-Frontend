@@ -111,8 +111,6 @@ const SecurityPage = () => {
             },
             process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY,
           );
-
-          console.log("Email sent successfully");
         } catch (emailError) {
           console.error("Email failed:", emailError);
         }

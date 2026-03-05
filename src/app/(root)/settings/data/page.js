@@ -140,8 +140,6 @@ export default function DataManagementPage() {
           payload.savingGoalId = selected.id;
         }
       }
-      console.log(payload);
-
       await addTransaction(payload);
     } catch (e) {
       throw e;

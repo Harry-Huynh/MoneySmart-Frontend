@@ -92,34 +92,30 @@ const SecurityPage = () => {
     try {
       const isSuccess = await changePassword(data.newPassword);
       if (isSuccess) {
-       
-
         setErrorMessage("");
         setOpenDialog(false);
         setStep(1);
         reset();
-        try{
-           //get user name + email
-        const profile = await getMyProfile();
-        console.log(profile.name)
 
-        //send email
-      await emailjs.send(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID,
-        {
-          name: profile.name,
-          email: profile.email,
-        },
-        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY,
-      );
+        try {
+          //get user name + email
+          const profile = await getMyProfile();
 
+          //send email
+          await emailjs.send(
+            process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID,
+            process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_CHANGE_PASSWORD_ID,
+            {
+              name: profile.name,
+              email: profile.email,
+            },
+            process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY,
+          );
 
-      console.log("Email sent successfully");
-    } catch (emailError) {
-      console.error("Email failed:", emailError);
-    }
-        
+          console.log("Email sent successfully");
+        } catch (emailError) {
+          console.error("Email failed:", emailError);
+        }
       } else {
         setErrorMessage("Failed to change password. Please try again.");
       }

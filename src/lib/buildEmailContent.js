@@ -8,15 +8,15 @@ const dateStr = (d) => (d ? new Date(d).toISOString().split("T")[0] : "");
 function getSeverityColors(severity) {
   switch (severity) {
     case "Success":
-      return { bg: "#16a34a", color: "#ffffff" }; 
+      return { bg: "#16a34a", color: "#ffffff" };
     case "Warning":
-      return { bg: "#facc15", color: "#000000" }; 
+      return { bg: "#facc15", color: "#000000" };
     case "Danger":
-      return { bg: "#dc2626", color: "#ffffff" }; 
+      return { bg: "#dc2626", color: "#ffffff" };
     case "Info":
-      return { bg: "#3b82f6", color: "#ffffff" }; 
+      return { bg: "#3b82f6", color: "#ffffff" };
     default:
-      return { bg: "#e5e7eb", color: "#000000" }; 
+      return { bg: "#e5e7eb", color: "#000000" };
   }
 }
 function buildEmailContent(type, payload) {
@@ -56,7 +56,7 @@ function buildEmailContent(type, payload) {
       badge: "Budget Alert",
       severity: "Danger",
       severity_bg: bg,
-  severity_color: color,
+      severity_color: color,
       summary: `You exceeded your budget "${payload.purpose}".`,
       details: [
         { label: "Budget amount", value: money(payload.amount) },
@@ -71,70 +71,71 @@ function buildEmailContent(type, payload) {
 
   if (type === "BUDGET_USED_ALL") {
     const { bg, color } = getSeverityColors("Warning");
-  return {
-    subject: `[${app}] Budget fully used: ${payload.purpose}`,
-    title: `${name} Budget fully used`,
-    badge: "Budget Alert",
-    severity: "Warning",
-    severity_bg: bg,
+    return {
+      subject: `[${app}] Budget fully used: ${payload.purpose}`,
+      title: `${name} Budget fully used`,
+      badge: "Budget Alert",
+      severity: "Warning",
+      severity_bg: bg,
       severity_color: color,
-    summary: `You have used 100% of your budget "${payload.purpose}".`,
-    details: [
-      { label: "Budget amount", value: money(payload.amount) },
-      { label: "Used amount", value: money(payload.usedAmount) },
-      { label: "End date", value: dateStr(payload.endDate) },
-    ],
-    cta_text: "Review spending",
-    cta_url: `${APP_URL}/transactions`,
-    footer_note: "Be careful with additional expenses until the budget resets.",
-  };
-}
+      summary: `You have used 100% of your budget "${payload.purpose}".`,
+      details: [
+        { label: "Budget amount", value: money(payload.amount) },
+        { label: "Used amount", value: money(payload.usedAmount) },
+        { label: "End date", value: dateStr(payload.endDate) },
+      ],
+      cta_text: "Review spending",
+      cta_url: `${APP_URL}/transactions`,
+      footer_note:
+        "Be careful with additional expenses until the budget resets.",
+    };
+  }
 
-if (type === "BUDGET_PROGRESS_80") {
-  const { bg, color } = getSeverityColors("Warning");
-  return {
-    subject: `[${app}] 80% of budget used: ${payload.purpose}`,
-    title: `${name} Budget at 80%`,
-    badge: "Budget Alert",
-    severity: "Warning",
-    severity_bg: bg,
+  if (type === "BUDGET_PROGRESS_80") {
+    const { bg, color } = getSeverityColors("Warning");
+    return {
+      subject: `[${app}] 80% of budget used: ${payload.purpose}`,
+      title: `${name} Budget at 80%`,
+      badge: "Budget Alert",
+      severity: "Warning",
+      severity_bg: bg,
       severity_color: color,
-    summary: `You have used more than 80% of "${payload.purpose}".`,
-    details: [
-      { label: "Budget amount", value: money(payload.amount) },
-      { label: "Used amount", value: money(payload.usedAmount) },
-      { label: "Progress", value: `${Math.round(payload.progress)}%` },
-      { label: "End date", value: dateStr(payload.endDate) },
-    ],
-    cta_text: "Review budgets",
-    cta_url: `${APP_URL}/budgets`,
-    footer_note: "You are approaching your spending limit.",
-  };
-}
+      summary: `You have used more than 80% of "${payload.purpose}".`,
+      details: [
+        { label: "Budget amount", value: money(payload.amount) },
+        { label: "Used amount", value: money(payload.usedAmount) },
+        { label: "Progress", value: `${Math.round(payload.progress)}%` },
+        { label: "End date", value: dateStr(payload.endDate) },
+      ],
+      cta_text: "Review budgets",
+      cta_url: `${APP_URL}/budgets`,
+      footer_note: "You are approaching your spending limit.",
+    };
+  }
 
-if (type === "BUDGET_PROGRESS_50") {
-  const { bg, color } = getSeverityColors("Info");
-  return {
-    subject: `[${app}] 50% of budget used: ${payload.purpose}`,
-    title: `${name} Budget at 50%`,
-    badge: "Budget Alert",
-    severity: "Info",
-    severity_bg: bg,
+  if (type === "BUDGET_PROGRESS_50") {
+    const { bg, color } = getSeverityColors("Info");
+    return {
+      subject: `[${app}] 50% of budget used: ${payload.purpose}`,
+      title: `${name} Budget at 50%`,
+      badge: "Budget Alert",
+      severity: "Info",
+      severity_bg: bg,
       severity_color: color,
-    summary: `You have used more than 50% of "${payload.purpose}".`,
-    details: [
-      { label: "Budget amount", value: money(payload.amount) },
-      { label: "Used amount", value: money(payload.usedAmount) },
-      { label: "Progress", value: `${Math.round(payload.progress)}%` },
-      { label: "End date", value: dateStr(payload.endDate) },
-    ],
-    cta_text: "Review budgets",
-    cta_url: `${APP_URL}/budgets`,
-    footer_note: "Keep an eye on your spending.",
-  };
-}
+      summary: `You have used more than 50% of "${payload.purpose}".`,
+      details: [
+        { label: "Budget amount", value: money(payload.amount) },
+        { label: "Used amount", value: money(payload.usedAmount) },
+        { label: "Progress", value: `${Math.round(payload.progress)}%` },
+        { label: "End date", value: dateStr(payload.endDate) },
+      ],
+      cta_text: "Review budgets",
+      cta_url: `${APP_URL}/budgets`,
+      footer_note: "Keep an eye on your spending.",
+    };
+  }
 
-// saving goal
+  // saving goal
   if (type === "GOAL_MILESTONE") {
     const { bg, color } = getSeverityColors("Success");
     return {
@@ -177,27 +178,30 @@ if (type === "BUDGET_PROGRESS_50") {
   }
 
   if (type === "GOAL_EXCEEDED") {
-  const exceededBy = Number(payload.exceededBy ?? (Number(payload.currentAmount) - Number(payload.targetAmount)));
-  const { bg, color } = getSeverityColors("Warning");
-  return {
-    subject: `[${app}] Goal exceeded: ${payload.purpose}`,
-    title: `${name} Saving goal exceeded`,
-    badge: "Saving Goal",
-    severity: "Warning",
-    severity_bg: bg,
+    const exceededBy = Number(
+      payload.exceededBy ??
+        Number(payload.currentAmount) - Number(payload.targetAmount),
+    );
+    const { bg, color } = getSeverityColors("Warning");
+    return {
+      subject: `[${app}] Goal exceeded: ${payload.purpose}`,
+      title: `${name} Saving goal exceeded`,
+      badge: "Saving Goal",
+      severity: "Warning",
+      severity_bg: bg,
       severity_color: color,
-    summary: `You already achieved "${payload.purpose}" and saved more than the target.`,
-    details: [
-      { label: "Current", value: money(payload.currentAmount) },
-      { label: "Target", value: money(payload.targetAmount) },
-      { label: "Exceeded by", value: money(exceededBy) },
-      { label: "Target date", value: dateStr(payload.targetDate) },
-    ],
-    cta_text: "View goals",
-    cta_url: `${APP_URL}/saving-goals`,
-    footer_note: "Consider increasing the target or creating a new goal.",
-  };
-}
+      summary: `You already achieved "${payload.purpose}" and saved more than the target.`,
+      details: [
+        { label: "Current", value: money(payload.currentAmount) },
+        { label: "Target", value: money(payload.targetAmount) },
+        { label: "Exceeded by", value: money(exceededBy) },
+        { label: "Target date", value: dateStr(payload.targetDate) },
+      ],
+      cta_text: "View goals",
+      cta_url: `${APP_URL}/saving-goals`,
+      footer_note: "Consider increasing the target or creating a new goal.",
+    };
+  }
   return null;
 }
 

@@ -23,7 +23,7 @@ export async function sendNotificationsClient({
           subject: content.subject,
           title: content.title,
           severity_bg: content.severity_bg,
-  severity_color: content.severity_color,
+          severity_color: content.severity_color,
           badge: content.badge,
           severity: content.severity,
           summary: content.summary,
@@ -49,6 +49,7 @@ function withTimeout(promise, ms) {
     ),
   ]);
 }
+
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
 }

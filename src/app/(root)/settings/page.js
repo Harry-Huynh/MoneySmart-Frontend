@@ -34,12 +34,6 @@ const settingsItems = [
     href: "/settings/data",
     icon: MdStorage,
   },
-  {
-    title: "Help & Support",
-    description: "Get help or contact support",
-    href: "/settings/help",
-    icon: MdHelpOutline,
-  },
 ];
 
 export default function SettingsPage() {

@@ -37,17 +37,17 @@ export default function DashboardClient({
       date: t.date,
     }));
 
-    const allTransactions = (dashboardMockData?.allTransactions || []).map(
-      (t) => ({
-        id: t.id,
-        type: t.type,
-        category: t.category,
-        amount: Number(t.amount || 0),
-        date: t.date,
-      })
-    );
+  const allTransactions = (dashboardMockData?.allTransactions || []).map(
+    (t) => ({
+      id: t.id,
+      type: t.type,
+      category: t.category,
+      amount: Number(t.amount || 0),
+      date: t.date,
+    }),
+  );
 
-    console.log("ALL TRANSACTIONS PASSED TO TREND:", allTransactions)
+  console.log("ALL TRANSACTIONS PASSED TO TREND:", allTransactions);
 
   return (
     <div className="w-full px-6 py-6">
@@ -83,7 +83,7 @@ export default function DashboardClient({
       </div>
       <div className="mb-8">
         <TrendChart transactions={allTransactions} />
-        </div>
+      </div>
     </div>
   );
 }

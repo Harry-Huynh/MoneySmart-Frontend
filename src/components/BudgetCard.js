@@ -7,6 +7,8 @@ import { formatCurrencyCAD } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 
 export default function BudgetCard({ budgetItems = [] }) {
+  const currentMonth = new Date().toLocaleString("en-US", { month: "long" });
+  const currentYear = new Date().getFullYear();
   return (
     <Link href="/budgets" className="block">
       <Card className="p-6 h-full border border-black/5 shadow-sm flex flex-col gap-2">
@@ -16,7 +18,12 @@ export default function BudgetCard({ budgetItems = [] }) {
             Budget Overview
           </h3>
         </div>
-        <p className="text-sm text-slate-600">Your monthly budget limit</p>
+        <p className="text-sm text-slate-600">
+          Your budget limits for{" "}
+          <span className="font-bold">
+            {currentMonth}-{currentYear}
+          </span>
+        </p>
 
         <ul className="space-y-3 text-slate-700">
           {budgetItems.length === 0 ? (

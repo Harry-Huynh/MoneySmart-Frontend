@@ -137,3 +137,22 @@ export function percent(spent, amount) {
   if (a <= 0) return 0;
   return Math.min(100, Math.round((s / a) * 10000) / 100);
 }
+
+/* ---------------- Week Helper ---------------- */
+export function getWeekNumber(date) {
+  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+  const diff = date - firstDay;
+  return Math.floor(diff / (7 * 24 * 60 * 60 * 1000)) + 1;
+}
+
+/* ---------------- Safe Local Date Parser ---------------- */
+export function parseLocalDate(dateString) {
+  if (!dateString) return new Date();
+
+  if (dateString.includes("T")) {
+    return new Date(dateString);
+  }
+
+  const [year, month, day] = dateString.split("-");
+  return new Date(year, month - 1, day);
+}

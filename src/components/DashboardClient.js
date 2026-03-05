@@ -47,8 +47,6 @@ export default function DashboardClient({
     }),
   );
 
-  console.log("ALL TRANSACTIONS PASSED TO TREND:", allTransactions);
-
   return (
     <div className="w-full px-6 py-6">
       {/* Welcome header */}

@@ -16,8 +16,8 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from "recharts";
+import { parseLocalDate, getWeekNumber } from "@/lib/utils";
 
 export default function TrendChart({ transactions = [] }) {
   const [viewType, setViewType] = useState("monthly");
@@ -66,7 +66,10 @@ export default function TrendChart({ transactions = [] }) {
         .reduce((sum, t) => sum + Number(t.amount || 0), 0);
 
       result.push({
-        name: date.toLocaleString("default", { month: "short" }),
+        name: date.toLocaleString("default", {
+          month: "short",
+          year: "numeric",
+        }),
         fullName: date.toLocaleString("default", { month: "long" }),
         year: date.getFullYear(),
         income,
@@ -111,39 +114,49 @@ export default function TrendChart({ transactions = [] }) {
   }, [transactions]);
 
   const chartData = viewType === "monthly" ? monthlyData : weeklyData;
-  const currentYear = new Date().getFullYear();
-  //mont and year for weekly
+  //month and year for weekly
   const now = new Date();
   const currentMonthLabel = now.toLocaleString("default", {
     month: "long",
   });
   const currentMonthYear = `${currentMonthLabel} ${now.getFullYear()}`;
+
   return (
     <div className="mt-8 flex justify-start">
-      <Card className="w-187.5 rounded-2xl p-6 shadow-sm">
+      <Card className="w-full rounded-2xl p-6 shadow-sm">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-slate-800">Cash Flow</h2>
 
           <div className="flex gap-4">
             <Select value={viewType} onValueChange={setViewType}>
-              <SelectTrigger className="w-36">
+              <SelectTrigger className="w-36 cursor-pointer">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="monthly">Monthly</SelectItem>
-                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="monthly" className="cursor-pointer">
+                  Monthly
+                </SelectItem>
+                <SelectItem value="weekly" className="cursor-pointer">
+                  Weekly
+                </SelectItem>
               </SelectContent>
             </Select>
 
             {viewType === "monthly" && (
               <Select value={range} onValueChange={setRange}>
-                <SelectTrigger className="w-36">
+                <SelectTrigger className="w-36 cursor-pointer">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="3">Last 3 months</SelectItem>
-                  <SelectItem value="6">Last 6 months</SelectItem>
-                  <SelectItem value="12">Last 12 months</SelectItem>
+                  <SelectItem value="3" className="cursor-pointer">
+                    Last 3 months
+                  </SelectItem>
+                  <SelectItem value="6" className="cursor-pointer">
+                    Last 6 months
+                  </SelectItem>
+                  <SelectItem value="12" className="cursor-pointer">
+                    Last 12 months
+                  </SelectItem>
                 </SelectContent>
               </Select>
             )}
@@ -176,56 +189,39 @@ export default function TrendChart({ transactions = [] }) {
               <Bar
                 dataKey="income"
                 name="Income"
-                fill="#22c55e"
+                fill="#4f915f"
                 radius={[6, 6, 0, 0]}
               />
               <Bar
                 dataKey="expense"
                 name="Expense"
-                fill="#ef4444"
+                fill="#D32F2F"
                 radius={[6, 6, 0, 0]}
               />
             </BarChart>
           </ResponsiveContainer>
 
           {/* PERIOD LABEL */}
-          <div className="text-center text-xl font-extrabold text-slate-900 mt-1">
-            {viewType === "monthly" ? currentYear : currentMonthYear}
-          </div>
+          {viewType === "weekly" && (
+            <div className="text-center text-xl font-extrabold text-slate-900 mt-1">
+              {currentMonthYear}
+            </div>
+          )}
 
           {/* LEGEND */}
           <div className="flex justify-center gap-10 mt-3">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-emerald-500 rounded-sm"></div>
-              <span className="text-lg font-bold text-slate-800">Income</span>
+              <div className="w-4 h-4 bg-[#4f915f] rounded-sm"></div>
+              <span className="text-lg text-slate-800">Income</span>
             </div>
 
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-rose-500 rounded-sm"></div>
-              <span className="text-lg font-bold text-slate-800">Expense</span>
+              <div className="w-4 h-4 bg-red-700 rounded-sm"></div>
+              <span className="text-lg text-slate-800">Expense</span>
             </div>
           </div>
         </div>
       </Card>
     </div>
   );
-}
-
-/* ---------------- Week Helper ---------------- */
-function getWeekNumber(date) {
-  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-  const diff = date - firstDay;
-  return Math.floor(diff / (7 * 24 * 60 * 60 * 1000)) + 1;
-}
-
-/* ---------------- Safe Local Date Parser ---------------- */
-function parseLocalDate(dateString) {
-  if (!dateString) return new Date();
-
-  if (dateString.includes("T")) {
-    return new Date(dateString);
-  }
-
-  const [year, month, day] = dateString.split("-");
-  return new Date(year, month - 1, day);
 }

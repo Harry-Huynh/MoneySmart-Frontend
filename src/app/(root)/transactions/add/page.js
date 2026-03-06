@@ -445,7 +445,7 @@ export default function AddTransactionPage() {
                 <option value="CHEQUE">Cheque</option>
                 <option value="CARD">Card</option>
               </select>
-              {errors.type && (
+              {errors.paymentMethod && (
                 <p className="text-sm text-red-500">
                   Payment Method is required
                 </p>
@@ -466,7 +466,7 @@ export default function AddTransactionPage() {
                   },
                 })}
                 className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
-                placeholder="Any additional notes about this goal..."
+                placeholder="Any additional notes about this transaction..."
               />
               {errors.note && (
                 <p className="text-sm text-red-500">{errors.note.message}</p>

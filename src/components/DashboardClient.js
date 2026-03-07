@@ -5,7 +5,9 @@ import BalanceCard from "@/components/BalanceCard";
 import BudgetCard from "@/components/BudgetCard";
 import SavingGoalsCard from "@/components/SavingGoalsCard";
 import TrendChart from "@/components/TrendChart";
+
 import DashboardTransactionCard from "./DashboardTransactionCard";
+import SpendingCategoryChart from "@/components/SpendingCategoryChart";
 
 export default function DashboardClient({
   dashboardMockData = {},
@@ -79,9 +81,12 @@ export default function DashboardClient({
           preferredDateFormat={preferredDateFormat}
         />
       </div>
-      <div className="mb-8">
+     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <TrendChart transactions={allTransactions} />
+
+        <SpendingCategoryChart transactions={allTransactions} />
       </div>
+      
     </div>
   );
 }

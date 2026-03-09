@@ -81,8 +81,10 @@ export default function DashboardClient({
           preferredDateFormat={preferredDateFormat}
         />
       </div>
-     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+     <div className="mb-8">
         <TrendChart transactions={allTransactions} />
+       </div>
+        <div className="mb-8">
 
         <SpendingCategoryChart transactions={allTransactions} />
       </div>

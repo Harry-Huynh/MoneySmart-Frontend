@@ -72,6 +72,29 @@ export default function AIInsightsPage() {
         ],
         savingOpportunity:
           "Based on your spending, consider setting aside $150/month for an emergency fund.",
+        budgetWarnings: [
+          {
+            category: "Food",
+            budget: 300,
+            spent: 270,
+            status: "Near limit",
+            message: "You have used 90% of your Food budget.",
+          },
+          {
+            category: "Entertainment",
+            budget: 100,
+            spent: 125,
+            status: "Over budget",
+            message: "You exceeded your Entertainment budget by $25.",
+          },
+          {
+            category: "Transportation",
+            budget: 150,
+            spent: 110,
+            status: "On track",
+            message: "Your Transportation budget is still under control.",
+          },
+        ],
       },
     };
   }, [selectedPeriod]);
@@ -180,9 +203,6 @@ export default function AIInsightsPage() {
                 <h3 className="font-bold mb-4">Spending Breakdown by Category</h3>
 
                 <div className="space-y-4">
-                  <div className="bg-white rounded-xl border p-4 h-96 flex items-center justify-center text-gray-400 text-sm">
-                    Bar Chart (mock)
-                  </div>
 
                   <div className="bg-white rounded-xl border p-4">
                     <div className="text-sm font-semibold mb-3">Change in Spending</div>
@@ -198,14 +218,6 @@ export default function AIInsightsPage() {
                       ))}
                     </div>
                   </div>
-
-                  <div className="bg-white rounded-xl border p-4 h-72 flex items-center justify-center text-gray-400 text-sm">
-                    Spending Trend (mock)
-                  </div>
-
-                  <div className="bg-white rounded-xl border p-4 h-72 flex items-center justify-center text-gray-400 text-sm">
-                    Budget vs Actual (mock)
-                  </div>
                 </div>
               </div>
 
@@ -217,7 +229,22 @@ export default function AIInsightsPage() {
               </div>
 
               <div className="bg-gray-50 rounded-2xl p-6">
-                <h3 className="font-bold mb-3">Pattern Recognition</h3>
+                <h3 className="font-bold mb-3">Budget Opportunity</h3>
+                <div className="bg-white rounded-xl border p-4 text-sm">
+                  {mock.detailed.budgetWarnings.map((b, i) => (
+                    <div key={i} className="mb-4">
+                      <div className="font-semibold">{b.category}</div>
+                      <div className="text-gray-500 text-sm mb-1">
+                        Budget: ${b.budget} | Spent: ${b.spent} | Status: {b.status}
+                      </div>
+                      <div>{b.message}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-gray-50 rounded-2xl p-6">
+                <h3 className="font-bold mb-3">Smart Spending Suggestion</h3>
                 <ul className="list-disc ml-5 text-sm space-y-2">
                   {mock.detailed.patterns.map((p, i) => (
                     <li key={i}>{p}</li>

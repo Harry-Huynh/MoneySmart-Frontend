@@ -84,7 +84,6 @@ export default function AIInsightsPage() {
   return (
     <section className="min-h-screen bg-gray-100 flex justify-center py-10">
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-xl flex flex-col gap-6">
-        {/* Header */}
         <div className="w-full px-8 py-6 flex flex-wrap justify-between items-start border-b">
           <div>
             <h1 className="text-2xl font-bold mb-1">AI Insights</h1>
@@ -137,7 +136,6 @@ export default function AIInsightsPage() {
         </div>
 
         <div className="px-8 pb-8">
-          {/* Chưa bấm View Analysis thì không hiện gì */}
           {selectedPeriod && showAnalysis && mock && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
@@ -147,7 +145,6 @@ export default function AIInsightsPage() {
                 </div>
               </div>
 
-              {/* This Month Summary */}
               <div className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-4">This Month Summary</h3>
 
@@ -172,7 +169,6 @@ export default function AIInsightsPage() {
                 </div>
               </div>
 
-              {/* Key Insight */}
               <div className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-2">Key Insight</h3>
                 <div className="bg-white rounded-xl border p-4 text-sm">
@@ -180,7 +176,6 @@ export default function AIInsightsPage() {
                 </div>
               </div>
 
-              {/* Spending Breakdown by Category */}
               <div className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-4">Spending Breakdown by Category</h3>
 
@@ -214,7 +209,6 @@ export default function AIInsightsPage() {
                 </div>
               </div>
 
-              {/* Savings Opportunity */}
               <div className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-3">Savings Opportunity</h3>
                 <div className="bg-white rounded-xl border p-4 text-sm">
@@ -222,7 +216,6 @@ export default function AIInsightsPage() {
                 </div>
               </div>
 
-              {/* Pattern Recognition */}
               <div className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-3">Pattern Recognition</h3>
                 <ul className="list-disc ml-5 text-sm space-y-2">
@@ -232,7 +225,6 @@ export default function AIInsightsPage() {
                 </ul>
               </div>
 
-              {/* Action Plan */}
               <div className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-4">Personalized Action Plan</h3>
                 <div className="bg-white rounded-xl border p-4">

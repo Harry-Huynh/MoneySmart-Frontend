@@ -14,6 +14,7 @@ import {
 
 export default function AIInsightsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState("");
+  const [showAnalysis, setShowAnalysis] = useState(false);
 
   const periodOptions = [
     { value: "October 2025", text: "October 2025" },
@@ -26,7 +27,6 @@ export default function AIInsightsPage() {
 
     return {
       period: selectedPeriod,
-
       summary: {
         income: 3200,
         expense: 2750,
@@ -35,7 +35,6 @@ export default function AIInsightsPage() {
           "Your monthly gas spending has increased by 32%.",
         ],
       },
-
       detailed: {
         keyInsight:
           "Your spending increased by 15% this month (+$320). Primary factor: Dining & Entertainment (+$245).",
@@ -54,36 +53,45 @@ export default function AIInsightsPage() {
           "Subscriptions: $67/month across 7 services.",
         ],
         actionPlan: [
-          { title: "Week 1", items: ["Set up $150 auto-transfer to savings", "Cancel unused subscriptions"] },
-          { title: "Week 2", items: ["Cook 4 meals at home", "Review credit card spending categories"] },
-          { title: "Week 3", items: ["Compare insurance rates (potential $20/mo save)"] },
-          { title: "Week 4", items: ["Review monthly progress", "Plan next month budget"] },
+          {
+            title: "Week 1",
+            items: ["Set up $150 auto-transfer to savings", "Cancel unused subscriptions"],
+          },
+          {
+            title: "Week 2",
+            items: ["Cook 4 meals at home", "Review credit card spending categories"],
+          },
+          {
+            title: "Week 3",
+            items: ["Compare insurance rates (potential $20/mo save)"],
+          },
+          {
+            title: "Week 4",
+            items: ["Review monthly progress", "Plan next month budget"],
+          },
         ],
         savingOpportunity:
           "Based on your spending, consider setting aside $150/month for an emergency fund.",
-        forecast: [
-          { label: "Rent", amount: 1000, due: "in 3 days" },
-          { label: "Utilities", amount: 180, due: "in 12 days" },
-          { label: "Gas", amount: 60, due: "weekly" },
-        ],
       },
     };
   }, [selectedPeriod]);
 
-  const handleDismiss = () => {
-    setSelectedPeriod("");
+  const handleViewAnalysis = () => {
+    if (!selectedPeriod) return;
+    setShowAnalysis(true);
   };
 
   return (
     <section className="min-h-screen bg-gray-100 flex justify-center py-10">
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-xl flex flex-col gap-6">
-        <div className="w-full px-8 py-6 flex flex-wrap justify-between items-center border-b">
+        {/* Header */}
+        <div className="w-full px-8 py-6 flex flex-wrap justify-between items-start border-b">
           <div>
             <h1 className="text-2xl font-bold mb-1">AI Insights</h1>
             <p className="text-sm text-gray-500">Smart analysis & recommendations</p>
           </div>
 
-          <div className="w-[340px]">
+          <div className="w-[340px] space-y-3">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -103,7 +111,10 @@ export default function AIInsightsPage() {
                 <DropdownMenuSeparator />
                 <DropdownMenuRadioGroup
                   value={selectedPeriod || undefined}
-                  onValueChange={(val) => setSelectedPeriod(val)}
+                  onValueChange={(val) => {
+                    setSelectedPeriod(val);
+                    setShowAnalysis(false);
+                  }}
                 >
                   {periodOptions.map((opt) => (
                     <DropdownMenuRadioItem key={opt.value} value={opt.value}>
@@ -113,22 +124,21 @@ export default function AIInsightsPage() {
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
+
+            <div className="flex justify-end">
+              <button
+                className="px-4 py-2 rounded-xl bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold transition cursor-pointer"
+                onClick={handleViewAnalysis}
+              >
+                View Analysis
+              </button>
+            </div>
           </div>
         </div>
 
         <div className="px-8 pb-8">
-          {!selectedPeriod && (
-            <div className="bg-gray-50 rounded-2xl p-10 text-center text-gray-600">
-              <p className="text-lg font-semibold text-gray-800 mb-2">
-                Select a month to generate insights
-              </p>
-              <p className="text-sm">
-                We’ll analyze your income vs expenses and provide actionable recommendations.
-              </p>
-            </div>
-          )}
-
-          {selectedPeriod && mock && (
+          {/* Chưa bấm View Analysis thì không hiện gì */}
+          {selectedPeriod && showAnalysis && mock && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold">AI Detailed Analysis</h2>
@@ -137,11 +147,12 @@ export default function AIInsightsPage() {
                 </div>
               </div>
 
+              {/* This Month Summary */}
               <div className="bg-gray-50 rounded-2xl p-6">
-                <h3 className="font-bold mb-3">This Month Summary</h3>
+                <h3 className="font-bold mb-4">This Month Summary</h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-white rounded-xl border p-4 h-40 flex items-center justify-center text-gray-400 text-sm">
+                <div className="space-y-4">
+                  <div className="bg-white rounded-xl border p-4 h-80 flex items-center justify-center text-gray-400 text-sm">
                     Chart (mock)
                   </div>
 
@@ -151,6 +162,7 @@ export default function AIInsightsPage() {
                       <span className="mx-2 text-gray-300">|</span>
                       <span className="font-semibold">Expenses:</span> ${mock.summary.expense}
                     </div>
+
                     <ul className="list-disc ml-5 text-sm space-y-2">
                       {mock.summary.bullets.map((b, i) => (
                         <li key={i}>{b}</li>
@@ -160,16 +172,20 @@ export default function AIInsightsPage() {
                 </div>
               </div>
 
+              {/* Key Insight */}
               <div className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-2">Key Insight</h3>
-                <div className="bg-white rounded-xl border p-4 text-sm">{mock.detailed.keyInsight}</div>
+                <div className="bg-white rounded-xl border p-4 text-sm">
+                  {mock.detailed.keyInsight}
+                </div>
               </div>
 
+              {/* Spending Breakdown by Category */}
               <div className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-4">Spending Breakdown by Category</h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-white rounded-xl border p-4 h-52 flex items-center justify-center text-gray-400 text-sm">
+                <div className="space-y-4">
+                  <div className="bg-white rounded-xl border p-4 h-96 flex items-center justify-center text-gray-400 text-sm">
                     Bar Chart (mock)
                   </div>
 
@@ -180,50 +196,33 @@ export default function AIInsightsPage() {
                         <div key={i} className="flex justify-between">
                           <span>{row.category}</span>
                           <span>
-                            ${row.thisMonth}{" "}
+                            ${row.thisMonth}
                             <span className="text-gray-500 ml-2">{row.change}</span>
                           </span>
                         </div>
                       ))}
                     </div>
                   </div>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                  <div className="bg-white rounded-xl border p-4 h-52 flex items-center justify-center text-gray-400 text-sm">
+                  <div className="bg-white rounded-xl border p-4 h-72 flex items-center justify-center text-gray-400 text-sm">
                     Spending Trend (mock)
                   </div>
-                  <div className="bg-white rounded-xl border p-4 h-52 flex items-center justify-center text-gray-400 text-sm">
+
+                  <div className="bg-white rounded-xl border p-4 h-72 flex items-center justify-center text-gray-400 text-sm">
                     Budget vs Actual (mock)
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-gray-50 rounded-2xl p-6">
-                  <h3 className="font-bold mb-3">Upcoming Forecast</h3>
-                  <div className="bg-white rounded-xl border p-4">
-                    <div className="space-y-2 text-sm">
-                      {mock.detailed.forecast.map((f, i) => (
-                        <div key={i} className="flex justify-between">
-                          <span>{f.label}</span>
-                          <span className="text-gray-700">
-                            -${f.amount} <span className="text-gray-400">({f.due})</span>
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gray-50 rounded-2xl p-6">
-                  <h3 className="font-bold mb-3">Savings Opportunity</h3>
-                  <div className="bg-white rounded-xl border p-4 text-sm">
-                    {mock.detailed.savingOpportunity}
-                  </div>
+              {/* Savings Opportunity */}
+              <div className="bg-gray-50 rounded-2xl p-6">
+                <h3 className="font-bold mb-3">Savings Opportunity</h3>
+                <div className="bg-white rounded-xl border p-4 text-sm">
+                  {mock.detailed.savingOpportunity}
                 </div>
               </div>
 
+              {/* Pattern Recognition */}
               <div className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-3">Pattern Recognition</h3>
                 <ul className="list-disc ml-5 text-sm space-y-2">
@@ -233,6 +232,7 @@ export default function AIInsightsPage() {
                 </ul>
               </div>
 
+              {/* Action Plan */}
               <div className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-4">Personalized Action Plan</h3>
                 <div className="bg-white rounded-xl border p-4">
@@ -249,15 +249,9 @@ export default function AIInsightsPage() {
                     ))}
                   </div>
 
-                  <div className="mt-5 flex flex-wrap gap-3 justify-center">
+                  <div className="mt-5 flex justify-center">
                     <button className="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-500 text-white text-sm font-semibold cursor-pointer">
                       PDF Report
-                    </button>
-                    <button className="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-500 text-white text-sm font-semibold cursor-pointer">
-                      Excel Sheet
-                    </button>
-                    <button className="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-500 text-white text-sm font-semibold cursor-pointer">
-                      Email to Me
                     </button>
                   </div>
                 </div>

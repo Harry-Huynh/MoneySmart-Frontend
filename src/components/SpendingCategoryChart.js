@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/select";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { parseLocalDate } from "@/lib/utils";
+import { getBudgetByMonthAndYear } from "@/lib/budget.actions";
+import { useEffect } from "react";
 
 const COLORS = [
   "#4f915f",
@@ -20,7 +22,8 @@ const COLORS = [
   "#c4ead9",
 ];
 
-export default function SpendingCategoryChart({ transactions = [] }) {
+export default function SpendingCategoryChart() {
+  const [budgets, setBudgets] = useState([]);
   const now = new Date();
   const currentYear = now.getFullYear();
 
@@ -30,38 +33,38 @@ export default function SpendingCategoryChart({ transactions = [] }) {
     new Date(0, i).toLocaleString("default", { month: "long" }),
   );
 
+  useEffect(() => {
+  async function fetchBudgets() {
+    try {
+      const res = await getBudgetByMonthAndYear(month, currentYear);
+      setBudgets(res.budgets || []);
+    } catch (err) {
+      console.error("Failed to load budgets", err);
+      setBudgets([]);
+    }
+  }
+
+  fetchBudgets();
+}, [month, currentYear]);
+
   /* -------- Filter transactions for selected month -------- */
-  const filtered = useMemo(() => {
-    return transactions.filter((t) => {
-      const d = parseLocalDate(t.date);
-      return (
-        d.getMonth() === Number(month) &&
-        t.type === "EXPENSE"
-      );
-    });
-  }, [transactions, month]);
+const data = useMemo(() => {
+  const total = budgets.reduce(
+    (sum, b) => sum + Number(b.usedAmount || 0),
+    0
+  );
 
-  /* -------- Group by category -------- */
-  const data = useMemo(() => {
-    const categoryTotals = {};
-
-    filtered.forEach((t) => {
-      const category = t.category || "Other";
-      categoryTotals[category] =
-        (categoryTotals[category] || 0) + Number(t.amount || 0);
-    });
-
-    const total = Object.values(categoryTotals).reduce(
-      (a, b) => a + b,
-      0,
-    );
-
-    return Object.entries(categoryTotals).map(([name, value]) => ({
-      name,
-      value,
-      percent: total ? Math.round((value / total) * 100) : 0,
+  return budgets
+    .filter((b) => Number(b.usedAmount) > 0)
+    .map((b) => ({
+      name: b.purpose,
+      value: Number(b.usedAmount),
+      percent: total
+        ? Math.round((Number(b.usedAmount) / total) * 100)
+        : 0,
     }));
-  }, [filtered]);
+}, [budgets]);
+ 
 
   return (
     <Card className="w-full rounded-2xl p-6 shadow-sm">

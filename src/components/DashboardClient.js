@@ -86,7 +86,7 @@ export default function DashboardClient({
        </div>
         <div className="mb-8">
 
-        <SpendingCategoryChart transactions={allTransactions} />
+        <SpendingCategoryChart budgets={dashboardBudgets} />
       </div>
       
     </div>

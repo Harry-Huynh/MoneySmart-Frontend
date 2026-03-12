@@ -159,12 +159,6 @@ export default function DataManagementPage() {
           {/* Header */}
           <div className="px-8 py-6 border-b">
             <div className="flex items-center gap-4 mb-4">
-              <Link
-                href="/settings"
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-              >
-                <MdArrowBack size={24} className="text-gray-600" />
-              </Link>
               <div>
                 <h1 className="text-2xl font-bold mb-1">Data Management</h1>
                 <p className="text-sm text-gray-500">

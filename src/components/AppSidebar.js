@@ -25,6 +25,7 @@ import { GiWallet } from "react-icons/gi";
 import { RiRobot2Line } from "react-icons/ri";
 import { useRouter } from "next/navigation";
 import { removeToken } from "@/lib/user.actions";
+import { RiImportFill } from "react-icons/ri";
 
 const items = [
   {
@@ -61,7 +62,12 @@ const items = [
     title: "AI Insights",
     url: "/ai",
     icon: RiRobot2Line,
-  }
+  },
+  {
+    title: "Import Data",
+    url: "/import",
+    icon: RiImportFill,
+  },
 ];
 
 export default function AppSidebar() {

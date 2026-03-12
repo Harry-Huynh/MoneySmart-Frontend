@@ -4,8 +4,6 @@ import {
   MdPerson,
   MdLock,
   MdNotifications,
-  MdStorage,
-  MdHelpOutline,
 } from "react-icons/md";
 
 const settingsItems = [
@@ -27,12 +25,6 @@ const settingsItems = [
     description: "Manage notification preferences",
     href: "/settings/notifications",
     icon: MdNotifications,
-  },
-  {
-    title: "Data Management",
-    description: "Manage your stored data",
-    href: "/settings/data",
-    icon: MdStorage,
   },
 ];
 

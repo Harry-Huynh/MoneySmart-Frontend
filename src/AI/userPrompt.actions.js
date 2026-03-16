@@ -1,5 +1,9 @@
-import { getAllSavingGoals } from "./savingGoal.actions";
-import { getToken } from "./user.actions";
+"use server";
+import { getAllSavingGoals } from "@/lib/savingGoal.actions";
+import { getToken } from "@/lib/user.actions";
+import { GoogleGenAI } from "@google/genai";
+import { readFile } from "fs/promises";
+import path from "path";
 
 async function getRecentThreeMonthsTransactions(chosenMonth, chosenYear) {
   const monthNames = [
@@ -87,7 +91,7 @@ async function getRecentThreeMonthsBudgets(chosenMonth, chosenYear) {
   return await res.json();
 }
 
-export async function getAllFinancialInformationInRecentThreeMonths(
+async function getAllFinancialInformationInRecentThreeMonths(
   chosenMonth,
   chosenYear,
 ) {
@@ -103,4 +107,43 @@ export async function getAllFinancialInformationInRecentThreeMonths(
     budgets: budgetsRes.budgets || [],
     savingGoals: savingGoalsRes.savingGoals || [],
   };
+}
+
+export async function conductSystemPromptAndUserPrompt(
+  chosenMonth,
+  chosenYear,
+) {
+  const systemPrompt = await readFile(
+    path.join(process.cwd(), "src/AI/systemPrompt.md"),
+    "utf-8",
+  );
+  const userPrompt = await getAllFinancialInformationInRecentThreeMonths(
+    chosenMonth,
+    chosenYear,
+  );
+
+  return await callingLLM(systemPrompt, userPrompt);
+}
+
+async function callingLLM(systemPrompt, userPromptData) {
+  const ai = new GoogleGenAI({
+    apiKey: process.env.GEMINI_API_KEY,
+  });
+
+  const userPrompt = `Here is the financial dataset in JSON format. Analyze it based on the system instruction. 
+  ${JSON.stringify(userPromptData, null, 2)}`;
+
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    config: {
+      systemInstruction: systemPrompt,
+    },
+    contents: [
+      {
+        role: "user",
+        parts: [{ text: userPrompt }],
+      },
+    ],
+  });
+  return response.text;
 }

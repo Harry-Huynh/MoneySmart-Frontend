@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { conductSystemPromptAndUserPrompt } from "@/AI/userPrompt.actions";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,11 +56,17 @@ export default function AIInsightsPage() {
         actionPlan: [
           {
             title: "Week 1",
-            items: ["Set up $150 auto-transfer to savings", "Cancel unused subscriptions"],
+            items: [
+              "Set up $150 auto-transfer to savings",
+              "Cancel unused subscriptions",
+            ],
           },
           {
             title: "Week 2",
-            items: ["Cook 4 meals at home", "Review credit card spending categories"],
+            items: [
+              "Cook 4 meals at home",
+              "Review credit card spending categories",
+            ],
           },
           {
             title: "Week 3",
@@ -110,7 +117,9 @@ export default function AIInsightsPage() {
         <div className="w-full px-8 py-6 flex flex-wrap justify-between items-start border-b">
           <div>
             <h1 className="text-2xl font-bold mb-1">AI Insights</h1>
-            <p className="text-sm text-gray-500">Smart analysis & recommendations</p>
+            <p className="text-sm text-gray-500">
+              Smart analysis & recommendations
+            </p>
           </div>
 
           <div className="w-[340px] space-y-3">
@@ -155,6 +164,24 @@ export default function AIInsightsPage() {
                 View Analysis
               </button>
             </div>
+
+            {/* Temporarily put here to trigger and test LLM response. MUST remove*/}
+            <button
+              className="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm"
+              onClick={async () => {
+                try {
+                  const result = await conductSystemPromptAndUserPrompt(
+                    1,
+                    2026,
+                  );
+                  console.log("LLM RESULT:", result);
+                } catch (err) {
+                  console.error("LLM ERROR:", err);
+                }
+              }}
+            >
+              Test LLM
+            </button>
           </div>
         </div>
 
@@ -164,7 +191,8 @@ export default function AIInsightsPage() {
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold">AI Detailed Analysis</h2>
                 <div className="text-sm text-gray-500">
-                  Analysis period: <span className="font-semibold">{mock.period}</span>
+                  Analysis period:{" "}
+                  <span className="font-semibold">{mock.period}</span>
                 </div>
               </div>
 
@@ -178,9 +206,11 @@ export default function AIInsightsPage() {
 
                   <div className="bg-white rounded-xl border p-4">
                     <div className="text-sm mb-3">
-                      <span className="font-semibold">Income:</span> ${mock.summary.income}{" "}
+                      <span className="font-semibold">Income:</span> $
+                      {mock.summary.income}{" "}
                       <span className="mx-2 text-gray-300">|</span>
-                      <span className="font-semibold">Expenses:</span> ${mock.summary.expense}
+                      <span className="font-semibold">Expenses:</span> $
+                      {mock.summary.expense}
                     </div>
 
                     <ul className="list-disc ml-5 text-sm space-y-2">
@@ -200,19 +230,24 @@ export default function AIInsightsPage() {
               </div>
 
               <div className="bg-gray-50 rounded-2xl p-6">
-                <h3 className="font-bold mb-4">Spending Breakdown by Category</h3>
+                <h3 className="font-bold mb-4">
+                  Spending Breakdown by Category
+                </h3>
 
                 <div className="space-y-4">
-
                   <div className="bg-white rounded-xl border p-4">
-                    <div className="text-sm font-semibold mb-3">Change in Spending</div>
+                    <div className="text-sm font-semibold mb-3">
+                      Change in Spending
+                    </div>
                     <div className="space-y-2 text-sm">
                       {mock.detailed.breakdown.map((row, i) => (
                         <div key={i} className="flex justify-between">
                           <span>{row.category}</span>
                           <span>
                             ${row.thisMonth}
-                            <span className="text-gray-500 ml-2">{row.change}</span>
+                            <span className="text-gray-500 ml-2">
+                              {row.change}
+                            </span>
                           </span>
                         </div>
                       ))}
@@ -235,7 +270,8 @@ export default function AIInsightsPage() {
                     <div key={i} className="mb-4">
                       <div className="font-semibold">{b.category}</div>
                       <div className="text-gray-500 text-sm mb-1">
-                        Budget: ${b.budget} | Spent: ${b.spent} | Status: {b.status}
+                        Budget: ${b.budget} | Spent: ${b.spent} | Status:{" "}
+                        {b.status}
                       </div>
                       <div>{b.message}</div>
                     </div>

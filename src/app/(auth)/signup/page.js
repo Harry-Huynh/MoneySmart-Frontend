@@ -30,7 +30,6 @@ export default function SignUpPage() {
       confirmedPassword: "",
       phoneNumber: "",
       region: "",
-      currencyCode: "USD",
       dateFormat: "YYYY-MM-DD",
     },
   });
@@ -46,7 +45,6 @@ export default function SignUpPage() {
         data.email,
         data.phoneNumber,
         data.region,
-        data.currencyCode,
         data.dateFormat,
       );
 
@@ -143,33 +141,17 @@ export default function SignUpPage() {
             error={errors.region?.message}
           />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <FormSelect
-              name="currencyCode"
-              register={register}
-              validation={{ required: "CurrencyCode is required." }}
-              error={errors.currencyCode?.message}
-              options={[
-                { value: "USD", label: "USD" },
-                { value: "EUR", label: "EUR" },
-                { value: "GBP", label: "GBP" },
-                { value: "CAD", label: "CAD" },
-                { value: "AUD", label: "AUD" },
-              ]}
-            />
-
-            <FormSelect
-              name="dateFormat"
-              register={register}
-              validation={{ required: "Date Format is required." }}
-              error={errors.dateFormat?.message}
-              options={[
-                { value: "YYYY-MM-DD", label: "YYYY-MM-DD" },
-                { value: "DD-MM-YYYY", label: "DD-MM-YYYY" },
-                { value: "MM-DD-YYYY", label: "MM-DD-YYYY" },
-              ]}
-            />
-          </div>
+          <FormSelect
+            name="dateFormat"
+            register={register}
+            validation={{ required: "Date Format is required." }}
+            error={errors.dateFormat?.message}
+            options={[
+              { value: "YYYY-MM-DD", label: "YYYY-MM-DD" },
+              { value: "DD-MM-YYYY", label: "DD-MM-YYYY" },
+              { value: "MM-DD-YYYY", label: "MM-DD-YYYY" },
+            ]}
+          />
 
           {/* Username */}
           <div>

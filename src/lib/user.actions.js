@@ -6,7 +6,7 @@ async function setToken(token) {
   (await cookies()).set("access_token", token, {
     path: "/",
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: "none",
     secure: true,
   });
 }
@@ -114,7 +114,6 @@ export async function registerUser(
   email,
   phoneNumber,
   region,
-  currencyCode,
   dateFormat,
 ) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/register`, {
@@ -127,7 +126,6 @@ export async function registerUser(
       email,
       phoneNumber,
       region,
-      currencyCode,
       dateFormat,
     }),
     headers: {

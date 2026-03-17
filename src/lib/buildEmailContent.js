@@ -42,7 +42,7 @@ function buildEmailContent(type, payload) {
         { label: "End date", value: dateStr(payload.endDate) },
       ],
       cta_text: "Review budgets",
-      cta_url: `${APP_URL}/login`,
+      cta_url: `${APP_URL}/budgets`,
       footer_note: "Reduce optional spending until the budget resets.",
     };
   }
@@ -64,7 +64,7 @@ function buildEmailContent(type, payload) {
         { label: "Over by", value: money(overBy) },
       ],
       cta_text: "View spending",
-      cta_url: `${APP_URL}/login`,
+      cta_url: `${APP_URL}/transactions`,
       footer_note: "Adjust spending or increase the budget next cycle.",
     };
   }
@@ -85,7 +85,7 @@ function buildEmailContent(type, payload) {
         { label: "End date", value: dateStr(payload.endDate) },
       ],
       cta_text: "Review spending",
-      cta_url: `${APP_URL}/login`,
+      cta_url: `${APP_URL}/transactions`,
       footer_note:
         "Be careful with additional expenses until the budget resets.",
     };
@@ -108,7 +108,7 @@ function buildEmailContent(type, payload) {
         { label: "End date", value: dateStr(payload.endDate) },
       ],
       cta_text: "Review budgets",
-      cta_url: `${APP_URL}/login`,
+      cta_url: `${APP_URL}/budgets`,
       footer_note: "You are approaching your spending limit.",
     };
   }
@@ -130,7 +130,7 @@ function buildEmailContent(type, payload) {
         { label: "End date", value: dateStr(payload.endDate) },
       ],
       cta_text: "Review budgets",
-      cta_url: `${APP_URL}/login`,
+      cta_url: `${APP_URL}/budgets`,
       footer_note: "Keep an eye on your spending.",
     };
   }
@@ -152,7 +152,7 @@ function buildEmailContent(type, payload) {
         { label: "Target date", value: dateStr(payload.targetDate) },
       ],
       cta_text: "View goals",
-      cta_url: `${APP_URL}/login`,
+      cta_url: `${APP_URL}/saving-goals`,
       footer_note: "Keep going — you're doing great.",
     };
   }
@@ -172,7 +172,7 @@ function buildEmailContent(type, payload) {
         { label: "Target", value: money(payload.targetAmount) },
       ],
       cta_text: "Create another goal",
-      cta_url: `${APP_URL}/login`,
+      cta_url: `${APP_URL}/saving-goals/add`,
       footer_note: "Start your next goal while you're motivated.",
     };
   }
@@ -198,7 +198,7 @@ function buildEmailContent(type, payload) {
         { label: "Target date", value: dateStr(payload.targetDate) },
       ],
       cta_text: "View goals",
-      cta_url: `${APP_URL}/login`,
+      cta_url: `${APP_URL}/saving-goals`,
       footer_note: "Consider increasing the target or creating a new goal.",
     };
   }

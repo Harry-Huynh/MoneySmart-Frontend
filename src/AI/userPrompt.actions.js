@@ -158,13 +158,12 @@ async function callingLLM(systemPrompt, userPromptData) {
     throw new Error("GEMINI_API_KEY is missing");
   }
 
-  const ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY,
-  });
+  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
   const userPrompt = `Here is the financial dataset in JSON format. Analyze it based on the system instruction. 
   ${JSON.stringify(userPromptData, null, 2)}`;
 
+  // List of models to try in order
   const models = [
     "gemini-2.5-flash",
     "gemini-3.1-flash-lite-preview",
@@ -172,43 +171,45 @@ async function callingLLM(systemPrompt, userPromptData) {
     "gemini-3-flash-preview",
   ];
 
-  const MAX_RETRIES_PER_MODEL = 2;
+  let lastError;
 
   for (const model of models) {
-    for (let attempt = 1; attempt <= MAX_RETRIES_PER_MODEL; attempt++) {
-      try {
-        const response = await ai.models.generateContent({
-          model,
-          config: {
-            systemInstruction: systemPrompt,
+    try {
+      const response = await ai.models.generateContent({
+        model,
+        config: {
+          systemInstruction: systemPrompt,
+        },
+        contents: [
+          {
+            role: "user",
+            parts: [{ text: userPrompt }],
           },
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: userPrompt }],
-            },
-          ],
-        });
+        ],
+      });
 
-        const rawText = response.text ?? "";
+      const rawText = response.text ?? "";
+      const cleanedText = rawText
+        .replace(/```json\s*/i, "")
+        .replace(/```\s*$/i, "")
+        .trim();
 
-        const cleanedText = rawText
-          .replace(/```json\s*/i, "")
-          .replace(/```\s*$/i, "")
-          .trim();
+      const output = JSON.parse(cleanedText);
 
-        const parsed = JSON.parse(cleanedText);
+      // If parsing succeeds, return immediately
+      return output;
+    } catch (err) {
+      lastError = err;
 
-        if (parsed && !parsed.error) {
-          return parsed;
-        }
-      } catch (err) {
-        throw new Error(
-          `Model ${model} failed on attempt ${attempt}: ${err.message}`,
-        );
+      // If quota exceeded, log and continue to next model
+      if (err?.error?.status === "RESOURCE_EXHAUSTED") {
+        continue;
       }
     }
   }
 
-  throw new Error("All models failed to produce valid JSON");
+  // If all models fail
+  throw new Error(
+    `All models failed. Last error: ${lastError?.message || lastError}`,
+  );
 }

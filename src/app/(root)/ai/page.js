@@ -2,7 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { conductSystemPromptAndUserPrompt } from "@/AI/userPrompt.actions";
+import {
+  conductSystemPromptAndUserPrompt,
+  getTransactionsForAnalysisMonth,
+} from "@/AI/userPrompt.actions";
+import TrendChart from "@/components/TrendChart";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,99 +20,70 @@ import {
 export default function AIInsightsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState("");
   const [showAnalysis, setShowAnalysis] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [aiData, setAiData] = useState(null);
+  const [analysisTransactions, setAnalysisTransactions] = useState([]);
 
   const periodOptions = [
-    { value: "October 2025", text: "October 2025" },
-    { value: "September 2025", text: "September 2025" },
-    { value: "August 2025", text: "August 2025" },
+    { value: "2026-03", text: "March 2026", month: 2, year: 2026 },
+    { value: "2026-02", text: "February 2026", month: 1, year: 2026 },
+    { value: "2026-01", text: "January 2026", month: 0, year: 2026 },
   ];
 
-  const mock = useMemo(() => {
-    if (!selectedPeriod) return null;
+  const data = useMemo(() => {
+    if (!selectedPeriod || !aiData) return null;
 
     return {
-      period: selectedPeriod,
+      period: aiData.summary?.analysisPeriod || selectedPeriod,
       summary: {
-        income: 3200,
-        expense: 2750,
-        bullets: [
-          "You spent 20% more on dining this month (~$245 over average).",
-          "Your monthly gas spending has increased by 32%.",
-        ],
+        income: aiData.thisMonthSummary?.income || 0,
+        expense: aiData.thisMonthSummary?.expenses || 0,
+        bullets: aiData.thisMonthSummary?.insights || [],
       },
       detailed: {
-        keyInsight:
-          "Your spending increased by 15% this month (+$320). Primary factor: Dining & Entertainment (+$245).",
-        breakdown: [
-          { category: "Dining Out", thisMonth: 370, change: "+20%" },
-          { category: "Groceries", thisMonth: 180, change: "-10%" },
-          { category: "Transportation", thisMonth: 150, change: "0%" },
-          { category: "Entertainment", thisMonth: 125, change: "+45%" },
-          { category: "Utilities", thisMonth: 90, change: "+2%" },
-          { category: "Shopping", thisMonth: 220, change: "+15%" },
-        ],
-        patterns: [
-          "You typically overspend on weekends (+40%).",
-          "Online shopping peaks mid-month (payday effect).",
-          "Coffee shop visits: 18 times this month (↑6).",
-          "Subscriptions: $67/month across 7 services.",
-        ],
-        actionPlan: [
-          {
-            title: "Week 1",
-            items: [
-              "Set up $150 auto-transfer to savings",
-              "Cancel unused subscriptions",
-            ],
-          },
-          {
-            title: "Week 2",
-            items: [
-              "Cook 4 meals at home",
-              "Review credit card spending categories",
-            ],
-          },
-          {
-            title: "Week 3",
-            items: ["Compare insurance rates (potential $20/mo save)"],
-          },
-          {
-            title: "Week 4",
-            items: ["Review monthly progress", "Plan next month budget"],
-          },
-        ],
-        savingOpportunity:
-          "Based on your spending, consider setting aside $150/month for an emergency fund.",
-        budgetWarnings: [
-          {
-            category: "Food",
-            budget: 300,
-            spent: 270,
-            status: "Near limit",
-            message: "You have used 90% of your Food budget.",
-          },
-          {
-            category: "Entertainment",
-            budget: 100,
-            spent: 125,
-            status: "Over budget",
-            message: "You exceeded your Entertainment budget by $25.",
-          },
-          {
-            category: "Transportation",
-            budget: 150,
-            spent: 110,
-            status: "On track",
-            message: "Your Transportation budget is still under control.",
-          },
-        ],
+        keyInsight: aiData.keyInsight?.message || "",
+        breakdown: aiData.spendingBreakdown?.items || [],
+        patterns: aiData.smartSpendingSuggestion?.items || [],
+        actionPlan: aiData.actionPlan?.weeks || [],
+        savingOpportunity: aiData.savingsOpportunity?.message || "",
+        budgetWarnings: aiData.budgetOpportunity?.items || [],
       },
     };
-  }, [selectedPeriod]);
+  }, [selectedPeriod, aiData]);
 
-  const handleViewAnalysis = () => {
+  const handleViewAnalysis = async () => {
     if (!selectedPeriod) return;
-    setShowAnalysis(true);
+
+    const selectedOption = periodOptions.find(
+      (option) => option.value === selectedPeriod,
+    );
+
+    if (!selectedOption) return;
+
+    try {
+      setIsLoading(true);
+      setError("");
+      setShowAnalysis(false);
+
+      const [result, transactions] = await Promise.all([
+        conductSystemPromptAndUserPrompt(
+          selectedOption.month,
+          selectedOption.year,
+        ),
+        getTransactionsForAnalysisMonth(selectedOption.month, selectedOption.year),
+      ]);
+
+      setAiData(result);
+      setAnalysisTransactions(transactions);
+      setShowAnalysis(true);
+    } catch (err) {
+      setAiData(null);
+      setAnalysisTransactions([]);
+      setError(err?.message || "Failed to load AI insights.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -131,9 +106,12 @@ export default function AIInsightsPage() {
                   className="w-full justify-between rounded-xl cursor-pointer"
                 >
                   <span className="truncate">
-                    {selectedPeriod ? selectedPeriod : "Select Month & Year"}
+                    {selectedPeriod
+                      ? periodOptions.find((opt) => opt.value === selectedPeriod)
+                          ?.text
+                      : "Select Month & Year"}
                   </span>
-                  <span className="text-gray-400">▾</span>
+                  <span className="text-gray-400">▼</span>
                 </Button>
               </DropdownMenuTrigger>
 
@@ -145,6 +123,9 @@ export default function AIInsightsPage() {
                   onValueChange={(val) => {
                     setSelectedPeriod(val);
                     setShowAnalysis(false);
+                    setAiData(null);
+                    setAnalysisTransactions([]);
+                    setError("");
                   }}
                 >
                   {periodOptions.map((opt) => (
@@ -158,41 +139,30 @@ export default function AIInsightsPage() {
 
             <div className="flex justify-end">
               <button
-                className="px-4 py-2 rounded-xl bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold transition cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold transition cursor-pointer disabled:opacity-60"
                 onClick={handleViewAnalysis}
+                disabled={isLoading}
               >
-                View Analysis
+                {isLoading ? "Generating..." : "View Analysis"}
               </button>
             </div>
-
-            {/* Temporarily put here to trigger and test LLM response. MUST remove*/}
-            <button
-              className="px-4 py-2 rounded-xl bg-blue-600 text-white text-sm"
-              onClick={async () => {
-                try {
-                  const result = await conductSystemPromptAndUserPrompt(
-                    1,
-                    2026,
-                  );
-                  console.log("LLM RESULT:", result);
-                } catch (err) {
-                  console.error("LLM ERROR:", err);
-                }
-              }}
-            >
-              Test LLM
-            </button>
           </div>
         </div>
 
         <div className="px-8 pb-8">
-          {selectedPeriod && showAnalysis && mock && (
+          {error && (
+            <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+              {error}
+            </div>
+          )}
+
+          {selectedPeriod && showAnalysis && data && (
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold">AI Detailed Analysis</h2>
                 <div className="text-sm text-gray-500">
                   Analysis period:{" "}
-                  <span className="font-semibold">{mock.period}</span>
+                  <span className="font-semibold">{data.period}</span>
                 </div>
               </div>
 
@@ -200,21 +170,34 @@ export default function AIInsightsPage() {
                 <h3 className="font-bold mb-4">This Month Summary</h3>
 
                 <div className="space-y-4">
-                  <div className="bg-white rounded-xl border p-4 h-80 flex items-center justify-center text-gray-400 text-sm">
-                    Chart (mock)
+                  <div className="bg-white rounded-xl border p-4">
+                    <TrendChart
+                      transactions={analysisTransactions}
+                      defaultViewType="weekly"
+                      lockedViewType="weekly"
+                      selectedMonth={
+                        periodOptions.find((opt) => opt.value === selectedPeriod)
+                          ?.month
+                      }
+                      selectedYear={
+                        periodOptions.find((opt) => opt.value === selectedPeriod)
+                          ?.year
+                      }
+                      showCard={false}
+                    />
                   </div>
 
                   <div className="bg-white rounded-xl border p-4">
                     <div className="text-sm mb-3">
                       <span className="font-semibold">Income:</span> $
-                      {mock.summary.income}{" "}
+                      {data.summary.income}{" "}
                       <span className="mx-2 text-gray-300">|</span>
                       <span className="font-semibold">Expenses:</span> $
-                      {mock.summary.expense}
+                      {data.summary.expense}
                     </div>
 
                     <ul className="list-disc ml-5 text-sm space-y-2">
-                      {mock.summary.bullets.map((b, i) => (
+                      {data.summary.bullets.map((b, i) => (
                         <li key={i}>{b}</li>
                       ))}
                     </ul>
@@ -225,7 +208,7 @@ export default function AIInsightsPage() {
               <div className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-2">Key Insight</h3>
                 <div className="bg-white rounded-xl border p-4 text-sm">
-                  {mock.detailed.keyInsight}
+                  {data.detailed.keyInsight}
                 </div>
               </div>
 
@@ -240,11 +223,11 @@ export default function AIInsightsPage() {
                       Change in Spending
                     </div>
                     <div className="space-y-2 text-sm">
-                      {mock.detailed.breakdown.map((row, i) => (
+                      {data.detailed.breakdown.map((row, i) => (
                         <div key={i} className="flex justify-between">
                           <span>{row.category}</span>
                           <span>
-                            ${row.thisMonth}
+                            ${row.amount}
                             <span className="text-gray-500 ml-2">
                               {row.change}
                             </span>
@@ -259,14 +242,14 @@ export default function AIInsightsPage() {
               <div className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-3">Savings Opportunity</h3>
                 <div className="bg-white rounded-xl border p-4 text-sm">
-                  {mock.detailed.savingOpportunity}
+                  {data.detailed.savingOpportunity}
                 </div>
               </div>
 
               <div className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-3">Budget Opportunity</h3>
                 <div className="bg-white rounded-xl border p-4 text-sm">
-                  {mock.detailed.budgetWarnings.map((b, i) => (
+                  {data.detailed.budgetWarnings.map((b, i) => (
                     <div key={i} className="mb-4">
                       <div className="font-semibold">{b.category}</div>
                       <div className="text-gray-500 text-sm mb-1">
@@ -282,7 +265,7 @@ export default function AIInsightsPage() {
               <div className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-3">Smart Spending Suggestion</h3>
                 <ul className="list-disc ml-5 text-sm space-y-2">
-                  {mock.detailed.patterns.map((p, i) => (
+                  {data.detailed.patterns.map((p, i) => (
                     <li key={i}>{p}</li>
                   ))}
                 </ul>
@@ -292,11 +275,11 @@ export default function AIInsightsPage() {
                 <h3 className="font-bold mb-4">Personalized Action Plan</h3>
                 <div className="bg-white rounded-xl border p-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    {mock.detailed.actionPlan.map((w, i) => (
+                    {data.detailed.actionPlan.map((w, i) => (
                       <div key={i} className="border rounded-xl p-4">
-                        <div className="font-semibold mb-2">{w.title}</div>
+                        <div className="font-semibold mb-2">{w.week}</div>
                         <ul className="list-disc ml-5 space-y-1">
-                          {w.items.map((it, j) => (
+                          {(w.actions || []).map((it, j) => (
                             <li key={j}>{it}</li>
                           ))}
                         </ul>

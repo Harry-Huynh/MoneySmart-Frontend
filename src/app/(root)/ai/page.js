@@ -16,10 +16,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import jsPDF from "jspdf"; 
-import html2canvas from "html2canvas"; 
+import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 import { useRef } from "react";
-
 
 export default function AIInsightsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState("");
@@ -28,7 +27,7 @@ export default function AIInsightsPage() {
   const [error, setError] = useState("");
   const [aiData, setAiData] = useState(null);
   const [analysisTransactions, setAnalysisTransactions] = useState([]);
-  const reportRef = useRef(null); 
+  const reportRef = useRef(null);
   const chartRef = useRef(null);
 
   const periodOptions = [
@@ -239,7 +238,10 @@ export default function AIInsightsPage() {
                 <h3 className="font-bold mb-4">This Month Summary</h3>
 
                 <div className="space-y-4">
-                  <div ref ={chartRef} className="bg-white rounded-xl border p-4">
+                  <div
+                    ref={chartRef}
+                    className="bg-white rounded-xl border p-4"
+                  >
                     <TrendChart
                       transactions={analysisTransactions}
                       defaultViewType="weekly"
@@ -359,9 +361,12 @@ export default function AIInsightsPage() {
                   </div>
 
                   <div className="mt-5 flex justify-center">
-                    <button onClick={handleDownloadPDF} className="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-500 text-white text-sm font-semibold cursor-pointer" >
-                       Download PDF Report 
-                       </button>
+                    <button
+                      onClick={handleDownloadPDF}
+                      className="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-500 text-white text-sm font-semibold cursor-pointer"
+                    >
+                      Download PDF Report
+                    </button>
                   </div>
                 </div>
               </div>

@@ -103,10 +103,38 @@ async function getAllFinancialInformationInRecentThreeMonths(
     ]);
 
   return {
+    analysisMonth: `${chosenYear}-${String(chosenMonth + 1).padStart(2, "0")}`,
     threeMonthTransactions,
     budgets: budgetsRes.budgets || [],
     savingGoals: savingGoalsRes.savingGoals || [],
   };
+}
+
+export async function getTransactionsForAnalysisMonth(chosenMonth, chosenYear) {
+  const token = await getToken();
+
+  if (!token) {
+    throw new Error("User is not authenticated");
+  }
+
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_BACKEND_URL}/transactions?month=${chosenMonth}&year=${chosenYear}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      cache: "no-store",
+    },
+  );
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.message || "Failed to fetch transactions");
+  }
+
+  return data.transactions ?? [];
 }
 
 export async function conductSystemPromptAndUserPrompt(
@@ -126,6 +154,10 @@ export async function conductSystemPromptAndUserPrompt(
 }
 
 async function callingLLM(systemPrompt, userPromptData) {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY is missing");
+  }
+
   const ai = new GoogleGenAI({
     apiKey: process.env.GEMINI_API_KEY,
   });
@@ -145,5 +177,16 @@ async function callingLLM(systemPrompt, userPromptData) {
       },
     ],
   });
-  return response.text;
+
+  const rawText = response.text ?? "";
+  const cleanedText = rawText
+    .replace(/```json\s*/i, "")
+    .replace(/```\s*$/i, "")
+    .trim();
+
+  try {
+    return JSON.parse(cleanedText);
+  } catch {
+    throw new Error("AI response is not valid JSON");
+  }
 }

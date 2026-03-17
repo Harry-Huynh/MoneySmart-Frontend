@@ -19,9 +19,19 @@ import {
 } from "recharts";
 import { parseLocalDate, getWeekNumber } from "@/lib/utils";
 
-export default function TrendChart({ transactions = [] }) {
-  const [viewType, setViewType] = useState("monthly");
+export default function TrendChart({
+  transactions = [],
+  defaultViewType = "monthly",
+  lockedViewType,
+  selectedMonth,
+  selectedYear,
+  title = "Cash Flow",
+  showCard = true,
+}) {
+  const [viewType, setViewType] = useState(defaultViewType);
   const [range, setRange] = useState("6");
+
+  const activeViewType = lockedViewType || viewType;
 
   /* ---------------- Filter by Date Range (Monthly Only) ---------------- */
   const filteredTransactions = useMemo(() => {
@@ -80,14 +90,18 @@ export default function TrendChart({ transactions = [] }) {
     return result;
   }, [filteredTransactions, range]);
 
-  /* ---------------- Weekly Data (Current Month Only) ---------------- */
+  /* ---------------- Weekly Data ---------------- */
   const weeklyData = useMemo(() => {
     const now = new Date();
+    const targetMonth =
+      selectedMonth !== undefined ? Number(selectedMonth) : now.getMonth();
+    const targetYear =
+      selectedYear !== undefined ? Number(selectedYear) : now.getFullYear();
 
     const currentMonthTransactions = transactions.filter((t) => {
       const d = parseLocalDate(t.date);
       return (
-        d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+        d.getMonth() === targetMonth && d.getFullYear() === targetYear
       );
     });
 
@@ -111,22 +125,24 @@ export default function TrendChart({ transactions = [] }) {
     });
 
     return weeks;
-  }, [transactions]);
+  }, [transactions, selectedMonth, selectedYear]);
 
-  const chartData = viewType === "monthly" ? monthlyData : weeklyData;
-  //month and year for weekly
-  const now = new Date();
-  const currentMonthLabel = now.toLocaleString("default", {
+  const chartData = activeViewType === "monthly" ? monthlyData : weeklyData;
+  const targetDate =
+    selectedMonth !== undefined && selectedYear !== undefined
+      ? new Date(Number(selectedYear), Number(selectedMonth), 1)
+      : new Date();
+  const currentMonthLabel = targetDate.toLocaleString("default", {
     month: "long",
   });
-  const currentMonthYear = `${currentMonthLabel} ${now.getFullYear()}`;
+  const currentMonthYear = `${currentMonthLabel} ${targetDate.getFullYear()}`;
 
-  return (
-    <div className="mt-8 flex justify-start">
-      <Card className="w-full rounded-2xl p-6 shadow-sm">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-slate-800">Cash Flow</h2>
+  const chartContent = (
+    <>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-semibold text-slate-800">{title}</h2>
 
+        {!lockedViewType && (
           <div className="flex gap-4">
             <Select value={viewType} onValueChange={setViewType}>
               <SelectTrigger className="w-36 cursor-pointer">
@@ -142,7 +158,7 @@ export default function TrendChart({ transactions = [] }) {
               </SelectContent>
             </Select>
 
-            {viewType === "monthly" && (
+            {activeViewType === "monthly" && (
               <Select value={range} onValueChange={setRange}>
                 <SelectTrigger className="w-36 cursor-pointer">
                   <SelectValue />
@@ -161,67 +177,75 @@ export default function TrendChart({ transactions = [] }) {
               </Select>
             )}
           </div>
-        </div>
+        )}
+      </div>
 
-        <div className="w-full h-90">
-          <ResponsiveContainer width="100%" height="85%">
-            <BarChart data={chartData}>
-              <XAxis dataKey="name" />
-              <YAxis tickFormatter={(value) => `$${value}`} />
+      <div className="w-full h-90">
+        <ResponsiveContainer width="100%" height="85%">
+          <BarChart data={chartData}>
+            <XAxis dataKey="name" />
+            <YAxis tickFormatter={(value) => `$${value}`} />
 
-              <Tooltip
-                labelFormatter={(label, payload) => {
-                  if (payload?.length) {
-                    if (viewType === "monthly") {
-                      const { fullName, year } = payload[0].payload;
-                      return `${fullName} ${year}`;
-                    }
-
-                    if (viewType === "weekly") {
-                      return `${label} • ${currentMonthYear}`;
-                    }
+            <Tooltip
+              labelFormatter={(label, payload) => {
+                if (payload?.length) {
+                  if (activeViewType === "monthly") {
+                    const { fullName, year } = payload[0].payload;
+                    return `${fullName} ${year}`;
                   }
-                  return label;
-                }}
-                formatter={(value) => `$${value}`}
-              />
 
-              <Bar
-                dataKey="income"
-                name="Income"
-                fill="#4f915f"
-                radius={[6, 6, 0, 0]}
-              />
-              <Bar
-                dataKey="expense"
-                name="Expense"
-                fill="#D32F2F"
-                radius={[6, 6, 0, 0]}
-              />
-            </BarChart>
-          </ResponsiveContainer>
+                  if (activeViewType === "weekly") {
+                    return `${label} - ${currentMonthYear}`;
+                  }
+                }
+                return label;
+              }}
+              formatter={(value) => `$${value}`}
+            />
 
-          {/* PERIOD LABEL */}
-          {viewType === "weekly" && (
-            <div className="text-center text-xl font-extrabold text-slate-900 mt-1">
-              {currentMonthYear}
-            </div>
-          )}
+            <Bar
+              dataKey="income"
+              name="Income"
+              fill="#4f915f"
+              radius={[6, 6, 0, 0]}
+            />
+            <Bar
+              dataKey="expense"
+              name="Expense"
+              fill="#D32F2F"
+              radius={[6, 6, 0, 0]}
+            />
+          </BarChart>
+        </ResponsiveContainer>
 
-          {/* LEGEND */}
-          <div className="flex justify-center gap-10 mt-3">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-[#4f915f] rounded-sm"></div>
-              <span className="text-lg text-slate-800">Income</span>
-            </div>
+        {activeViewType === "weekly" && (
+          <div className="text-center text-xl font-extrabold text-slate-900 mt-1">
+            {currentMonthYear}
+          </div>
+        )}
 
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-red-700 rounded-sm"></div>
-              <span className="text-lg text-slate-800">Expense</span>
-            </div>
+        <div className="flex justify-center gap-10 mt-3">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-[#4f915f] rounded-sm"></div>
+            <span className="text-lg text-slate-800">Income</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 bg-red-700 rounded-sm"></div>
+            <span className="text-lg text-slate-800">Expense</span>
           </div>
         </div>
-      </Card>
+      </div>
+    </>
+  );
+
+  return (
+    <div className={`${showCard ? "mt-8" : ""} flex justify-start`}>
+      {showCard ? (
+        <Card className="w-full rounded-2xl p-6 shadow-sm">{chartContent}</Card>
+      ) : (
+        <div className="w-full">{chartContent}</div>
+      )}
     </div>
   );
 }

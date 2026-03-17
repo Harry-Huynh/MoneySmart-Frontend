@@ -165,28 +165,50 @@ async function callingLLM(systemPrompt, userPromptData) {
   const userPrompt = `Here is the financial dataset in JSON format. Analyze it based on the system instruction. 
   ${JSON.stringify(userPromptData, null, 2)}`;
 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    config: {
-      systemInstruction: systemPrompt,
-    },
-    contents: [
-      {
-        role: "user",
-        parts: [{ text: userPrompt }],
-      },
-    ],
-  });
+  const models = [
+    "gemini-2.5-flash",
+    "gemini-3.1-flash-lite-preview",
+    "gemini-2.5-flash-lite",
+    "gemini-3-flash-preview",
+  ];
 
-  const rawText = response.text ?? "";
-  const cleanedText = rawText
-    .replace(/```json\s*/i, "")
-    .replace(/```\s*$/i, "")
-    .trim();
+  const MAX_RETRIES_PER_MODEL = 2;
 
-  try {
-    return JSON.parse(cleanedText);
-  } catch {
-    throw new Error("AI response is not valid JSON");
+  for (const model of models) {
+    for (let attempt = 1; attempt <= MAX_RETRIES_PER_MODEL; attempt++) {
+      try {
+        const response = await ai.models.generateContent({
+          model,
+          config: {
+            systemInstruction: systemPrompt,
+          },
+          contents: [
+            {
+              role: "user",
+              parts: [{ text: userPrompt }],
+            },
+          ],
+        });
+
+        const rawText = response.text ?? "";
+
+        const cleanedText = rawText
+          .replace(/```json\s*/i, "")
+          .replace(/```\s*$/i, "")
+          .trim();
+
+        const parsed = JSON.parse(cleanedText);
+
+        if (parsed && !parsed.error) {
+          return parsed;
+        }
+      } catch (err) {
+        throw new Error(
+          `Model ${model} failed on attempt ${attempt}: ${err.message}`,
+        );
+      }
+    }
   }
+
+  throw new Error("All models failed to produce valid JSON");
 }

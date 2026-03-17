@@ -71,7 +71,10 @@ export default function AIInsightsPage() {
           selectedOption.month,
           selectedOption.year,
         ),
-        getTransactionsForAnalysisMonth(selectedOption.month, selectedOption.year),
+        getTransactionsForAnalysisMonth(
+          selectedOption.month,
+          selectedOption.year,
+        ),
       ]);
 
       setAiData(result);
@@ -97,7 +100,7 @@ export default function AIInsightsPage() {
             </p>
           </div>
 
-          <div className="w-[340px] space-y-3">
+          <div className="w-85 space-y-3">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -107,15 +110,16 @@ export default function AIInsightsPage() {
                 >
                   <span className="truncate">
                     {selectedPeriod
-                      ? periodOptions.find((opt) => opt.value === selectedPeriod)
-                          ?.text
+                      ? periodOptions.find(
+                          (opt) => opt.value === selectedPeriod,
+                        )?.text
                       : "Select Month & Year"}
                   </span>
                   <span className="text-gray-400">▼</span>
                 </Button>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent className="w-[340px]">
+              <DropdownMenuContent className="w-85">
                 <DropdownMenuLabel>Select Month & Year</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuRadioGroup
@@ -176,12 +180,14 @@ export default function AIInsightsPage() {
                       defaultViewType="weekly"
                       lockedViewType="weekly"
                       selectedMonth={
-                        periodOptions.find((opt) => opt.value === selectedPeriod)
-                          ?.month
+                        periodOptions.find(
+                          (opt) => opt.value === selectedPeriod,
+                        )?.month
                       }
                       selectedYear={
-                        periodOptions.find((opt) => opt.value === selectedPeriod)
-                          ?.year
+                        periodOptions.find(
+                          (opt) => opt.value === selectedPeriod,
+                        )?.year
                       }
                       showCard={false}
                     />

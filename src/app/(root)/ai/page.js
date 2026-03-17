@@ -17,8 +17,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
 import { useRef } from "react";
+import { toPng } from "html-to-image";
 
 export default function AIInsightsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState("");
@@ -29,6 +29,7 @@ export default function AIInsightsPage() {
   const [analysisTransactions, setAnalysisTransactions] = useState([]);
   const reportRef = useRef(null);
   const chartRef = useRef(null);
+  const sectionRefs = useRef([]);
 
   const periodOptions = [
     { value: "2026-03", text: "March 2026", month: 2, year: 2026 },
@@ -93,61 +94,46 @@ export default function AIInsightsPage() {
       setIsLoading(false);
     }
   };
-  const handleDownloadPDF = async () => {
+ const handleDownloadPDF = async () => {
     console.log("Clicked PDF button");
 
     try {
-      if (!chartRef.current) {
-        console.log("NO CHART REF");
-        return;
-      }
-
-      // ✅ FORCE SAFE COLORS (KEY FIX)
-      const originalStyle = chartRef.current.style.cssText;
-
-      chartRef.current.style.backgroundColor = "#ffffff";
-      chartRef.current.style.color = "#000000";
-
-      // 👇 ALSO override ALL children
-      chartRef.current.querySelectorAll("*").forEach((el) => {
-        el.style.backgroundColor = "#ffffff";
-        el.style.color = "#000000";
-        el.style.borderColor = "#000000";
-      });
-
-      // ✅ Capture chart
-      const chartCanvas = await html2canvas(chartRef.current, {
-        scale: 2,
-        useCORS: true,
-      });
-
-      const chartImage = chartCanvas.toDataURL("image/png");
-
-      // ✅ Restore styles after capture
-      chartRef.current.style.cssText = originalStyle;
-
-      // ✅ Create PDF
       const pdf = new jsPDF("p", "mm", "a4");
+
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const pageWidth = pdf.internal.pageSize.getWidth();
 
       let y = 10;
 
-      pdf.setFontSize(16);
-      pdf.text("AI Financial Report", 10, y);
+      for (let i = 0; i < sectionRefs.current.length; i++) {
+        const section = sectionRefs.current[i];
 
-      y += 10;
+        if (!section) continue;
 
-      pdf.addImage(chartImage, "PNG", 10, y, 180, 80);
+        const imgData = await toPng(section, {
+          cacheBust: true,
+          backgroundColor: "#ffffff",
+        });
 
-      y += 90;
+        const imgProps = pdf.getImageProperties(imgData);
 
-      pdf.setFontSize(12);
-      pdf.text(`Income: $${data.summary.income}`, 10, y);
-      y += 8;
-      pdf.text(`Expenses: $${data.summary.expense}`, 10, y);
+        const imgWidth = pageWidth - 20;
+        const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+        // Prevent splitting
+        if (y + imgHeight > pageHeight) {
+          pdf.addPage();
+          y = 10;
+        }
+
+        pdf.addImage(imgData, "PNG", 10, y, imgWidth, imgHeight);
+
+        y += imgHeight + 10;
+      }
 
       pdf.save(`AI_Report_${selectedPeriod}.pdf`);
 
-      console.log("PDF GENERATED ✅");
+      console.log("PDF GENERATED");
     } catch (err) {
       console.error("PDF ERROR:", err);
     }
@@ -234,7 +220,9 @@ export default function AIInsightsPage() {
                 </div>
               </div>
 
-              <div className="bg-gray-50 rounded-2xl p-6">
+              <div 
+                ref={(el) => (sectionRefs.current[0] = el)}
+              className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-4">This Month Summary</h3>
 
                 <div className="space-y-4">
@@ -278,14 +266,18 @@ export default function AIInsightsPage() {
                 </div>
               </div>
 
-              <div className="bg-gray-50 rounded-2xl p-6">
+              <div 
+              ref={(el) => (sectionRefs.current[1] = el)}
+              className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-2">Key Insight</h3>
                 <div className="bg-white rounded-xl border p-4 text-sm">
                   {data.detailed.keyInsight}
                 </div>
               </div>
 
-              <div className="bg-gray-50 rounded-2xl p-6">
+              <div 
+              ref={(el) => (sectionRefs.current[2] = el)}
+              className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-4">
                   Spending Breakdown by Category
                 </h3>
@@ -312,14 +304,18 @@ export default function AIInsightsPage() {
                 </div>
               </div>
 
-              <div className="bg-gray-50 rounded-2xl p-6">
+              <div 
+              ref={(el) => (sectionRefs.current[3] = el)}
+              className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-3">Savings Opportunity</h3>
                 <div className="bg-white rounded-xl border p-4 text-sm">
                   {data.detailed.savingOpportunity}
                 </div>
               </div>
 
-              <div className="bg-gray-50 rounded-2xl p-6">
+              <div 
+              ref={(el) => (sectionRefs.current[4] = el)}
+              className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-3">Budget Opportunity</h3>
                 <div className="bg-white rounded-xl border p-4 text-sm">
                   {data.detailed.budgetWarnings.map((b, i) => (
@@ -335,7 +331,9 @@ export default function AIInsightsPage() {
                 </div>
               </div>
 
-              <div className="bg-gray-50 rounded-2xl p-6">
+              <div
+              ref={(el) => (sectionRefs.current[5] = el)} 
+              className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-3">Smart Spending Suggestion</h3>
                 <ul className="list-disc ml-5 text-sm space-y-2">
                   {data.detailed.patterns.map((p, i) => (
@@ -344,7 +342,9 @@ export default function AIInsightsPage() {
                 </ul>
               </div>
 
-              <div className="bg-gray-50 rounded-2xl p-6">
+              <div 
+              ref={(el) => (sectionRefs.current[6] = el)}
+              className="bg-gray-50 rounded-2xl p-6">
                 <h3 className="font-bold mb-4">Personalized Action Plan</h3>
                 <div className="bg-white rounded-xl border p-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">

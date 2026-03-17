@@ -16,6 +16,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import jsPDF from "jspdf"; 
+import html2canvas from "html2canvas"; 
+import { useRef } from "react";
+
 
 export default function AIInsightsPage() {
   const [selectedPeriod, setSelectedPeriod] = useState("");
@@ -24,6 +28,8 @@ export default function AIInsightsPage() {
   const [error, setError] = useState("");
   const [aiData, setAiData] = useState(null);
   const [analysisTransactions, setAnalysisTransactions] = useState([]);
+  const reportRef = useRef(null); 
+  const chartRef = useRef(null);
 
   const periodOptions = [
     { value: "2026-03", text: "March 2026", month: 2, year: 2026 },
@@ -86,6 +92,65 @@ export default function AIInsightsPage() {
       setError(err?.message || "Failed to load AI insights.");
     } finally {
       setIsLoading(false);
+    }
+  };
+  const handleDownloadPDF = async () => {
+    console.log("Clicked PDF button");
+
+    try {
+      if (!chartRef.current) {
+        console.log("NO CHART REF");
+        return;
+      }
+
+      // ✅ FORCE SAFE COLORS (KEY FIX)
+      const originalStyle = chartRef.current.style.cssText;
+
+      chartRef.current.style.backgroundColor = "#ffffff";
+      chartRef.current.style.color = "#000000";
+
+      // 👇 ALSO override ALL children
+      chartRef.current.querySelectorAll("*").forEach((el) => {
+        el.style.backgroundColor = "#ffffff";
+        el.style.color = "#000000";
+        el.style.borderColor = "#000000";
+      });
+
+      // ✅ Capture chart
+      const chartCanvas = await html2canvas(chartRef.current, {
+        scale: 2,
+        useCORS: true,
+      });
+
+      const chartImage = chartCanvas.toDataURL("image/png");
+
+      // ✅ Restore styles after capture
+      chartRef.current.style.cssText = originalStyle;
+
+      // ✅ Create PDF
+      const pdf = new jsPDF("p", "mm", "a4");
+
+      let y = 10;
+
+      pdf.setFontSize(16);
+      pdf.text("AI Financial Report", 10, y);
+
+      y += 10;
+
+      pdf.addImage(chartImage, "PNG", 10, y, 180, 80);
+
+      y += 90;
+
+      pdf.setFontSize(12);
+      pdf.text(`Income: $${data.summary.income}`, 10, y);
+      y += 8;
+      pdf.text(`Expenses: $${data.summary.expense}`, 10, y);
+
+      pdf.save(`AI_Report_${selectedPeriod}.pdf`);
+
+      console.log("PDF GENERATED ✅");
+    } catch (err) {
+      console.error("PDF ERROR:", err);
     }
   };
 
@@ -161,7 +226,7 @@ export default function AIInsightsPage() {
           )}
 
           {selectedPeriod && showAnalysis && data && (
-            <div className="space-y-6">
+            <div ref={reportRef} className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold">AI Detailed Analysis</h2>
                 <div className="text-sm text-gray-500">
@@ -174,7 +239,7 @@ export default function AIInsightsPage() {
                 <h3 className="font-bold mb-4">This Month Summary</h3>
 
                 <div className="space-y-4">
-                  <div className="bg-white rounded-xl border p-4">
+                  <div ref ={chartRef} className="bg-white rounded-xl border p-4">
                     <TrendChart
                       transactions={analysisTransactions}
                       defaultViewType="weekly"
@@ -294,9 +359,9 @@ export default function AIInsightsPage() {
                   </div>
 
                   <div className="mt-5 flex justify-center">
-                    <button className="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-500 text-white text-sm font-semibold cursor-pointer">
-                      PDF Report
-                    </button>
+                    <button onClick={handleDownloadPDF} className="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-500 text-white text-sm font-semibold cursor-pointer" >
+                       Download PDF Report 
+                       </button>
                   </div>
                 </div>
               </div>

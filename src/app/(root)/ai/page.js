@@ -105,22 +105,42 @@ export default function AIInsightsPage() {
 
       let y = 10;
 
+      // ✅ Add Title
+      pdf.setFontSize(16);
+      pdf.text("AI Financial Report", 10, y);
+
+      y += 6;
+
+      // ✅ Add current date
+      const today = new Date().toLocaleDateString();
+      pdf.setFontSize(10);
+      pdf.text(`Generated on: ${today}`, 10, y);
+
+      y += 8; // smaller spacing
+
       for (let i = 0; i < sectionRefs.current.length; i++) {
         const section = sectionRefs.current[i];
 
         if (!section) continue;
+
+        // ❌ Remove button from last section
+        const button = section.querySelector("button");
+        if (button) button.style.display = "none";
 
         const imgData = await toPng(section, {
           cacheBust: true,
           backgroundColor: "#ffffff",
         });
 
+        // ✅ Restore button after capture
+        if (button) button.style.display = "";
+
         const imgProps = pdf.getImageProperties(imgData);
 
         const imgWidth = pageWidth - 20;
         const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
 
-        // Prevent splitting
+        // ✅ Prevent section splitting
         if (y + imgHeight > pageHeight) {
           pdf.addPage();
           y = 10;
@@ -128,12 +148,13 @@ export default function AIInsightsPage() {
 
         pdf.addImage(imgData, "PNG", 10, y, imgWidth, imgHeight);
 
-        y += imgHeight + 10;
+        
+        y += imgHeight + 4;
       }
 
       pdf.save(`AI_Report_${selectedPeriod}.pdf`);
 
-      console.log("PDF GENERATED");
+      console.log("PDF GENERATED ✅");
     } catch (err) {
       console.error("PDF ERROR:", err);
     }

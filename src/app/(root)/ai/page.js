@@ -94,7 +94,7 @@ export default function AIInsightsPage() {
       setIsLoading(false);
     }
   };
- const handleDownloadPDF = async () => {
+  const handleDownloadPDF = async () => {
     console.log("Clicked PDF button");
 
     try {
@@ -148,7 +148,6 @@ export default function AIInsightsPage() {
 
         pdf.addImage(imgData, "PNG", 10, y, imgWidth, imgHeight);
 
-        
         y += imgHeight + 4;
       }
 
@@ -214,7 +213,7 @@ export default function AIInsightsPage() {
 
             <div className="flex justify-end">
               <button
-                className="px-4 py-2 rounded-xl bg-yellow-500 hover:bg-yellow-600 text-white text-sm font-semibold transition cursor-pointer disabled:opacity-60"
+                className="px-4 py-2 rounded-xl bg-[#4f915f] hover:hover:bg-[#214a2b] text-white text-sm font-semibold transition cursor-pointer disabled:opacity-60"
                 onClick={handleViewAnalysis}
                 disabled={isLoading}
               >
@@ -241,9 +240,10 @@ export default function AIInsightsPage() {
                 </div>
               </div>
 
-              <div 
+              <div
                 ref={(el) => (sectionRefs.current[0] = el)}
-              className="bg-gray-50 rounded-2xl p-6">
+                className="bg-gray-50 rounded-2xl p-6"
+              >
                 <h3 className="font-bold mb-4">This Month Summary</h3>
 
                 <div className="space-y-4">
@@ -287,18 +287,20 @@ export default function AIInsightsPage() {
                 </div>
               </div>
 
-              <div 
-              ref={(el) => (sectionRefs.current[1] = el)}
-              className="bg-gray-50 rounded-2xl p-6">
+              <div
+                ref={(el) => (sectionRefs.current[1] = el)}
+                className="bg-gray-50 rounded-2xl p-6"
+              >
                 <h3 className="font-bold mb-2">Key Insight</h3>
                 <div className="bg-white rounded-xl border p-4 text-sm">
                   {data.detailed.keyInsight}
                 </div>
               </div>
 
-              <div 
-              ref={(el) => (sectionRefs.current[2] = el)}
-              className="bg-gray-50 rounded-2xl p-6">
+              <div
+                ref={(el) => (sectionRefs.current[2] = el)}
+                className="bg-gray-50 rounded-2xl p-6"
+              >
                 <h3 className="font-bold mb-4">
                   Spending Breakdown by Category
                 </h3>
@@ -325,18 +327,20 @@ export default function AIInsightsPage() {
                 </div>
               </div>
 
-              <div 
-              ref={(el) => (sectionRefs.current[3] = el)}
-              className="bg-gray-50 rounded-2xl p-6">
+              <div
+                ref={(el) => (sectionRefs.current[3] = el)}
+                className="bg-gray-50 rounded-2xl p-6"
+              >
                 <h3 className="font-bold mb-3">Savings Opportunity</h3>
                 <div className="bg-white rounded-xl border p-4 text-sm">
                   {data.detailed.savingOpportunity}
                 </div>
               </div>
 
-              <div 
-              ref={(el) => (sectionRefs.current[4] = el)}
-              className="bg-gray-50 rounded-2xl p-6">
+              <div
+                ref={(el) => (sectionRefs.current[4] = el)}
+                className="bg-gray-50 rounded-2xl p-6"
+              >
                 <h3 className="font-bold mb-3">Budget Opportunity</h3>
                 <div className="bg-white rounded-xl border p-4 text-sm">
                   {data.detailed.budgetWarnings.map((b, i) => (
@@ -353,8 +357,9 @@ export default function AIInsightsPage() {
               </div>
 
               <div
-              ref={(el) => (sectionRefs.current[5] = el)} 
-              className="bg-gray-50 rounded-2xl p-6">
+                ref={(el) => (sectionRefs.current[5] = el)}
+                className="bg-gray-50 rounded-2xl p-6"
+              >
                 <h3 className="font-bold mb-3">Smart Spending Suggestion</h3>
                 <ul className="list-disc ml-5 text-sm space-y-2">
                   {data.detailed.patterns.map((p, i) => (
@@ -363,9 +368,10 @@ export default function AIInsightsPage() {
                 </ul>
               </div>
 
-              <div 
-              ref={(el) => (sectionRefs.current[6] = el)}
-              className="bg-gray-50 rounded-2xl p-6">
+              <div
+                ref={(el) => (sectionRefs.current[6] = el)}
+                className="bg-gray-50 rounded-2xl p-6"
+              >
                 <h3 className="font-bold mb-4">Personalized Action Plan</h3>
                 <div className="bg-white rounded-xl border p-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">

@@ -27,6 +27,7 @@ export default function TrendChart({
   selectedYear,
   title = "Cash Flow",
   showCard = true,
+  maxWeeks = 5,
 }) {
   const [viewType, setViewType] = useState(defaultViewType);
   const [range, setRange] = useState("6");
@@ -105,8 +106,8 @@ export default function TrendChart({
       );
     });
 
-    const weeks = [1, 2, 3, 4, 5].map((week) => ({
-      name: `Week ${week}`,
+    const weeks = Array.from({ length: maxWeeks }, (_, index) => ({
+      name: `Week ${index + 1}`,
       income: 0,
       expense: 0,
     }));
@@ -125,7 +126,7 @@ export default function TrendChart({
     });
 
     return weeks;
-  }, [transactions, selectedMonth, selectedYear]);
+  }, [transactions, selectedMonth, selectedYear, maxWeeks]);
 
   const chartData = activeViewType === "monthly" ? monthlyData : weeklyData;
   const targetDate =

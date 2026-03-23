@@ -1,47 +1,211 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
+import { useEffect, useMemo, useState } from "react";
 import {
   conductSystemPromptAndUserPrompt,
   getTransactionsForAnalysisMonth,
 } from "@/AI/userPrompt.actions";
+import { getAllBudgets, getBudgetByMonthAndYear } from "@/lib/budget.actions";
+import { getAllSavingGoals } from "@/lib/savingGoal.actions";
+import Loading from "@/components/Loading";
 import TrendChart from "@/components/TrendChart";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { jsPDF } from "jspdf";
 import { useRef } from "react";
 import { toPng } from "html-to-image";
 
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+
+function buildPeriodKey(year, month) {
+  return `${year}-${String(month).padStart(2, "0")}`;
+}
+
+function extractBudgetPeriodKeys(budget) {
+  if (budget?.startDate) {
+    const startDate = new Date(budget.startDate);
+    const endDate = new Date(budget.endDate || budget.startDate);
+
+    if (
+      !Number.isNaN(startDate.getTime()) &&
+      !Number.isNaN(endDate.getTime())
+    ) {
+      const cursor = new Date(
+        startDate.getFullYear(),
+        startDate.getMonth(),
+        1,
+      );
+      const lastMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
+      const periodKeys = [];
+
+      while (cursor <= lastMonth) {
+        periodKeys.push(
+          buildPeriodKey(cursor.getFullYear(), cursor.getMonth() + 1),
+        );
+        cursor.setMonth(cursor.getMonth() + 1);
+      }
+
+      return periodKeys;
+    }
+  }
+
+  if (
+    typeof budget?.month === "number" &&
+    typeof budget?.year === "number"
+  ) {
+    return [buildPeriodKey(budget.year, budget.month + 1)];
+  }
+
+  return [];
+}
+
+function extractSavingGoalPeriodKey(goal) {
+  if (!goal?.targetDate) return null;
+
+  const targetDate = new Date(goal.targetDate);
+
+  if (Number.isNaN(targetDate.getTime())) return null;
+
+  return buildPeriodKey(targetDate.getFullYear(), targetDate.getMonth() + 1);
+}
+
 export default function AIInsightsPage() {
-  const [selectedPeriod, setSelectedPeriod] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedYear, setSelectedYear] = useState("");
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingPeriods, setIsLoadingPeriods] = useState(true);
   const [error, setError] = useState("");
   const [aiData, setAiData] = useState(null);
   const [analysisTransactions, setAnalysisTransactions] = useState([]);
+  const [availablePeriodKeys, setAvailablePeriodKeys] = useState(new Set());
   const reportRef = useRef(null);
   const chartRef = useRef(null);
   const sectionRefs = useRef([]);
+  const minYear = 2000;
+  const selectedPeriod =
+    selectedMonth && selectedYear
+      ? buildPeriodKey(Number(selectedYear), Number(selectedMonth))
+      : "";
+  const selectedPeriodLabel =
+    selectedMonth && selectedYear
+      ? `${monthNames[Number(selectedMonth) - 1]} ${selectedYear}`
+      : "";
 
-  const periodOptions = [
-    { value: "2026-03", text: "March 2026", month: 2, year: 2026 },
-    { value: "2026-02", text: "February 2026", month: 1, year: 2026 },
-    { value: "2026-01", text: "January 2026", month: 0, year: 2026 },
-  ];
+  useEffect(() => {
+    async function fetchAvailablePeriods() {
+      try {
+        setIsLoadingPeriods(true);
+        const [budgetsResult, savingGoalsResult] = await Promise.all([
+          getAllBudgets(),
+          getAllSavingGoals(),
+        ]);
+
+        const nextAvailablePeriods = new Set();
+
+        for (const budget of budgetsResult?.budgets || []) {
+          for (const periodKey of extractBudgetPeriodKeys(budget)) {
+            nextAvailablePeriods.add(periodKey);
+          }
+        }
+
+        for (const goal of savingGoalsResult?.savingGoals || []) {
+          const periodKey = extractSavingGoalPeriodKey(goal);
+
+          if (periodKey) {
+            nextAvailablePeriods.add(periodKey);
+          }
+        }
+
+        setAvailablePeriodKeys(nextAvailablePeriods);
+      } catch (err) {
+        setError(err?.message || "Failed to load available analysis periods.");
+      } finally {
+        setIsLoadingPeriods(false);
+      }
+    }
+
+    fetchAvailablePeriods();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedYear || String(selectedYear).length !== 4) return;
+
+    async function syncYearWithBudgetData() {
+      try {
+        const budgetChecks = await Promise.all(
+          Array.from({ length: 12 }, (_, monthIndex) =>
+            getBudgetByMonthAndYear(monthIndex, Number(selectedYear)),
+          ),
+        );
+
+        setAvailablePeriodKeys((prev) => {
+          const next = new Set(prev);
+
+          budgetChecks.forEach((result, monthIndex) => {
+            if ((result?.budgets || []).length > 0) {
+              next.add(buildPeriodKey(Number(selectedYear), monthIndex + 1));
+            }
+          });
+
+          return next;
+        });
+      } catch {
+        // Keep the preloaded availability when month-specific sync fails.
+      }
+    }
+
+    syncYearWithBudgetData();
+  }, [selectedYear]);
+
+  useEffect(() => {
+    if (!selectedMonth || !selectedYear) return;
+
+    if (!availablePeriodKeys.has(selectedPeriod)) {
+      setSelectedMonth("");
+      setShowAnalysis(false);
+      setAiData(null);
+      setAnalysisTransactions([]);
+    }
+  }, [availablePeriodKeys, selectedMonth, selectedPeriod, selectedYear]);
+
+  const availableMonthsForSelectedYear = useMemo(() => {
+    if (!selectedYear || String(selectedYear).length !== 4) return new Set();
+
+    const months = new Set();
+
+    availablePeriodKeys.forEach((periodKey) => {
+      const [year, month] = periodKey.split("-");
+
+      if (year === String(selectedYear)) {
+        months.add(Number(month));
+      }
+    });
+
+    return months;
+  }, [availablePeriodKeys, selectedYear]);
+
+  const isSelectionAvailable =
+    selectedMonth &&
+    selectedYear &&
+    availablePeriodKeys.has(selectedPeriod);
 
   const data = useMemo(() => {
     if (!selectedPeriod || !aiData) return null;
 
     return {
-      period: aiData.summary?.analysisPeriod || selectedPeriod,
+      period: aiData.summary?.analysisPeriod || selectedPeriodLabel || selectedPeriod,
       summary: {
         income: aiData.thisMonthSummary?.income || 0,
         expense: aiData.thisMonthSummary?.expenses || 0,
@@ -56,31 +220,21 @@ export default function AIInsightsPage() {
         budgetWarnings: aiData.budgetOpportunity?.items || [],
       },
     };
-  }, [selectedPeriod, aiData]);
+  }, [selectedPeriod, selectedPeriodLabel, aiData]);
 
   const handleViewAnalysis = async () => {
-    if (!selectedPeriod) return;
-
-    const selectedOption = periodOptions.find(
-      (option) => option.value === selectedPeriod,
-    );
-
-    if (!selectedOption) return;
+    if (!isSelectionAvailable) return;
 
     try {
       setIsLoading(true);
       setError("");
       setShowAnalysis(false);
+      const analysisMonth = Number(selectedMonth) - 1;
+      const analysisYear = Number(selectedYear);
 
       const [result, transactions] = await Promise.all([
-        conductSystemPromptAndUserPrompt(
-          selectedOption.month,
-          selectedOption.year,
-        ),
-        getTransactionsForAnalysisMonth(
-          selectedOption.month,
-          selectedOption.year,
-        ),
+        conductSystemPromptAndUserPrompt(analysisMonth, analysisYear),
+        getTransactionsForAnalysisMonth(analysisMonth, analysisYear),
       ]);
 
       setAiData(result);
@@ -171,51 +325,67 @@ export default function AIInsightsPage() {
           </div>
 
           <div className="w-85 space-y-3">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full justify-between rounded-xl cursor-pointer"
-                >
-                  <span className="truncate">
-                    {selectedPeriod
-                      ? periodOptions.find(
-                          (opt) => opt.value === selectedPeriod,
-                        )?.text
-                      : "Select Month & Year"}
-                  </span>
-                  <span className="text-gray-400">▼</span>
-                </Button>
-              </DropdownMenuTrigger>
-
-              <DropdownMenuContent className="w-85">
-                <DropdownMenuLabel>Select Month & Year</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuRadioGroup
-                  value={selectedPeriod || undefined}
-                  onValueChange={(val) => {
-                    setSelectedPeriod(val);
+            <div>
+              <div className="flex gap-4">
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => {
+                    setSelectedMonth(e.target.value);
                     setShowAnalysis(false);
                     setAiData(null);
                     setAnalysisTransactions([]);
                     setError("");
                   }}
+                  className="border px-4 py-2 rounded-lg flex-1"
+                  disabled={!selectedYear || String(selectedYear).length !== 4}
                 >
-                  {periodOptions.map((opt) => (
-                    <DropdownMenuRadioItem key={opt.value} value={opt.value}>
-                      {opt.text}
-                    </DropdownMenuRadioItem>
-                  ))}
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <option value="">Select Month</option>
+                  {monthNames.map((month, idx) => {
+                    const monthValue = idx + 1;
+
+                    return (
+                      <option
+                        key={month}
+                        value={monthValue}
+                        disabled={!availableMonthsForSelectedYear.has(monthValue)}
+                      >
+                        {month}
+                      </option>
+                    );
+                  })}
+                </select>
+
+                <input
+                  type="number"
+                  min={minYear}
+                  value={selectedYear}
+                  onChange={(e) => {
+                    setSelectedYear(e.target.value);
+                    setShowAnalysis(false);
+                    setAiData(null);
+                    setAnalysisTransactions([]);
+                    setError("");
+                  }}
+                  placeholder="Year (e.g., 2026)"
+                  className="border px-4 py-2 rounded-lg w-45"
+                />
+              </div>
+
+              {!isLoadingPeriods &&
+                selectedYear &&
+                String(selectedYear).length === 4 &&
+                availableMonthsForSelectedYear.size === 0 && (
+                  <p className="mt-2 text-sm text-amber-700">
+                    No budget or saving goal data found for {selectedYear}.
+                  </p>
+                )}
+            </div>
 
             <div className="flex justify-end">
               <button
                 className="px-4 py-2 rounded-xl bg-[#4f915f] hover:hover:bg-[#214a2b] text-white text-sm font-semibold transition cursor-pointer disabled:opacity-60"
                 onClick={handleViewAnalysis}
-                disabled={isLoading}
+                disabled={isLoading || isLoadingPeriods || !isSelectionAvailable}
               >
                 {isLoading ? "Generating..." : "View Analysis"}
               </button>
@@ -227,6 +397,12 @@ export default function AIInsightsPage() {
           {error && (
             <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
               {error}
+            </div>
+          )}
+
+          {isLoading && (
+            <div className="mt-2">
+              <Loading embedded />
             </div>
           )}
 
@@ -255,17 +431,10 @@ export default function AIInsightsPage() {
                       transactions={analysisTransactions}
                       defaultViewType="weekly"
                       lockedViewType="weekly"
-                      selectedMonth={
-                        periodOptions.find(
-                          (opt) => opt.value === selectedPeriod,
-                        )?.month
-                      }
-                      selectedYear={
-                        periodOptions.find(
-                          (opt) => opt.value === selectedPeriod,
-                        )?.year
-                      }
+                      selectedMonth={Number(selectedMonth) - 1}
+                      selectedYear={Number(selectedYear)}
                       showCard={false}
+                      maxWeeks={4}
                     />
                   </div>
 
@@ -375,7 +544,7 @@ export default function AIInsightsPage() {
                 <h3 className="font-bold mb-4">Personalized Action Plan</h3>
                 <div className="bg-white rounded-xl border p-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    {data.detailed.actionPlan.map((w, i) => (
+                    {data.detailed.actionPlan.slice(0, 4).map((w, i) => (
                       <div key={i} className="border rounded-xl p-4">
                         <div className="font-semibold mb-2">{w.week}</div>
                         <ul className="list-disc ml-5 space-y-1">

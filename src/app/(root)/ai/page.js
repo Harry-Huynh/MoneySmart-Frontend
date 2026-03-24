@@ -502,17 +502,17 @@ export default function AIInsightsPage() {
                   ))}
                 </div>
               </div>
+
+              <div className="mt-5 flex justify-center">
+                <button
+                  onClick={handleDownloadPDF}
+                  className="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-500 text-white text-sm font-semibold cursor-pointer"
+                >
+                  Download PDF Report
+                </button>
+              </div>
             </div>
           )}
-
-          <div className="mt-5 flex justify-center">
-            <button
-              onClick={handleDownloadPDF}
-              className="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-500 text-white text-sm font-semibold cursor-pointer"
-            >
-              Download PDF Report
-            </button>
-          </div>
         </div>
       </div>
     </section>

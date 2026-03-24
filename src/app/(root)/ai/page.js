@@ -6,79 +6,18 @@ import {
   getTransactionsForAnalysisMonth,
 } from "@/AI/userPrompt.actions";
 import { getAllBudgets, getBudgetByMonthAndYear } from "@/lib/budget.actions";
-import { getAllSavingGoals } from "@/lib/savingGoal.actions";
+// import { getAllSavingGoals } from "@/lib/savingGoal.actions";
 import Loading from "@/components/Loading";
 import TrendChart from "@/components/TrendChart";
 import { jsPDF } from "jspdf";
 import { useRef } from "react";
 import { toPng } from "html-to-image";
-
-const monthNames = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-function buildPeriodKey(year, month) {
-  return `${year}-${String(month).padStart(2, "0")}`;
-}
-
-function extractBudgetPeriodKeys(budget) {
-  if (budget?.startDate) {
-    const startDate = new Date(budget.startDate);
-    const endDate = new Date(budget.endDate || budget.startDate);
-
-    if (
-      !Number.isNaN(startDate.getTime()) &&
-      !Number.isNaN(endDate.getTime())
-    ) {
-      const cursor = new Date(
-        startDate.getFullYear(),
-        startDate.getMonth(),
-        1,
-      );
-      const lastMonth = new Date(endDate.getFullYear(), endDate.getMonth(), 1);
-      const periodKeys = [];
-
-      while (cursor <= lastMonth) {
-        periodKeys.push(
-          buildPeriodKey(cursor.getFullYear(), cursor.getMonth() + 1),
-        );
-        cursor.setMonth(cursor.getMonth() + 1);
-      }
-
-      return periodKeys;
-    }
-  }
-
-  if (
-    typeof budget?.month === "number" &&
-    typeof budget?.year === "number"
-  ) {
-    return [buildPeriodKey(budget.year, budget.month + 1)];
-  }
-
-  return [];
-}
-
-function extractSavingGoalPeriodKey(goal) {
-  if (!goal?.targetDate) return null;
-
-  const targetDate = new Date(goal.targetDate);
-
-  if (Number.isNaN(targetDate.getTime())) return null;
-
-  return buildPeriodKey(targetDate.getFullYear(), targetDate.getMonth() + 1);
-}
+import {
+  monthNames,
+  buildPeriodKey,
+  extractBudgetPeriodKeys,
+  // extractSavingGoalPeriodKey,
+} from "@/AI/ai.helpers";
 
 export default function AIInsightsPage() {
   const [selectedMonth, setSelectedMonth] = useState("");
@@ -107,10 +46,11 @@ export default function AIInsightsPage() {
     async function fetchAvailablePeriods() {
       try {
         setIsLoadingPeriods(true);
-        const [budgetsResult, savingGoalsResult] = await Promise.all([
-          getAllBudgets(),
-          getAllSavingGoals(),
-        ]);
+        // const [budgetsResult, savingGoalsResult] = await Promise.all([
+        //   getAllBudgets(),
+        //   getAllSavingGoals(),
+        // ]);
+        const budgetsResult = await getAllBudgets();
 
         const nextAvailablePeriods = new Set();
 
@@ -120,13 +60,13 @@ export default function AIInsightsPage() {
           }
         }
 
-        for (const goal of savingGoalsResult?.savingGoals || []) {
-          const periodKey = extractSavingGoalPeriodKey(goal);
+        // for (const goal of savingGoalsResult?.savingGoals || []) {
+        //   const periodKey = extractSavingGoalPeriodKey(goal);
 
-          if (periodKey) {
-            nextAvailablePeriods.add(periodKey);
-          }
-        }
+        //   if (periodKey) {
+        //     nextAvailablePeriods.add(periodKey);
+        //   }
+        // }
 
         setAvailablePeriodKeys(nextAvailablePeriods);
       } catch (err) {
@@ -161,9 +101,7 @@ export default function AIInsightsPage() {
 
           return next;
         });
-      } catch {
-        // Keep the preloaded availability when month-specific sync fails.
-      }
+      } catch {}
     }
 
     syncYearWithBudgetData();
@@ -197,15 +135,14 @@ export default function AIInsightsPage() {
   }, [availablePeriodKeys, selectedYear]);
 
   const isSelectionAvailable =
-    selectedMonth &&
-    selectedYear &&
-    availablePeriodKeys.has(selectedPeriod);
+    selectedMonth && selectedYear && availablePeriodKeys.has(selectedPeriod);
 
   const data = useMemo(() => {
     if (!selectedPeriod || !aiData) return null;
 
     return {
-      period: aiData.summary?.analysisPeriod || selectedPeriodLabel || selectedPeriod,
+      period:
+        aiData.summary?.analysisPeriod || selectedPeriodLabel || selectedPeriod,
       summary: {
         income: aiData.thisMonthSummary?.income || 0,
         expense: aiData.thisMonthSummary?.expenses || 0,
@@ -249,8 +186,6 @@ export default function AIInsightsPage() {
     }
   };
   const handleDownloadPDF = async () => {
-    console.log("Clicked PDF button");
-
     try {
       const pdf = new jsPDF("p", "mm", "a4");
 
@@ -259,25 +194,22 @@ export default function AIInsightsPage() {
 
       let y = 10;
 
-      // ✅ Add Title
       pdf.setFontSize(16);
       pdf.text("AI Financial Report", 10, y);
 
       y += 6;
 
-      // ✅ Add current date
       const today = new Date().toLocaleDateString();
       pdf.setFontSize(10);
       pdf.text(`Generated on: ${today}`, 10, y);
 
-      y += 8; // smaller spacing
+      y += 8;
 
       for (let i = 0; i < sectionRefs.current.length; i++) {
         const section = sectionRefs.current[i];
 
         if (!section) continue;
 
-        // ❌ Remove button from last section
         const button = section.querySelector("button");
         if (button) button.style.display = "none";
 
@@ -286,7 +218,6 @@ export default function AIInsightsPage() {
           backgroundColor: "#ffffff",
         });
 
-        // ✅ Restore button after capture
         if (button) button.style.display = "";
 
         const imgProps = pdf.getImageProperties(imgData);
@@ -294,7 +225,6 @@ export default function AIInsightsPage() {
         const imgWidth = pageWidth - 20;
         const imgHeight = (imgProps.height * imgWidth) / imgProps.width;
 
-        // ✅ Prevent section splitting
         if (y + imgHeight > pageHeight) {
           pdf.addPage();
           y = 10;
@@ -306,10 +236,8 @@ export default function AIInsightsPage() {
       }
 
       pdf.save(`AI_Report_${selectedPeriod}.pdf`);
-
-      console.log("PDF GENERATED ✅");
     } catch (err) {
-      console.error("PDF ERROR:", err);
+      setError(err?.message || "Failed to load available analysis periods.");
     }
   };
 
@@ -327,34 +255,6 @@ export default function AIInsightsPage() {
           <div className="w-85 space-y-3">
             <div>
               <div className="flex gap-4">
-                <select
-                  value={selectedMonth}
-                  onChange={(e) => {
-                    setSelectedMonth(e.target.value);
-                    setShowAnalysis(false);
-                    setAiData(null);
-                    setAnalysisTransactions([]);
-                    setError("");
-                  }}
-                  className="border px-4 py-2 rounded-lg flex-1"
-                  disabled={!selectedYear || String(selectedYear).length !== 4}
-                >
-                  <option value="">Select Month</option>
-                  {monthNames.map((month, idx) => {
-                    const monthValue = idx + 1;
-
-                    return (
-                      <option
-                        key={month}
-                        value={monthValue}
-                        disabled={!availableMonthsForSelectedYear.has(monthValue)}
-                      >
-                        {month}
-                      </option>
-                    );
-                  })}
-                </select>
-
                 <input
                   type="number"
                   min={minYear}
@@ -369,6 +269,43 @@ export default function AIInsightsPage() {
                   placeholder="Year (e.g., 2026)"
                   className="border px-4 py-2 rounded-lg w-45"
                 />
+
+                <select
+                  value={selectedMonth}
+                  onChange={(e) => {
+                    setSelectedMonth(e.target.value);
+                    setShowAnalysis(false);
+                    setAiData(null);
+                    setAnalysisTransactions([]);
+                    setError("");
+                  }}
+                  className={`border px-4 py-2 rounded-lg flex-1 ${!selectedYear || String(selectedYear).length !== 4 || availableMonthsForSelectedYear.size === 0 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                >
+                  <option value="">Select Month</option>
+                  {monthNames.map((month, idx) => {
+                    const monthValue = idx + 1;
+
+                    if (availableMonthsForSelectedYear.has(monthValue)) {
+                      return (
+                        <option key={month} value={monthValue}>
+                          {month}
+                        </option>
+                      );
+                    }
+
+                    // return (
+                    //   <option
+                    //     key={month}
+                    //     value={monthValue}
+                    //     disabled={
+                    //       !availableMonthsForSelectedYear.has(monthValue)
+                    //     }
+                    //   >
+                    //     {month}
+                    //   </option>
+                    // );
+                  })}
+                </select>
               </div>
 
               {!isLoadingPeriods &&
@@ -385,7 +322,9 @@ export default function AIInsightsPage() {
               <button
                 className="px-4 py-2 rounded-xl bg-[#4f915f] hover:hover:bg-[#214a2b] text-white text-sm font-semibold transition cursor-pointer disabled:opacity-60"
                 onClick={handleViewAnalysis}
-                disabled={isLoading || isLoadingPeriods || !isSelectionAvailable}
+                disabled={
+                  isLoading || isLoadingPeriods || !isSelectionAvailable
+                }
               >
                 {isLoading ? "Generating..." : "View Analysis"}
               </button>
@@ -402,7 +341,7 @@ export default function AIInsightsPage() {
 
           {isLoading && (
             <div className="mt-2">
-              <Loading embedded />
+              <Loading />
             </div>
           )}
 

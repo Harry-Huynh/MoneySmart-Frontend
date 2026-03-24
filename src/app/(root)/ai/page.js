@@ -280,6 +280,11 @@ export default function AIInsightsPage() {
                     setError("");
                   }}
                   className={`border px-4 py-2 rounded-lg flex-1 ${!selectedYear || String(selectedYear).length !== 4 || availableMonthsForSelectedYear.size === 0 ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+                  disabled={
+                    !selectedYear ||
+                    String(selectedYear).length !== 4 ||
+                    availableMonthsForSelectedYear.size === 0
+                  }
                 >
                   <option value="">Select Month</option>
                   {monthNames.map((month, idx) => {
@@ -320,7 +325,7 @@ export default function AIInsightsPage() {
 
             <div className="flex justify-end">
               <button
-                className="px-4 py-2 rounded-xl bg-[#4f915f] hover:hover:bg-[#214a2b] text-white text-sm font-semibold transition cursor-pointer disabled:opacity-60"
+                className={`px-4 py-2 rounded-xl bg-[#4f915f] text-white text-sm font-semibold transition ${isLoading || isLoadingPeriods || !isSelectionAvailable ? "cursor-not-allowed opacity-50" : "hover:hover:bg-[#214a2b] cursor-pointer "}`}
                 onClick={handleViewAnalysis}
                 disabled={
                   isLoading || isLoadingPeriods || !isSelectionAvailable

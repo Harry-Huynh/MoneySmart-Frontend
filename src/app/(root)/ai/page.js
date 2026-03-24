@@ -18,6 +18,7 @@ import {
   extractBudgetPeriodKeys,
   // extractSavingGoalPeriodKey,
 } from "@/AI/ai.helpers";
+import { formatCurrencyCAD } from "@/lib/utils";
 
 export default function AIInsightsPage() {
   const [selectedMonth, setSelectedMonth] = useState("");
@@ -384,11 +385,11 @@ export default function AIInsightsPage() {
 
                   <div className="bg-white rounded-xl border p-4">
                     <div className="text-sm mb-3">
-                      <span className="font-semibold">Income:</span> $
-                      {data.summary.income}{" "}
+                      <span className="font-semibold">Income:</span>{" "}
+                      {formatCurrencyCAD(data.summary.income)}
                       <span className="mx-2 text-gray-300">|</span>
-                      <span className="font-semibold">Expenses:</span> $
-                      {data.summary.expense}
+                      <span className="font-semibold">Expenses:</span>{" "}
+                      {formatCurrencyCAD(data.summary.expense)}
                     </div>
 
                     <ul className="list-disc ml-5 text-sm space-y-2">
@@ -428,7 +429,7 @@ export default function AIInsightsPage() {
                         <div key={i} className="flex justify-between">
                           <span>{row.category}</span>
                           <span>
-                            ${row.amount}
+                            {formatCurrencyCAD(row.amount)}
                             <span className="text-gray-500 ml-2">
                               {row.change}
                             </span>
@@ -460,8 +461,8 @@ export default function AIInsightsPage() {
                     <div key={i} className="mb-4">
                       <div className="font-semibold">{b.category}</div>
                       <div className="text-gray-500 text-sm mb-1">
-                        Budget: ${b.budget} | Spent: ${b.spent} | Status:{" "}
-                        {b.status}
+                        Budget: {formatCurrencyCAD(b.budget)} | Spent:{" "}
+                        {formatCurrencyCAD(b.spent)} | Status: {b.status}
                       </div>
                       <div>{b.message}</div>
                     </div>
@@ -474,11 +475,13 @@ export default function AIInsightsPage() {
                 className="bg-gray-50 rounded-2xl p-6"
               >
                 <h3 className="font-bold mb-3">Smart Spending Suggestion</h3>
-                <ul className="list-disc ml-5 text-sm space-y-2">
-                  {data.detailed.patterns.map((p, i) => (
-                    <li key={i}>{p}</li>
-                  ))}
-                </ul>
+                <div className="bg-white rounded-xl border p-4 text-sm">
+                  <ul className="list-disc ml-5 text-sm space-y-2">
+                    {data.detailed.patterns.map((p, i) => (
+                      <li key={i}>{p}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
 
               <div
@@ -486,32 +489,30 @@ export default function AIInsightsPage() {
                 className="bg-gray-50 rounded-2xl p-6"
               >
                 <h3 className="font-bold mb-4">Personalized Action Plan</h3>
-                <div className="bg-white rounded-xl border p-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    {data.detailed.actionPlan.slice(0, 4).map((w, i) => (
-                      <div key={i} className="border rounded-xl p-4">
-                        <div className="font-semibold mb-2">{w.week}</div>
-                        <ul className="list-disc ml-5 space-y-1">
-                          {(w.actions || []).map((it, j) => (
-                            <li key={j}>{it}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-5 flex justify-center">
-                    <button
-                      onClick={handleDownloadPDF}
-                      className="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-500 text-white text-sm font-semibold cursor-pointer"
-                    >
-                      Download PDF Report
-                    </button>
-                  </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  {data.detailed.actionPlan.slice(0, 4).map((w, i) => (
+                    <div key={i} className="border rounded-xl p-4 bg-white">
+                      <div className="font-semibold mb-2">{w.week}</div>
+                      <ul className="list-disc ml-5 space-y-1">
+                        {(w.actions || []).map((it, j) => (
+                          <li key={j}>{it}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
           )}
+
+          <div className="mt-5 flex justify-center">
+            <button
+              onClick={handleDownloadPDF}
+              className="px-4 py-2 rounded-xl bg-green-600 hover:bg-green-500 text-white text-sm font-semibold cursor-pointer"
+            >
+              Download PDF Report
+            </button>
+          </div>
         </div>
       </div>
     </section>

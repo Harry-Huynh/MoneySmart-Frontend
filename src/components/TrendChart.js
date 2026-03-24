@@ -18,6 +18,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { parseLocalDate, getWeekNumber } from "@/lib/utils";
+import { formatCurrencyCAD } from "@/lib/utils";
 
 export default function TrendChart({
   transactions = [],
@@ -101,9 +102,7 @@ export default function TrendChart({
 
     const currentMonthTransactions = transactions.filter((t) => {
       const d = parseLocalDate(t.date);
-      return (
-        d.getMonth() === targetMonth && d.getFullYear() === targetYear
-      );
+      return d.getMonth() === targetMonth && d.getFullYear() === targetYear;
     });
 
     const weeks = Array.from({ length: maxWeeks }, (_, index) => ({
@@ -183,9 +182,9 @@ export default function TrendChart({
 
       <div className="w-full h-90">
         <ResponsiveContainer width="100%" height="85%">
-          <BarChart data={chartData}>
+          <BarChart data={chartData} margin={{ left: 50 }}>
             <XAxis dataKey="name" />
-            <YAxis tickFormatter={(value) => `$${value}`} />
+            <YAxis tickFormatter={(value) => `${formatCurrencyCAD(value)}`} />
 
             <Tooltip
               labelFormatter={(label, payload) => {
@@ -201,7 +200,7 @@ export default function TrendChart({
                 }
                 return label;
               }}
-              formatter={(value) => `$${value}`}
+              formatter={(value) => `${formatCurrencyCAD(value)}`}
             />
 
             <Bar

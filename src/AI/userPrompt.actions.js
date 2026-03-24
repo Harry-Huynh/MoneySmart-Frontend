@@ -202,7 +202,7 @@ async function callingLLM(systemPrompt, userPromptData) {
       lastError = err;
 
       // If quota exceeded, log and continue to next model
-      if (err?.error?.status === "RESOURCE_EXHAUSTED") {
+      if (err?.error) {
         continue;
       }
     }

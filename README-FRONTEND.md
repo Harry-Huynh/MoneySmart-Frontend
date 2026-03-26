@@ -101,6 +101,15 @@ A modern **personal finance dashboard** built with **Next.js**, **React**, and *
 ### Custom Modules
 
 - `@/lib/budget.actions` → Budget API calls
+- `@/lib/budgetNotification.actions` → Budget Notification API calls
+- `@/lib/budgetEmailContent.actions` → Budget Email Content API calls
+- `@/lib/import.actions` → import data to backend
+- `@/lib/notficationt.actions` → Notifications API calls
+- `@/lib/notificationList.actions` → Notification List API calls
+- `@/lib/notificationSetting.actions` → Notification setting API calls
+- `@/lib/savingGoal.actions` → Saving goals API calls
+- `@/lib/savingGoalNotification.actions` → Saving goals notification API calls
+- `@/lib/transaction.actions` → Transaction API calls
 - `@/lib/user.actions` → Authentication & profile
 - `@/lib/utils` → Helper functions
 - `@/AI/userPrompt.actions` → AI insight generation
@@ -116,7 +125,7 @@ A modern **personal finance dashboard** built with **Next.js**, **React**, and *
 | `/budgets` | Get budgets (supports month/year query) |
 | `/budget/:id` | Get/update/delete a specific budget |
 | `/transactions` | Fetch transaction history |
-| `/goals` | Manage saving goals |
+| `/saving-goals` | Manage saving goals |
 | `/import` | Import transaction data |
 | `/notifications` | Fetch user notifications |
 | `/user/profile` | Get/update user settings |
@@ -175,6 +184,7 @@ The dashboard provides a **centralized financial overview**:
 - 🥧 Category Pie Chart (Budget Spending)
 - 📋 Recent Transactions
 - 🎯 Saving Goals
+- 💰 Spending Budgets
 - 🔔 Notifications Overview
 
 **Key Idea:**

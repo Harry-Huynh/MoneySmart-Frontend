@@ -21,22 +21,25 @@ A modern **personal finance dashboard** built with **Next.js**, **React**, and *
 ## 📚 Table of Contents
 
 - [📝 Money Smart Website](#-money-smart-website)
+  - [� License](#-license)
+  - [📚 Table of Contents](#-table-of-contents)
   - [🔗 Project Links](#-project-links)
   - [🚀 Features](#-features)
   - [📦 Dependencies](#-dependencies)
+    - [Custom Modules](#custom-modules)
   - [🌐 API Endpoints](#-api-endpoints)
   - [🧩 Key Components \& Pages](#-key-components--pages)
   - [📊 Dashboard Overview](#-dashboard-overview)
   - [🛡️ Route Protection Flow](#️-route-protection-flow)
   - [🤖 AI Insights](#-ai-insights)
-  - [📌 Notes](#-notes)
 
 ---
 
 ## 🔗 Project Links
 
-- 🖥️ Backend Repository: *(Add your backend repo link here)*
-- 🌐 Live Website: *(Add your deployed link here)*
+- 🖥️ Backend Repository: [MoneySmart Backend](https://github.com/Harry-Huynh/MoneySmart-Backend)
+- 🌐 Frontend Repository: [MoneySmart Frontend](https://github.com/Harry-Huynh/MoneySmart-Frontend)
+- 🚀 Live App: [Visit the App](https://money-smart-nine.vercel.app/)
 
 ---
 
@@ -118,18 +121,18 @@ A modern **personal finance dashboard** built with **Next.js**, **React**, and *
 
 ## 🌐 API Endpoints
 
-| Endpoint | Description |
-|--------|------------|
-| `/login` | Authenticate user |
-| `/register` | Register new user |
-| `/budgets` | Get budgets (supports month/year query) |
-| `/budget/:id` | Get/update/delete a specific budget |
-| `/transactions` | Fetch transaction history |
-| `/saving-goals` | Manage saving goals |
-| `/import` | Import transaction data |
-| `/notifications` | Fetch user notifications |
-| `/user/profile` | Get/update user settings |
-| `/ai/insights` | Generate AI financial insights |
+| Endpoint         | Description                             |
+| ---------------- | --------------------------------------- |
+| `/login`         | Authenticate user                       |
+| `/register`      | Register new user                       |
+| `/budgets`       | Get budgets (supports month/year query) |
+| `/budget/:id`    | Get/update/delete a specific budget     |
+| `/transactions`  | Fetch transaction history               |
+| `/saving-goals`  | Manage saving goals                     |
+| `/import`        | Import transaction data                 |
+| `/notifications` | Fetch user notifications                |
+| `/user/profile`  | Get/update user settings                |
+| `/ai/insights`   | Generate AI financial insights          |
 
 ---
 
@@ -219,4 +222,3 @@ Example insights:
 - "Consider reducing entertainment expenses"
 
 ---
-

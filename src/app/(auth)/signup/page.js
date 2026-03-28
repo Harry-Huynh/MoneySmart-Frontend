@@ -37,7 +37,7 @@ export default function SignUpPage() {
   const submitForm = async (data) => {
     setLoading(true);
     try {
-      await registerUser(
+      const result = await registerUser(
         data.name,
         data.username,
         data.password,
@@ -47,6 +47,12 @@ export default function SignUpPage() {
         data.region,
         data.dateFormat,
       );
+
+      if (!result.success) {
+        setWarningMessage(result.message);
+        setLoading(false);
+        return;
+      }
 
       reset();
       router.replace("/login");

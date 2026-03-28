@@ -100,10 +100,13 @@ export async function authenticateUser(username, password) {
 
   if (res.status === 200) {
     await setToken(data.token);
-    return true;
-  } else {
-    throw new Error(data.message);
+    return { success: true };
   }
+
+  return {
+    success: false,
+    message: data.message || "Login failed",
+  };
 }
 
 export async function registerUser(
@@ -136,10 +139,13 @@ export async function registerUser(
   const data = await res.json();
 
   if (res.status === 201) {
-    return true;
-  } else {
-    throw new Error(data.message);
+    return { success: true };
   }
+
+  return {
+    success: false,
+    message: data.message || "Registration failed",
+  };
 }
 
 export async function verifyPassword(password) {

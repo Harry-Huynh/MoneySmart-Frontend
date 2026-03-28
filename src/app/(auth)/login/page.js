@@ -29,7 +29,13 @@ export default function LoginPage() {
   const submitForm = async (data) => {
     setLoading(true);
     try {
-      await authenticateUser(data.username, data.password);
+      const result = await authenticateUser(data.username, data.password);
+
+      if (!result.success) {
+        setWarningMessage(result.message);
+        return;
+      }
+
       reset();
       router.replace("/dashboard");
     } catch (error) {

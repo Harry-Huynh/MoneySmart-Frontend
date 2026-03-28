@@ -262,7 +262,7 @@ export default function EditTransactionPage() {
           alt="Piggy"
           width={256}
           height={256}
-          className="absolute left-0 top-0 w-64 h-auto"
+          className="absolute left-0 top-6 sm:top-0 w-48 sm:w-64 h-auto"
         />
 
         {/* Content */}

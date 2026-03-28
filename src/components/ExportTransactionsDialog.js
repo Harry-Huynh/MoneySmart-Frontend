@@ -38,7 +38,8 @@ export default function ExportTransactionsDialog({
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <button className="px-3 py-2 border border-gray-300 rounded-lg bg-white hover:bg-gray-200 font-medium transition cursor-pointer flex items-center justify-center gap-2 select-none">
-          <MdSaveAlt size={18} /> Export this month
+          <MdSaveAlt size={18} />{" "}
+          <span className="text-left">Export this month</span>
         </button>
       </AlertDialogTrigger>
       <AlertDialogContent className="gap-0">

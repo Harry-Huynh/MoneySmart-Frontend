@@ -59,11 +59,15 @@ export default function TransactionItemRow({ transaction, onDelete }) {
 
       <AlertDialog>
         <AlertDialogTrigger asChild>
+          {/* <div
+            className="w-8 h-8 flex justify-center items-center rounded-sm invisible sm:group-hover:visible
+          hover:bg-red-100 cursor-pointer sm:visible"
+          ></div> */}
           <div
-            className="w-8 h-8 flex justify-center items-center rounded-sm invisible group-hover:visible
-          hover:bg-red-100 cursor-pointer"
+            className="w-8 h-8 flex justify-center items-center rounded-sm sm:invisible sm:group-hover:visible
+          sm:hover:bg-red-100 cursor-pointer"
           >
-            <FaRegTrashCan className="text-gray-400 hover:text-red-600" />
+            <FaRegTrashCan className="text-gray-400 sm:hover:text-red-600" />
           </div>
         </AlertDialogTrigger>
         <AlertDialogContent>

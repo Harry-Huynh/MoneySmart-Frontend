@@ -64,7 +64,7 @@ export default function SavingGoalsBox({
 
   return (
     <div
-      className={`relative min-h-45 w-full p-5
+      className={`relative min-h-45 w-full p-4 sm:p-5
                   rounded-2xl shadow text-white
                   flex flex-col justify-between ${percentColor}
                 cursor-pointer hover:opacity-95 transition-opacity
@@ -74,8 +74,10 @@ export default function SavingGoalsBox({
       {/* Menu */}
       <div className="flex justify-between items-start">
         <div className="flex-1">
-          <h3 className="text-lg font-bold mb-1">{goal.purpose}</h3>
-          <p className="text-sm opacity-90">
+          <h3 className="text-base sm:text-lg font-bold mb-1 wrap-break-words">
+            {goal.purpose}
+          </h3>
+          <p className="text-xs sm:text-sm opacity-90">
             {rawPercent.toFixed(2)}% complete
           </p>
         </div>
@@ -148,25 +150,25 @@ export default function SavingGoalsBox({
         <Dialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
           <DialogContent
             showCloseButton={false}
-            className="p-0 rounded-2xl shadow-xl max-w-2xl! w-full max-h-[92vh] overflow-hidden"
+            className="p-0 shadow-xl w-full max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded-none sm:rounded-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Dialog Header - Fixed with better layout */}
             <div className="sticky top-0 bg-white border-b border-gray-200 p-6 rounded-t-2xl">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
                 <div className="flex items-start gap-3 flex-1 min-w-0">
                   {/* Percentage Circle - Now with dynamic sizing */}
                   <div
-                    className={`shrink-0 w-20 h-16 rounded-full flex flex-col items-center justify-center
-  ${
-    rawPercent >= 100
-      ? "bg-emerald-100 text-emerald-800"
-      : rawPercent >= 80
-        ? "bg-lime-100 text-lime-800"
-        : rawPercent >= 50
-          ? "bg-amber-100 text-amber-800"
-          : "bg-orange-100 text-orange-800"
-  }`}
+                    className={`shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex flex-col items-center justify-center
+                    ${
+                      rawPercent >= 100
+                        ? "bg-emerald-100 text-emerald-800"
+                        : rawPercent >= 80
+                          ? "bg-lime-100 text-lime-800"
+                          : rawPercent >= 50
+                            ? "bg-amber-100 text-amber-800"
+                            : "bg-orange-100 text-orange-800"
+                    }`}
                   >
                     <span className="text-lg font-bold leading-none">
                       {rawPercent.toFixed(0)}%
@@ -230,13 +232,13 @@ export default function SavingGoalsBox({
               </div>
 
               {/* Financial Details Grid - Wider layout */}
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
                 <div className="bg-linear-to-br from-blue-50 to-blue-100 p-4 rounded-xl">
                   <div className="flex items-center gap-2 text-gray-700 mb-2">
                     <Target size={18} />
                     <span className="font-medium">Target Amount</span>
                   </div>
-                  <div className="text-2xl font-bold text-gray-800">
+                  <div className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">
                     {formatCurrencyCAD(
                       goal.targetAmount?.toLocaleString() || Number("0"),
                     )}
@@ -248,7 +250,7 @@ export default function SavingGoalsBox({
                     <DollarSign size={18} />
                     <span className="font-medium">Saved Amount</span>
                   </div>
-                  <div className="text-2xl font-bold text-green-700">
+                  <div className="text-lg sm:text-xl lg:text-2xl font-bold text-green-700">
                     {formatCurrencyCAD(
                       goal.currentAmount?.toLocaleString() || Number("0"),
                     )}
@@ -260,7 +262,7 @@ export default function SavingGoalsBox({
                     <DollarSign size={18} />
                     <span className="font-medium">Remaining</span>
                   </div>
-                  <div className="text-2xl font-bold text-purple-700">
+                  <div className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-700">
                     {formatCurrencyCAD(
                       Math.max(
                         (goal.targetAmount || 0) - (goal.currentAmount || 0),
@@ -274,7 +276,7 @@ export default function SavingGoalsBox({
               {/* Timeline Section - Full width since status removed */}
               <div className="grid grid-cols-1 gap-6">
                 {/* Target Date Section - Now full width */}
-                <div className="bg-linear-to-br from-amber-50 to-amber-100 p-5 rounded-xl">
+                <div className="bg-linear-to-br from-amber-50 to-amber-100 p-4 sm:p-5 rounded-xl">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="p-2 bg-amber-200 rounded-lg">
                       <Calendar size={20} className="text-amber-700" />
@@ -300,7 +302,7 @@ export default function SavingGoalsBox({
 
               {/* Note if available */}
               {goal.note && (
-                <div className="bg-linear-to-br from-gray-50 to-gray-100 p-5 rounded-xl">
+                <div className="bg-linear-to-br from-gray-50 to-gray-100 p-4 sm:p-5 rounded-xl">
                   <div className="flex items-center gap-3 mb-3">
                     <div className="p-2 bg-gray-200 rounded-lg">
                       <FileText size={20} className="text-gray-700" />
@@ -309,7 +311,7 @@ export default function SavingGoalsBox({
                       Additional Notes
                     </div>
                   </div>
-                  <div className="text-gray-700 whitespace-pre-wrap bg-white/50 p-4 rounded-lg border border-gray-200">
+                  <div className="text-gray-700 whitespace-pre-wrap wrap-break-words bg-white/50 p-4 rounded-lg border border-gray-200">
                     {goal.note}
                   </div>
                 </div>
@@ -321,7 +323,7 @@ export default function SavingGoalsBox({
               <div className="flex justify-end">
                 <button
                   onClick={() => setShowInfoDialog(false)}
-                  className="px-6 py-3 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium transition cursor-pointer"
+                  className="px-4 sm:px-6 py-2.5 sm:py-3 w-full sm:w-auto rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium transition cursor-pointer"
                 >
                   Close
                 </button>

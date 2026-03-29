@@ -61,7 +61,7 @@ export default function NotificationCard({
 
   return (
     <div
-      className={`relative flex items-center gap-4 px-4 py-4 rounded-xl border border-gray-200 overflow-hidden ${getCardStyle(level)}`}
+      className={`relative flex items-center gap-3 overflow-hidden rounded-xl border border-gray-200 px-4 py-4 ${getCardStyle(level)}`}
     >
       <div
         className={`absolute left-0 top-0 h-full w-1 ${
@@ -69,11 +69,11 @@ export default function NotificationCard({
         }`}
       />
 
-      <div className={`ml-2 p-2 rounded-lg ${getIconStyle(level)}`}>
+      <div className={`ml-2 shrink-0 rounded-lg p-2 ${getIconStyle(level)}`}>
         {renderIcon(level)}
       </div>
 
-      <div className="flex-1 min-w-0">
+      <div className="min-w-0 flex-1">
         <p className={`${unread ? "font-semibold" : "font-medium"} break-words`}>
           {notification.title}
         </p>
@@ -93,11 +93,11 @@ export default function NotificationCard({
         )}
       </div>
 
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0">
+      <div className="shrink-0 flex flex-col items-end gap-2">
         {unread && (
           <button
             onClick={() => onMarkRead(notification.id)}
-            className="px-3 py-1.5 text-sm border border-gray-300 rounded-md text-blue-600 bg-white hover:bg-gray-50 cursor-pointer"
+            className="h-10 whitespace-nowrap rounded-lg border border-gray-300 bg-white px-3 text-sm text-blue-600 hover:bg-gray-50 cursor-pointer"
             type="button"
           >
             Mark as read
@@ -106,7 +106,7 @@ export default function NotificationCard({
 
         <button
           onClick={() => onDelete(notification.id)}
-          className="p-2 border border-gray-300 rounded-md text-gray-500 bg-white hover:bg-red-50 hover:text-red-600 cursor-pointer"
+          className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-red-50 hover:text-red-600 cursor-pointer"
           title="Delete"
           type="button"
         >

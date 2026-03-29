@@ -66,7 +66,12 @@ export default function SavingGoalsForm({
       // Convert amount to number if it's a string
       const formattedData = {
         ...data,
-        amount: parseFloat(data.amount.replace(/[^0-9.]/g, "")),
+        amount:
+          isEdit &&
+          typeof data.amount == "number" &&
+          data.amount == originalAmount
+            ? originalAmount
+            : parseFloat(data.amount.replace(/[^0-9.]/g, "")),
       };
 
       await onSave(formattedData);

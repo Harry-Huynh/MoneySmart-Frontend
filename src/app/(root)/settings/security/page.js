@@ -135,7 +135,7 @@ const SecurityPage = () => {
 
   return (
     <section>
-      <div className="min-h-[100dvh] bg-gray-100 flex flex-col items-center py-10 select-none relative">
+      <div className="min-h-dvh bg-gray-100 flex flex-col items-center py-10 select-none relative">
         <Link
           className="w-full pl-6 mb-5 inline-flex gap-2 items-center text-slate-600 hover:text-slate-900 font-medium text-xl cursor-pointer"
           href="/settings"

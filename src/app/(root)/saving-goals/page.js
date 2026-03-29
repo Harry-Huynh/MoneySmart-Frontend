@@ -40,7 +40,7 @@ export default function SavingGoalsPage() {
   };
 
   return (
-    <section className="min-h-[100dvh] bg-gray-100 flex justify-center py-10">
+    <section className="min-h-dvh bg-gray-100 flex justify-center py-10">
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-xl px-8 py-6">
         <div className="flex items-center gap-4 mb-6"></div>
 

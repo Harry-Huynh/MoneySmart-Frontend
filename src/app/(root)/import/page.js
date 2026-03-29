@@ -154,7 +154,7 @@ export default function DataManagementPage() {
 
   return (
     <>
-      <section className="min-h-[100dvh] bg-gray-100 flex justify-center py-10 px-4">
+      <section className="min-h-dvh bg-gray-100 flex justify-center py-10 px-4">
         <div className="w-full max-w-4xl bg-white rounded-3xl shadow-xl flex flex-col">
           {/* Header */}
           <div className="px-8 py-6 border-b">

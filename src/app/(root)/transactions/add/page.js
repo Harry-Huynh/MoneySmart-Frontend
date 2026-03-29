@@ -244,7 +244,7 @@ export default function AddTransactionPage() {
   };
 
   return (
-    <section className="flex justify-center items-center min-h-[100dvh] bg-gray-50 px-6 py-10">
+    <section className="flex justify-center items-center min-h-dvh bg-gray-50 px-6 py-10">
       {/* Card */}
       <div className="shrink-0 w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-md overflow-hidden relative">
         {/* purple header */}

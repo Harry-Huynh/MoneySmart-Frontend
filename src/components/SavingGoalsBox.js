@@ -145,21 +145,23 @@ export default function SavingGoalsBox({
           />
         </div>
       </div>
+
       {/* Info Dialog - Made Wider */}
       {showInfoDialog && (
         <Dialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
           <DialogContent
             showCloseButton={false}
-            className="p-0 shadow-xl w-full max-w-[95vw] sm:max-w-2xl max-h-[90vh] overflow-y-auto rounded-none sm:rounded-2xl"
+            className="p-0 shadow-xl w-full max-w-[95vw] sm:max-w-2xl rounded-none sm:rounded-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Dialog Header - Fixed with better layout */}
-            <div className="sticky top-0 bg-white border-b border-gray-200 p-6 rounded-t-2xl">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
-                <div className="flex items-start gap-3 flex-1 min-w-0">
-                  {/* Percentage Circle - Now with dynamic sizing */}
-                  <div
-                    className={`shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex flex-col items-center justify-center
+            <div className="max-h-[90vh] overflow-y-auto">
+              {/* Dialog Header - Fixed with better layout */}
+              <div className="sticky top-0 bg-white border-b border-gray-200 p-6 rounded-t-2xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    {/* Percentage Circle - Now with dynamic sizing */}
+                    <div
+                      className={`shrink-0 w-14 h-14 sm:w-16 sm:h-16 rounded-full flex flex-col items-center justify-center
                     ${
                       rawPercent >= 100
                         ? "bg-emerald-100 text-emerald-800"
@@ -169,164 +171,165 @@ export default function SavingGoalsBox({
                             ? "bg-amber-100 text-amber-800"
                             : "bg-orange-100 text-orange-800"
                     }`}
-                  >
-                    <span className="text-sm md:text-lg font-bold leading-none">
-                      {rawPercent.toFixed(0)}%
-                    </span>
-
-                    {rawPercent > 100 && (
-                      <span className="text-[13px] font-semibold opacity-80">
-                        +{(rawPercent - 100).toFixed(0)}%
+                    >
+                      <span className="text-sm md:text-lg font-bold leading-none">
+                        {rawPercent.toFixed(0)}%
                       </span>
-                    )}
-                  </div>
 
-                  {/* Title Section - Now with truncation */}
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-xl sm:text-2xl font-bold text-gray-800 truncate">
-                      {goal.purpose}
-                    </h2>
-                    <p className="text-gray-500 text-sm mt-1">Goal Details</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Dialog Content */}
-            <div className="p-6 pt-0 space-y-6">
-              {/* Progress Section */}
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-gray-700 flex items-center gap-2">
-                    <TrendingUp size={18} />
-                    Progress Overview
-                  </h3>
-                </div>
-
-                <div className="w-full bg-gray-200 rounded-full h-3">
-                  <div
-                    className={`h-3 rounded-full ${
-                      rawPercent >= 100
-                        ? "bg-emerald-500"
-                        : rawPercent >= 80
-                          ? "bg-lime-500"
-                          : rawPercent >= 50
-                            ? "bg-amber-500"
-                            : "bg-orange-500"
-                    }`}
-                    style={{ width: `${progressBar}%` }}
-                  />
-                </div>
-
-                <div className="flex justify-between text-sm text-gray-600">
-                  <span className="flex items-center gap-2">
-                    {formatCurrencyCAD(goal.currentAmount)} saved
-                    {exceededAmount > 0 && (
-                      <span className="text-emerald-700 font-semibold">
-                        (Exceeded {formatCurrencyCAD(exceededAmount)})
-                      </span>
-                    )}
-                  </span>
-                  <span>{formatCurrencyCAD(goal.targetAmount)} target</span>
-                </div>
-              </div>
-
-              {/* Financial Details Grid - Wider layout */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-                <div className="bg-linear-to-br from-blue-50 to-blue-100 p-4 rounded-xl">
-                  <div className="flex items-center gap-2 text-gray-700 mb-2">
-                    <Target size={18} />
-                    <span className="font-medium">Target Amount</span>
-                  </div>
-                  <div className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">
-                    {formatCurrencyCAD(
-                      goal.targetAmount?.toLocaleString() || Number("0"),
-                    )}
-                  </div>
-                </div>
-
-                <div className="bg-linear-to-br from-green-50 to-green-100 p-4 rounded-xl">
-                  <div className="flex items-center gap-2 text-gray-700 mb-2">
-                    <DollarSign size={18} />
-                    <span className="font-medium">Saved Amount</span>
-                  </div>
-                  <div className="text-lg sm:text-xl lg:text-2xl font-bold text-green-700">
-                    {formatCurrencyCAD(
-                      goal.currentAmount?.toLocaleString() || Number("0"),
-                    )}
-                  </div>
-                </div>
-
-                <div className="bg-linear-to-br from-purple-50 to-purple-100 p-4 rounded-xl">
-                  <div className="flex items-center gap-2 text-gray-700 mb-2">
-                    <DollarSign size={18} />
-                    <span className="font-medium">Remaining</span>
-                  </div>
-                  <div className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-700">
-                    {formatCurrencyCAD(
-                      Math.max(
-                        (goal.targetAmount || 0) - (goal.currentAmount || 0),
-                        0,
-                      ),
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Timeline Section - Full width since status removed */}
-              <div className="grid grid-cols-1 gap-6">
-                {/* Target Date Section - Now full width */}
-                <div className="bg-linear-to-br from-amber-50 to-amber-100 p-4 sm:p-5 rounded-xl">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-amber-200 rounded-lg">
-                      <Calendar size={20} className="text-amber-700" />
+                      {rawPercent > 100 && (
+                        <span className="text-[13px] font-semibold opacity-80">
+                          +{(rawPercent - 100).toFixed(0)}%
+                        </span>
+                      )}
                     </div>
-                    <div>
+
+                    {/* Title Section */}
+                    <div className="flex-1 min-w-0">
+                      <h2 className="text-xl sm:text-2xl font-bold text-gray-800 wrap-break-words">
+                        {goal.purpose}
+                      </h2>
+                      <p className="text-gray-500 text-sm mt-1">Goal Details</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dialog Content */}
+              <div className="p-6 pt-0 space-y-6 overflow-y-auto">
+                {/* Progress Section */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-gray-700 flex items-center gap-2">
+                      <TrendingUp size={18} />
+                      Progress Overview
+                    </h3>
+                  </div>
+
+                  <div className="w-full bg-gray-200 rounded-full h-3">
+                    <div
+                      className={`h-3 rounded-full ${
+                        rawPercent >= 100
+                          ? "bg-emerald-500"
+                          : rawPercent >= 80
+                            ? "bg-lime-500"
+                            : rawPercent >= 50
+                              ? "bg-amber-500"
+                              : "bg-orange-500"
+                      }`}
+                      style={{ width: `${progressBar}%` }}
+                    />
+                  </div>
+
+                  <div className="flex justify-between text-sm text-gray-600">
+                    <span className="flex items-center gap-2">
+                      {formatCurrencyCAD(goal.currentAmount)} saved
+                      {exceededAmount > 0 && (
+                        <span className="text-emerald-700 font-semibold">
+                          (Exceeded {formatCurrencyCAD(exceededAmount)})
+                        </span>
+                      )}
+                    </span>
+                    <span>{formatCurrencyCAD(goal.targetAmount)} target</span>
+                  </div>
+                </div>
+
+                {/* Financial Details Grid - Wider layout */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+                  <div className="bg-linear-to-br from-blue-50 to-blue-100 p-4 rounded-xl">
+                    <div className="flex items-center gap-2 text-gray-700 mb-2">
+                      <Target size={18} />
+                      <span className="font-medium">Target Amount</span>
+                    </div>
+                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">
+                      {formatCurrencyCAD(
+                        goal.targetAmount?.toLocaleString() || Number("0"),
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="bg-linear-to-br from-green-50 to-green-100 p-4 rounded-xl">
+                    <div className="flex items-center gap-2 text-gray-700 mb-2">
+                      <DollarSign size={18} />
+                      <span className="font-medium">Saved Amount</span>
+                    </div>
+                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-green-700">
+                      {formatCurrencyCAD(
+                        goal.currentAmount?.toLocaleString() || Number("0"),
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="bg-linear-to-br from-purple-50 to-purple-100 p-4 rounded-xl">
+                    <div className="flex items-center gap-2 text-gray-700 mb-2">
+                      <DollarSign size={18} />
+                      <span className="font-medium">Remaining</span>
+                    </div>
+                    <div className="text-lg sm:text-xl lg:text-2xl font-bold text-purple-700">
+                      {formatCurrencyCAD(
+                        Math.max(
+                          (goal.targetAmount || 0) - (goal.currentAmount || 0),
+                          0,
+                        ),
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Timeline Section - Full width since status removed */}
+                <div className="grid grid-cols-1 gap-6">
+                  {/* Target Date Section - Now full width */}
+                  <div className="bg-linear-to-br from-amber-50 to-amber-100 p-4 sm:p-5 rounded-xl">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 bg-amber-200 rounded-lg">
+                        <Calendar size={20} className="text-amber-700" />
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-700">
+                          Target Date
+                        </div>
+                        <div className="text-lg font-bold text-gray-800">
+                          {formatDate(goal.targetDate)}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 mt-3">
+                      <Clock size={16} className="text-amber-600" />
+                      <span className="text-sm font-medium text-amber-700">
+                        {calculateDaysLeft()} days{" "}
+                        {calculateDaysLeft() === "Expired" ? "ago" : "left"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Note if available */}
+                {goal.note && (
+                  <div className="bg-linear-to-br from-gray-50 to-gray-100 p-4 sm:p-5 rounded-xl">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 bg-gray-200 rounded-lg">
+                        <FileText size={20} className="text-gray-700" />
+                      </div>
                       <div className="font-medium text-gray-700">
-                        Target Date
-                      </div>
-                      <div className="text-lg font-bold text-gray-800">
-                        {formatDate(goal.targetDate)}
+                        Additional Notes
                       </div>
                     </div>
+                    <div className="text-gray-700 whitespace-pre-wrap wrap-break-words bg-white/50 p-4 rounded-lg border border-gray-200">
+                      {goal.note}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 mt-3">
-                    <Clock size={16} className="text-amber-600" />
-                    <span className="text-sm font-medium text-amber-700">
-                      {calculateDaysLeft()} days{" "}
-                      {calculateDaysLeft() === "Expired" ? "ago" : "left"}
-                    </span>
-                  </div>
-                </div>
+                )}
               </div>
 
-              {/* Note if available */}
-              {goal.note && (
-                <div className="bg-linear-to-br from-gray-50 to-gray-100 p-4 sm:p-5 rounded-xl">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-2 bg-gray-200 rounded-lg">
-                      <FileText size={20} className="text-gray-700" />
-                    </div>
-                    <div className="font-medium text-gray-700">
-                      Additional Notes
-                    </div>
-                  </div>
-                  <div className="text-gray-700 whitespace-pre-wrap wrap-break-words bg-white/50 p-4 rounded-lg border border-gray-200">
-                    {goal.note}
-                  </div>
+              {/* Dialog Footer */}
+              <div className="sticky bottom-0 bg-white border-t border-gray-200 p-6 rounded-b-2xl">
+                <div className="flex justify-end">
+                  <button
+                    onClick={() => setShowInfoDialog(false)}
+                    className="px-4 sm:px-6 py-2.5 sm:py-3 w-full sm:w-auto rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium transition cursor-pointer"
+                  >
+                    Close
+                  </button>
                 </div>
-              )}
-            </div>
-
-            {/* Dialog Footer */}
-            <div className="sticky bottom-0 bg-white border-t border-gray-200 p-6 rounded-b-2xl">
-              <div className="flex justify-end">
-                <button
-                  onClick={() => setShowInfoDialog(false)}
-                  className="px-4 sm:px-6 py-2.5 sm:py-3 w-full sm:w-auto rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium transition cursor-pointer"
-                >
-                  Close
-                </button>
               </div>
             </div>
           </DialogContent>

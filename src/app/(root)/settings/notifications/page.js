@@ -108,7 +108,7 @@ export default function NotificationSettingsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-[100dvh] bg-gray-100 flex items-center justify-center">
+      <div className="min-h-dvh bg-gray-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading notification settings...</p>
@@ -119,7 +119,7 @@ export default function NotificationSettingsPage() {
 
   return (
     <section>
-      <div className="min-h-[100dvh] bg-gray-100 flex flex-col items-center py-10 select-none">
+      <div className="min-h-dvh bg-gray-100 flex flex-col items-center py-10 select-none">
         <Link
           className="w-full pl-6 mb-5 inline-flex gap-2 items-center text-slate-600 hover:text-slate-900 font-medium text-xl cursor-pointer"
           href="/settings"

@@ -5,7 +5,7 @@ import AccountSettingsEditForm from "@/components/AccountSettingsEditForm";
 
 export default function AccountSettingsEditPage() {
   return (
-    <section className="min-h-[100dvh] bg-gray-100 px-6 py-8">
+    <section className="min-h-dvh bg-gray-100 px-6 py-8">
       <div className="mb-5">
         <Link
           href="/settings/account"

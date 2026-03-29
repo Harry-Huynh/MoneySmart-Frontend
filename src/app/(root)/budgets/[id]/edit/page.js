@@ -14,6 +14,8 @@ export default function EditBudgetPage() {
   const { id } = useParams();
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
+  const [originalStartDate, setOriginalStartDate] = useState("");
+  const [originalEndDate, setOriginalEndDate] = useState("");
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -49,6 +51,9 @@ export default function EditBudgetPage() {
           thresholdAmount: budget.thresholdAmount ?? "",
           note: budget.note ?? "",
         });
+
+        setOriginalStartDate((budget.startDate ?? "").slice(0, 10));
+        setOriginalEndDate((budget.endDate ?? "").slice(0, 10));
       } catch (e) {
         setErrorMessage(e.message);
         router.replace("/budgets");
@@ -65,6 +70,10 @@ export default function EditBudgetPage() {
       const startDate = parseDateToStartOfDay(data.startDate);
       const endDate = parseDateToEndOfDay(data.endDate);
       const formattedAmount = data.amount.replace(/[^0-9.]/g, "");
+      const formattedThresholdAmount = data.thresholdAmount.replace(
+        /[^0-9.]/g,
+        "",
+      );
 
       await updateBudget(
         id,
@@ -72,7 +81,7 @@ export default function EditBudgetPage() {
         data.purpose,
         startDate,
         endDate,
-        data.thresholdAmount,
+        formattedThresholdAmount,
         data.note,
       );
 
@@ -112,10 +121,14 @@ export default function EditBudgetPage() {
                 name="amount"
                 control={control}
                 rules={{
-                  required: "Amount is required",
-                  min: {
-                    value: 0.01,
-                    message: "Amount must be greater than 0",
+                  validate: (value) => {
+                    if (!value) return "Amount is required";
+
+                    value = parseFloat(
+                      value.toString().replace(/[^0-9.]/g, ""),
+                    );
+                    if (value <= 0) return "Amount must be greater than 0";
+                    return true;
                   },
                 }}
                 render={({ field }) => (
@@ -164,11 +177,13 @@ export default function EditBudgetPage() {
               <label className="font-medium text-gray-700">Start Date:</label>
               <input
                 type="date"
-                min={today}
                 {...register("startDate", {
                   required: "Start date is required",
-                  validate: (value) =>
-                    value >= today || "Start date cannot be in the past",
+                  validate: (value) => {
+                    if (value === originalStartDate) return true;
+
+                    return value >= today || "Start date cannot be in the past";
+                  },
                 })}
                 className="w-full bg-yellow-50 border border-gray-300 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent cursor-pointer"
               />
@@ -184,15 +199,17 @@ export default function EditBudgetPage() {
               <label className="font-medium text-gray-700">End Date:</label>
               <input
                 type="date"
-                min={today}
                 {...register("endDate", {
                   required: "End date is required",
                   validate: (value) => {
+                    if (value === originalEndDate) return true;
+
                     const startDate = getValues("startDate");
 
                     if (value < today) return "End date cannot be in the past";
                     if (startDate && value < startDate)
                       return "End date must be after start date";
+
                     return true;
                   },
                 })}
@@ -213,17 +230,17 @@ export default function EditBudgetPage() {
                 name="thresholdAmount"
                 control={control}
                 rules={{
-                  required: "Threshold amount is required",
-                  min: {
-                    value: 0.01,
-                    message: "Amount must be greater than 0",
-                  },
                   validate: (value) => {
+                    if (!value) return "Threshold amount is required";
+
+                    value = parseFloat(
+                      value.toString().replace(/[^0-9.]/g, ""),
+                    );
+
+                    if (value <= 0) return "Amount must be greater than 0";
+
                     const amount = getValues("amount");
-                    if (
-                      parseFloat(value.replace(/[^0-9.]/g, "")) >
-                      parseFloat(amount.replace(/[^0-9.]/g, ""))
-                    )
+                    if (value > parseFloat(amount.replace(/[^0-9.]/g, "")))
                       return "Threshold must be less than or equal to Amount";
                     return true;
                   },

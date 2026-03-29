@@ -90,10 +90,14 @@ export default function AddBudgetPage() {
                 name="amount"
                 control={control}
                 rules={{
-                  required: "Amount is required",
-                  min: {
-                    value: 0.01,
-                    message: "Amount must be greater than 0",
+                  validate: (value) => {
+                    if (!value) return "Amount is required";
+
+                    value = parseFloat(
+                      value.toString().replace(/[^0-9.]/g, ""),
+                    );
+                    if (value <= 0) return "Amount must be greater than 0";
+                    return true;
                   },
                 }}
                 render={({ field }) => (
@@ -204,12 +208,15 @@ export default function AddBudgetPage() {
                 name="thresholdAmount"
                 control={control}
                 rules={{
-                  required: "Threshold amount is required",
-                  min: {
-                    value: 0.01,
-                    message: "Amount must be greater than 0",
-                  },
                   validate: (value) => {
+                    if (!value) return "Threshold amount is required";
+
+                    value = parseFloat(
+                      value.toString().replace(/[^0-9.]/g, ""),
+                    );
+
+                    if (value <= 0) return "Amount must be greater than 0";
+
                     const amount = getValues("amount");
                     if (
                       parseFloat(value.replace(/[^0-9.]/g, "")) >

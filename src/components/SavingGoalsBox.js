@@ -170,7 +170,7 @@ export default function SavingGoalsBox({
                             : "bg-orange-100 text-orange-800"
                     }`}
                   >
-                    <span className="text-lg font-bold leading-none">
+                    <span className="text-sm md:text-lg font-bold leading-none">
                       {rawPercent.toFixed(0)}%
                     </span>
 

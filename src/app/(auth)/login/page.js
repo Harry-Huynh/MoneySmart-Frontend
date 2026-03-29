@@ -47,7 +47,7 @@ export default function LoginPage() {
   };
 
   return (
-    <section className="relative min-h-screen overflow-hidden px-4 sm:px-8 lg:px-40 mx-auto">
+    <section className="relative min-h-[100dvh] overflow-hidden px-4 sm:px-8 lg:px-40 mx-auto">
       {/* Background */}
       <div className="absolute inset-0 bg-[url('/background.jpg')] bg-cover bg-center blur-md scale-110" />
       <div className="absolute inset-0 bg-black/30" />
@@ -58,7 +58,7 @@ export default function LoginPage() {
       </div>
 
       {/* Form */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
+      <div className="relative z-10 min-h-[100dvh] flex items-center justify-center px-4">
         {loading && <Loading />}
 
         <form

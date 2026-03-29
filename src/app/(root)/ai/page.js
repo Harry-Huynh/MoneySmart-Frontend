@@ -243,7 +243,7 @@ export default function AIInsightsPage() {
   };
 
   return (
-    <section className="min-h-screen bg-gray-100 flex justify-center py-10">
+    <section className="min-h-[100dvh] bg-gray-100 flex justify-center py-10">
       <div className="w-full max-w-5xl bg-white rounded-3xl shadow-xl flex flex-col gap-6">
         <div className="w-full px-8 py-6 flex flex-wrap justify-between items-start border-b">
           <div>

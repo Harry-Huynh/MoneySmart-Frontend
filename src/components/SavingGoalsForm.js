@@ -94,7 +94,7 @@ export default function SavingGoalsForm({
   };
 
   return (
-    <section className="min-h-screen bg-gray-50 px-6 py-10">
+    <section className="min-h-[100dvh] bg-gray-50 px-6 py-10">
       {/* Cancel Confirmation Dialog */}
       {showCancelConfirm && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50 p-4">

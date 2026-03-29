@@ -65,7 +65,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <section className="flex flex-col items-center relative min-h-screen overflow-hidden px-4 sm:px-8 lg:px-40 max-w-screen mx-auto">
+    <section className="flex flex-col items-center relative min-h-[100dvh] overflow-hidden px-4 sm:px-8 lg:px-40 max-w-screen mx-auto">
       {/* Background */}
       <div
         className="

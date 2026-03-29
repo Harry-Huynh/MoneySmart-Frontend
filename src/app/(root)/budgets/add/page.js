@@ -65,7 +65,7 @@ export default function AddBudgetPage() {
   };
 
   return (
-    <section className="flex justify-center items-center min-h-screen bg-gray-50 px-6 py-10">
+    <section className="flex justify-center items-center min-h-[100dvh] bg-gray-50 px-6 py-10">
       <div className="w-full max-w-4xl mx-auto bg-white rounded-2xl shadow-md overflow-hidden relative">
         {/* Header */}
         <div className="bg-linear-to-r from-purple-200 to-purple-300 px-8 py-6 text-center">

@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/sidebar";
 
 import { useSidebar } from "@/components/ui/sidebar";
-import { useEffect } from "react";
 
 import { LuLayoutDashboard } from "react-icons/lu";
 import { FaMoneyBillTransfer } from "react-icons/fa6";
@@ -76,11 +75,7 @@ const items = [
 export default function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { setOpen, isMobile } = useSidebar(); 
-  
-  useEffect(() => {
-    if (isMobile) setOpen(false);
-  }, [pathname, isMobile, setOpen]);
+  const { setOpen, isMobile } = useSidebar();
 
   const handleLogout = async () => {
     await removeToken();
@@ -122,7 +117,12 @@ export default function AppSidebar() {
                   
                       data-[active=true]:border-[#3f915f]"
                     >
-                      <Link href={item.url}>
+                      <Link
+                        href={item.url}
+                        onClick={() => {
+                          if (isMobile) setOpenMobile(false);
+                        }}
+                      >
                         <item.icon />
                         <span>{item.title}</span>
                       </Link>
@@ -141,7 +141,10 @@ export default function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
-              onClick={handleLogout}
+              onClick={async () => {
+                await handleLogout();
+                if (isMobile) setOpenMobile(false);
+              }}
               className="pl-6 py-5 gap-3 text-red-600 hover:bg-gray-200 hover:text-red-600 text-base cursor-pointer"
             >
               <IoLogOutOutline />

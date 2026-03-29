@@ -93,26 +93,26 @@ export default function NotificationCard({
         )}
       </div>
 
-      <div className="shrink-0 flex flex-col items-end gap-2">
-        {unread && (
-          <button
-            onClick={() => onMarkRead(notification.id)}
-            className="h-10 whitespace-nowrap rounded-lg border border-gray-300 bg-white px-3 text-sm text-blue-600 hover:bg-gray-50 cursor-pointer"
-            type="button"
-          >
-            Mark as read
-          </button>
-        )}
+      <div className="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+  {unread && (
+    <button
+      onClick={() => onMarkRead(notification.id)}
+      className="h-10 px-3 text-sm border border-gray-300 rounded-md text-blue-600 bg-white hover:bg-gray-50 cursor-pointer"
+      type="button"
+    >
+      Mark as read
+    </button>
+  )}
 
-        <button
-          onClick={() => onDelete(notification.id)}
-          className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-300 bg-white text-gray-500 hover:bg-red-50 hover:text-red-600 cursor-pointer"
-          title="Delete"
-          type="button"
-        >
-          <MdDelete size={18} />
-        </button>
-      </div>
+  <button
+    onClick={() => onDelete(notification.id)}
+    className="h-10 sm:w-10 flex items-center justify-center border border-gray-300 rounded-md text-gray-500 bg-white hover:bg-red-50 hover:text-red-600 cursor-pointer"
+    title="Delete"
+    type="button"
+  >
+    <MdDelete size={18} />
+  </button>
+</div>
     </div>
   );
 }

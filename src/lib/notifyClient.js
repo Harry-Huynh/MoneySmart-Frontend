@@ -8,8 +8,9 @@ export async function sendNotificationsClient({
   notifications,
   to_email,
   customerName,
+  emailNotificationsEnabled,
 }) {
-  if (!notifications?.length || !to_email) return;
+  if (!emailNotificationsEnabled || !notifications?.length || !to_email) return;
 
   for (const n of notifications) {
     const content = buildEmailContent(n.type, { ...n.payload, customerName });

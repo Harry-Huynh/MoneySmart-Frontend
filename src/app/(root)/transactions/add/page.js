@@ -9,6 +9,7 @@ import { getAllSavingGoals } from "@/lib/savingGoal.actions";
 import { addTransaction } from "@/lib/transaction.actions";
 import { parseDateToStartOfDay } from "@/lib/utils";
 import { sendNotificationsClient } from "@/lib/notifyClient";
+import { getNotificationSettings } from "@/lib/notificationSetting.actions";
 import {
   createBudgetPushNotification,
   createNotificationData,
@@ -159,11 +160,20 @@ export default function AddTransactionPage() {
 
       const result = await addTransaction(payload);
 
-      sendNotificationsClient({
-        notifications: result?.notifications,
-        to_email: profile?.email,
-        customerName: profile?.fullName || profile?.name || "",
-      }).catch(console.error);
+      try {
+        const notificationSettings = await getNotificationSettings();
+
+        sendNotificationsClient({
+          notifications: result?.notifications,
+          to_email: profile?.email,
+          customerName: profile?.fullName || profile?.name || "",
+          emailNotificationsEnabled:
+            notificationSettings?.enableNotifications &&
+            notificationSettings?.emailNotifications,
+        }).catch(console.error);
+      } catch (error) {
+        console.error("Failed to load notification settings:", error);
+      }
 
       // Reset form
       reset({

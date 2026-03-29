@@ -69,6 +69,7 @@ export default function AccountSettingsEditForm() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [region, setRegion] = useState("");
   // Keep Date Format
   const [dateFormat, setDateFormat] = useState("MM-DD-YYYY");
 
@@ -86,6 +87,7 @@ export default function AccountSettingsEditForm() {
 
         setName(profile?.name ?? "");
         setEmail(profile?.email ?? "");
+        setRegion(profile?.region ?? "");
         setDateFormat(profile?.dateFormat ?? "MM-DD-YYYY");
       } catch (e) {
         setError(e?.message || "Failed to load profile");
@@ -110,7 +112,13 @@ export default function AccountSettingsEditForm() {
         return;
       }
 
-      await updateProfile(trimmedName, dateFormat);
+      const trimmedRegion = region.trim();
+      if (!trimmedRegion) {
+        setError("Region is required");
+        return;
+      }
+
+      await updateProfile(trimmedName, trimmedRegion, dateFormat);
 
       // Go back to view page
       router.push("/settings/account");
@@ -147,6 +155,16 @@ export default function AccountSettingsEditForm() {
           <div className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 flex items-center text-sm text-gray-700">
             {loading ? "Loading..." : email}
           </div>
+        </Row>
+
+        <Row label="Region">
+          <Input
+            value={loading ? "" : region}
+            onChange={(e) => setRegion(e.target.value)}
+            className="h-11 rounded-xl"
+            placeholder={loading ? "Loading..." : "Enter your region"}
+            disabled={loading || saving}
+          />
         </Row>
 
         <Row label="Date Format">

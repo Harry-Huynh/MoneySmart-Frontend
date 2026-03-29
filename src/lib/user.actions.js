@@ -33,7 +33,7 @@ export async function getMyProfile() {
   throw new Error(data.message || "Failed to load user profile");
 }
 
-export async function updateProfile(name, dateFormat) {
+export async function updateProfile(name, region, dateFormat) {
   const token = await getToken();
 
   if (!token) {
@@ -46,7 +46,7 @@ export async function updateProfile(name, dateFormat) {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
     },
-    body: JSON.stringify({ name, dateFormat }),
+    body: JSON.stringify({ name, region, dateFormat }),
     cache: "no-store",
   });
 

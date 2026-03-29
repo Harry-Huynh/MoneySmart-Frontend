@@ -31,13 +31,13 @@ export const createNotificationData = async (budgetId) => {
     } else if (Math.abs(usedAmount - totalAmount) < EPSILON) {
       notificationData.message = `You have used all of your budget of ${formatCurrencyCAD(totalAmount)} for ${budget.purpose}`;
     } else if (progress >= 80 && totalAmount - usedAmount > thresholdAmount) {
-      notificationData.message = `You have used more than 80% of ${budget.purpose}`;
+      notificationData.message = `You have used 80% or more of ${budget.purpose}`;
     } else if (
       progress >= 50 &&
       progress < 80 &&
       totalAmount - usedAmount > thresholdAmount
     ) {
-      notificationData.message = `You have used more than 50% of ${budget.purpose}`;
+      notificationData.message = `You have used 50% or more of ${budget.purpose}`;
     } else if (totalAmount - usedAmount <= thresholdAmount) {
       notificationData.message = `You have reached the threshold of ${formatCurrencyCAD(thresholdAmount)} for ${budget.purpose}`;
     }

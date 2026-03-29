@@ -4,11 +4,52 @@ import { FaCircleInfo } from "react-icons/fa6";
 import { FaCheckCircle } from "react-icons/fa";
 import { MdDelete } from "react-icons/md";
 
-// Level of notification
 const success = "SUCCESS";
 const warning = "WARNING";
 const error = "ERROR";
 const info = "INFO";
+
+function getCardStyle(level) {
+  switch (level) {
+    case error:
+      return "bg-red-100";
+    case warning:
+      return "bg-amber-100";
+    case info:
+      return "bg-blue-100";
+    case success:
+    default:
+      return "bg-emerald-100";
+  }
+}
+
+function getIconStyle(level) {
+  switch (level) {
+    case error:
+      return "bg-red-300 text-red-600";
+    case warning:
+      return "bg-amber-300 text-amber-600";
+    case info:
+      return "bg-blue-300 text-blue-600";
+    case success:
+    default:
+      return "bg-emerald-300 text-emerald-600";
+  }
+}
+
+function renderIcon(level) {
+  switch (level) {
+    case error:
+      return <BiSolidErrorAlt size={22} />;
+    case warning:
+      return <RiAlarmWarningFill size={22} />;
+    case info:
+      return <FaCircleInfo size={22} />;
+    case success:
+    default:
+      return <FaCheckCircle size={22} />;
+  }
+}
 
 export default function NotificationCard({
   notification,
@@ -20,73 +61,52 @@ export default function NotificationCard({
 
   return (
     <div
-      className={`relative flex items-center gap-4 px-4 py-4 rounded-xl border border-gray-200 bg-white overflow-hidden ${level === error ? "bg-red-100!" : level === warning ? "bg-amber-100!" : "bg-emerald-100!"}`}
+      className={`relative flex items-center gap-4 px-4 py-4 rounded-xl border border-gray-200 overflow-hidden ${getCardStyle(level)}`}
     >
-      {/* for status bar inside the card */}
       <div
-        className={`absolute left-0 top-0 h-full w-1
-          ${unread ? "bg-blue-500" : "bg-transparent"}`}
+        className={`absolute left-0 top-0 h-full w-1 ${
+          unread ? "bg-blue-500" : "bg-transparent"
+        }`}
       />
 
-      <div
-        className={`
-          ml-2 p-2 rounded-lg
-          ${level === error ? "bg-red-300 text-red-600" : level === warning ? "bg-amber-300 text-amber-600" : "bg-emerald-300 text-emerald-600"}`}
-      >
-        {level === error ? (
-          <BiSolidErrorAlt size={22} />
-        ) : level === warning ? (
-          <RiAlarmWarningFill size={22} />
-        ) : level === info ? (
-          <FaCircleInfo size={22} />
-        ) : (
-          <FaCheckCircle size={22} />
-        )}
+      <div className={`ml-2 p-2 rounded-lg ${getIconStyle(level)}`}>
+        {renderIcon(level)}
       </div>
 
-      <div className="flex-1">
-        <p className={unread ? "font-semibold" : "font-medium"}>
+      <div className="flex-1 min-w-0">
+        <p className={`${unread ? "font-semibold" : "font-medium"} break-words`}>
           {notification.title}
         </p>
 
         <p
-          className={`text-sm ${unread ? "font-semibold text-gray-700" : "text-gray-500"}`}
+          className={`text-sm break-words ${
+            unread ? "font-semibold text-gray-700" : "text-gray-500"
+          }`}
         >
           {notification.subtitle}
         </p>
 
         {notification.amount !== undefined && notification.amount !== null && (
-          <p className="mt-1 text-sm text-gray-600">${notification.amount}</p>
+          <p className="mt-1 text-sm text-gray-600">
+            ${Number(notification.amount).toFixed(2)}
+          </p>
         )}
       </div>
 
-      {/* Button here */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0">
         {unread && (
           <button
             onClick={() => onMarkRead(notification.id)}
-            className="
-              px-3 py-1.5 text-sm
-              border border-gray-300 rounded-md
-              text-blue-600 bg-white
-              hover:bg-gray-50
-              cursor-pointer
-            "
+            className="px-3 py-1.5 text-sm border border-gray-300 rounded-md text-blue-600 bg-white hover:bg-gray-50 cursor-pointer"
             type="button"
           >
-            {" "}
             Mark as read
           </button>
         )}
 
         <button
           onClick={() => onDelete(notification.id)}
-          className="
-            p-2 border border-gray-300 rounded-md
-            text-gray-500 bg-white
-            hover:bg-red-50 hover:text-red-600
-            cursor-pointer
-          "
+          className="p-2 border border-gray-300 rounded-md text-gray-500 bg-white hover:bg-red-50 hover:text-red-600 cursor-pointer"
           title="Delete"
           type="button"
         >

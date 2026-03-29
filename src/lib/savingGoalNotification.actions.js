@@ -132,7 +132,7 @@ export async function createSavingGoalNotificationDataByMilestones(
     return {
       type: NOTIFICATION_TYPE,
       title: `Saving Goal Progress ${highestCrossedMilestone.label}`,
-      message: `You're at ${highestCrossedMilestone.label} for "${savingGoalName}" (${formatCurrencyCAD(savedAmountAfterTransaction)} saved of ${formatCurrencyCAD(targetAmount)}).`,
+      message: `You're at ${highestCrossedMilestone.label} or more for "${savingGoalName}" (${formatCurrencyCAD(savedAmountAfterTransaction)} saved of ${formatCurrencyCAD(targetAmount)}).`,
       deliveryMethod: DELIVERY_METHOD,
       level: "INFO",
       milestone: highestCrossedMilestone.milestoneKey,

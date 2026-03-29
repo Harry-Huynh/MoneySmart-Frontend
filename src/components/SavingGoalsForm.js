@@ -16,6 +16,7 @@ export default function SavingGoalsForm({
   const [warningMessage, setWarningMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [originalAmount, setOriginalAmount] = useState(0);
 
   const {
     register,
@@ -45,13 +46,16 @@ export default function SavingGoalsForm({
         date: goal.targetDate,
         note: goal.note,
       });
+      setOriginalAmount(goal.targetAmount);
     }
   }, [goal, isEdit, reset]);
 
   // Calculate progress
   const currentAmount = parseFloat(savedAmount || 0);
   const targetAmount =
-    parseFloat((amount ?? "0").toString().replace(/[^0-9.]/g, "")) || 0;
+    amount == originalAmount
+      ? originalAmount
+      : parseFloat((amount ?? "0").toString().replace(/[^0-9.]/g, "")) || 0;
   const progress =
     targetAmount > 0 ? Math.round((currentAmount / targetAmount) * 100) : 0;
 

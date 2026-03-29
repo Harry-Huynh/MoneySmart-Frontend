@@ -218,10 +218,7 @@ export default function AddBudgetPage() {
                     if (value <= 0) return "Amount must be greater than 0";
 
                     const amount = getValues("amount");
-                    if (
-                      parseFloat(value.replace(/[^0-9.]/g, "")) >
-                      parseFloat(amount.replace(/[^0-9.]/g, ""))
-                    )
+                    if (value > parseFloat(amount.replace(/[^0-9.]/g, "")))
                       return "Threshold must be less than or equal to Amount";
                     return true;
                   },

@@ -6,6 +6,7 @@ import {
   getTransactionsForAnalysisMonth,
 } from "@/AI/userPrompt.actions";
 import { getAllBudgets, getBudgetByMonthAndYear } from "@/lib/budget.actions";
+import { getAllTransactions } from "@/lib/transaction.actions";
 // import { getAllSavingGoals } from "@/lib/savingGoal.actions";
 import Loading from "@/components/Loading";
 import TrendChart from "@/components/TrendChart";
@@ -16,6 +17,7 @@ import {
   monthNames,
   buildPeriodKey,
   extractBudgetPeriodKeys,
+  extractTransactionPeriodKey,
   // extractSavingGoalPeriodKey,
 } from "@/AI/ai.helpers";
 import { formatCurrencyCAD } from "@/lib/utils";
@@ -51,12 +53,23 @@ export default function AIInsightsPage() {
         //   getAllBudgets(),
         //   getAllSavingGoals(),
         // ]);
-        const budgetsResult = await getAllBudgets();
+        const [budgetsResult, transactionsResult] = await Promise.all([
+          getAllBudgets(),
+          getAllTransactions(),
+        ]);
 
         const nextAvailablePeriods = new Set();
 
         for (const budget of budgetsResult?.budgets || []) {
           for (const periodKey of extractBudgetPeriodKeys(budget)) {
+            nextAvailablePeriods.add(periodKey);
+          }
+        }
+
+        for (const transaction of transactionsResult?.transactions || []) {
+          const periodKey = extractTransactionPeriodKey(transaction);
+
+          if (periodKey) {
             nextAvailablePeriods.add(periodKey);
           }
         }
@@ -83,13 +96,20 @@ export default function AIInsightsPage() {
   useEffect(() => {
     if (!selectedYear || String(selectedYear).length !== 4) return;
 
-    async function syncYearWithBudgetData() {
+    async function syncYearWithBudgetAndTransactionData() {
       try {
-        const budgetChecks = await Promise.all(
-          Array.from({ length: 12 }, (_, monthIndex) =>
-            getBudgetByMonthAndYear(monthIndex, Number(selectedYear)),
+        const [budgetChecks, transactionChecks] = await Promise.all([
+          Promise.all(
+            Array.from({ length: 12 }, (_, monthIndex) =>
+              getBudgetByMonthAndYear(monthIndex, Number(selectedYear)),
+            ),
           ),
-        );
+          Promise.all(
+            Array.from({ length: 12 }, (_, monthIndex) =>
+              getTransactionsForAnalysisMonth(monthIndex, Number(selectedYear)),
+            ),
+          ),
+        ]);
 
         setAvailablePeriodKeys((prev) => {
           const next = new Set(prev);
@@ -100,12 +120,18 @@ export default function AIInsightsPage() {
             }
           });
 
+          transactionChecks.forEach((transactions, monthIndex) => {
+            if ((transactions || []).length > 0) {
+              next.add(buildPeriodKey(Number(selectedYear), monthIndex + 1));
+            }
+          });
+
           return next;
         });
       } catch {}
     }
 
-    syncYearWithBudgetData();
+    syncYearWithBudgetAndTransactionData();
   }, [selectedYear]);
 
   useEffect(() => {
@@ -319,7 +345,7 @@ export default function AIInsightsPage() {
                 String(selectedYear).length === 4 &&
                 availableMonthsForSelectedYear.size === 0 && (
                   <p className="mt-2 text-sm text-amber-700">
-                    No budget or saving goal data found for {selectedYear}.
+                    No budget or transaction data found for {selectedYear}.
                   </p>
                 )}
             </div>

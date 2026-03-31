@@ -15,11 +15,13 @@ import { getBudgetByMonthAndYear } from "@/lib/budget.actions";
 import { useEffect } from "react";
 
 const COLORS = [
-  "#4f915f",
-  "#6dbb92",
-  "#8cd1b0",
-  "#a7dfc4",
-  "#c4ead9",
+  "#4F915F", // green 
+  "#FF6B6B", // red
+  "#4D96FF", // blue
+  "#FFC75F", // yellow
+  "#845EC2", // purple
+  "#00C9A7", // teal
+  "#FF9671", // orange
 ];
 
 export default function SpendingCategoryChart() {

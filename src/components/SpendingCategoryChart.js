@@ -13,18 +13,57 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { parseLocalDate } from "@/lib/utils";
 import { getBudgetByMonthAndYear } from "@/lib/budget.actions";
 import { useEffect } from "react";
-
-const COLORS = [
-  "#4F915F", // green 
+const BASE_COLORS = [
   "#FF6B6B", // red
   "#4D96FF", // blue
   "#FFC75F", // yellow
   "#845EC2", // purple
   "#00C9A7", // teal
   "#FF9671", // orange
+  "#0081CF", // deep blue
+  "#C34A36", // brown-red
+  "#2C73D2", // royal blue
+  "#008E9B", // cyan
+  "#F9A826", // amber
+  "#6A4C93", // violet
 ];
+function generateExtendedColors(count) {
+  const colors = [];
+
+  for (let i = 0; i < count; i++) {
+    const base = BASE_COLORS[i % BASE_COLORS.length];
+
+    // vary brightness slightly (but keep contrast)
+    const variation = (i / BASE_COLORS.length) * 10; 
+
+    colors.push(adjustBrightness(base, variation));
+  }
+
+  return colors;
+}
+function adjustBrightness(hex, percent) {
+  let num = parseInt(hex.replace("#", ""), 16),
+    amt = Math.round(2.55 * percent),
+    R = (num >> 16) + amt,
+    G = ((num >> 8) & 0x00ff) + amt,
+    B = (num & 0x0000ff) + amt;
+
+  return (
+    "#" +
+    (
+      0x1000000 +
+      (R < 255 ? (R < 1 ? 0 : R) : 255) * 0x10000 +
+      (G < 255 ? (G < 1 ? 0 : G) : 255) * 0x100 +
+      (B < 255 ? (B < 1 ? 0 : B) : 255)
+    )
+      .toString(16)
+      .slice(1)
+  );
+}
+
 
 export default function SpendingCategoryChart() {
+ 
   const [budgets, setBudgets] = useState([]);
   const now = new Date();
   const currentYear = now.getFullYear();
@@ -66,6 +105,10 @@ const data = useMemo(() => {
         : 0,
     }));
 }, [budgets]);
+
+ const COLORS = useMemo(() => {
+  return generateExtendedColors(data.length || 1);
+}, [data]);
  
 
   return (

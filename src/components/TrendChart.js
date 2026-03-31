@@ -41,14 +41,20 @@ export default function TrendChart({
     const monthsBack = Number(range);
 
     const startDate = new Date(
-      now.getFullYear(),
-      now.getMonth() - monthsBack + 1,
-      1,
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - monthsBack + 1, 1)
+    );
+
+    const nowUTC = new Date(
+      Date.UTC(
+        now.getUTCFullYear(),
+        now.getUTCMonth(),
+        now.getUTCDate()
+      )
     );
 
     return transactions.filter((t) => {
       const date = parseLocalDate(t.date);
-      return date >= startDate && date <= now;
+      return date >= startDate && date <= nowUTC;
     });
   }, [transactions, range]);
 
@@ -59,13 +65,15 @@ export default function TrendChart({
     const result = [];
 
     for (let i = monthsBack - 1; i >= 0; i--) {
-      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const date = new Date(
+        Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1)
+      );
 
       const monthTransactions = filteredTransactions.filter((t) => {
         const d = parseLocalDate(t.date);
         return (
-          d.getMonth() === date.getMonth() &&
-          d.getFullYear() === date.getFullYear()
+          d.getUTCMonth() === date.getUTCMonth() &&
+          d.getUTCFullYear() === date.getUTCFullYear()
         );
       });
 
@@ -81,9 +89,13 @@ export default function TrendChart({
         name: date.toLocaleString("default", {
           month: "short",
           year: "numeric",
+          timeZone: "UTC",
         }),
-        fullName: date.toLocaleString("default", { month: "long" }),
-        year: date.getFullYear(),
+        fullName: date.toLocaleString("default", {
+          month: "long",
+          timeZone: "UTC",
+        }),
+        year: date.getUTCFullYear(),
         income,
         expense,
       });
@@ -95,14 +107,23 @@ export default function TrendChart({
   /* ---------------- Weekly Data ---------------- */
   const weeklyData = useMemo(() => {
     const now = new Date();
+
     const targetMonth =
-      selectedMonth !== undefined ? Number(selectedMonth) : now.getMonth();
+      selectedMonth !== undefined
+        ? Number(selectedMonth)
+        : now.getUTCMonth();
+
     const targetYear =
-      selectedYear !== undefined ? Number(selectedYear) : now.getFullYear();
+      selectedYear !== undefined
+        ? Number(selectedYear)
+        : now.getUTCFullYear();
 
     const currentMonthTransactions = transactions.filter((t) => {
       const d = parseLocalDate(t.date);
-      return d.getMonth() === targetMonth && d.getFullYear() === targetYear;
+      return (
+        d.getUTCMonth() === targetMonth &&
+        d.getUTCFullYear() === targetYear
+      );
     });
 
     const weeks = Array.from({ length: maxWeeks }, (_, index) => ({
@@ -127,15 +148,20 @@ export default function TrendChart({
     return weeks;
   }, [transactions, selectedMonth, selectedYear, maxWeeks]);
 
-  const chartData = activeViewType === "monthly" ? monthlyData : weeklyData;
+  const chartData =
+    activeViewType === "monthly" ? monthlyData : weeklyData;
+
   const targetDate =
     selectedMonth !== undefined && selectedYear !== undefined
-      ? new Date(Number(selectedYear), Number(selectedMonth), 1)
+      ? new Date(Date.UTC(Number(selectedYear), Number(selectedMonth), 1))
       : new Date();
+
   const currentMonthLabel = targetDate.toLocaleString("default", {
     month: "long",
+    timeZone: "UTC",
   });
-  const currentMonthYear = `${currentMonthLabel} ${targetDate.getFullYear()}`;
+
+  const currentMonthYear = `${currentMonthLabel} ${targetDate.getUTCFullYear()}`;
 
   const chartContent = (
     <>
@@ -149,12 +175,8 @@ export default function TrendChart({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="monthly" className="cursor-pointer">
-                  Monthly
-                </SelectItem>
-                <SelectItem value="weekly" className="cursor-pointer">
-                  Weekly
-                </SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
               </SelectContent>
             </Select>
 
@@ -164,15 +186,9 @@ export default function TrendChart({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="3" className="cursor-pointer">
-                    Last 3 months
-                  </SelectItem>
-                  <SelectItem value="6" className="cursor-pointer">
-                    Last 6 months
-                  </SelectItem>
-                  <SelectItem value="12" className="cursor-pointer">
-                    Last 12 months
-                  </SelectItem>
+                  <SelectItem value="3">Last 3 months</SelectItem>
+                  <SelectItem value="6">Last 6 months</SelectItem>
+                  <SelectItem value="12">Last 12 months</SelectItem>
                 </SelectContent>
               </Select>
             )}
@@ -184,7 +200,7 @@ export default function TrendChart({
         <ResponsiveContainer width="100%" height="85%">
           <BarChart data={chartData} margin={{ left: 50 }}>
             <XAxis dataKey="name" />
-            <YAxis tickFormatter={(value) => `${formatCurrencyCAD(value)}`} />
+            <YAxis tickFormatter={(v) => formatCurrencyCAD(v)} />
 
             <Tooltip
               labelFormatter={(label, payload) => {
@@ -200,51 +216,31 @@ export default function TrendChart({
                 }
                 return label;
               }}
-              formatter={(value) => `${formatCurrencyCAD(value)}`}
+              formatter={(v) => formatCurrencyCAD(v)}
             />
 
-            <Bar
-              dataKey="income"
-              name="Income"
-              fill="#4f915f"
-              radius={[6, 6, 0, 0]}
-            />
-            <Bar
-              dataKey="expense"
-              name="Expense"
-              fill="#D32F2F"
-              radius={[6, 6, 0, 0]}
-            />
+            <Bar dataKey="income" fill="#4f915f" radius={[6, 6, 0, 0]} />
+            <Bar dataKey="expense" fill="#D32F2F" radius={[6, 6, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
 
         {activeViewType === "weekly" && (
-          <div className="text-center text-xl font-extrabold text-slate-900 mt-1">
+          <div className="text-center text-xl font-bold mt-1">
             {currentMonthYear}
           </div>
         )}
-
-        <div className="flex justify-center gap-10 mt-3">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-[#4f915f] rounded-sm"></div>
-            <span className="text-lg text-slate-800">Income</span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 bg-red-700 rounded-sm"></div>
-            <span className="text-lg text-slate-800">Expense</span>
-          </div>
-        </div>
       </div>
     </>
   );
 
   return (
-    <div className={`${showCard ? "mt-8" : ""} flex justify-start`}>
+    <div className={`${showCard ? "mt-8" : ""}`}>
       {showCard ? (
-        <Card className="w-full rounded-2xl p-6 shadow-sm">{chartContent}</Card>
+        <Card className="w-full rounded-2xl p-6 shadow-sm">
+          {chartContent}
+        </Card>
       ) : (
-        <div className="w-full">{chartContent}</div>
+        chartContent
       )}
     </div>
   );

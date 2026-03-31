@@ -140,19 +140,22 @@ export function percent(spent, amount) {
 
 /* ---------------- Week Helper ---------------- */
 export function getWeekNumber(date) {
-  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+  const firstDay = new Date(Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    1
+  ));
+
   const diff = date - firstDay;
+
   return Math.floor(diff / (7 * 24 * 60 * 60 * 1000)) + 1;
 }
-
 /* ---------------- Safe Local Date Parser ---------------- */
 export function parseLocalDate(dateString) {
   if (!dateString) return new Date();
 
-  if (dateString.includes("T")) {
-    return new Date(dateString);
-  }
+  // Always extract YYYY-MM-DD only (ignore timezone completely)
+  const [year, month, day] = dateString.split("T")[0].split("-").map(Number);
 
-  const [year, month, day] = dateString.split("-");
-  return new Date(year, month - 1, day);
+  return new Date(Date.UTC(year, month - 1, day));
 }
